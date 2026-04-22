@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Meesho Lingo 🛍️</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --ink: #0C0A14;
+  --surface: #13111F;
+  --card: #1C1930;
+  --card2: #241F3A;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #EDE8F5;
+  --muted: #8A82A8;
+  --rose: #F0406A;
+  --coral: #FF6B45;
+  --gold: #F5C842;
+  --mint: #35D9A4;
+  --sky: #5B9CF6;
+  --lavender: #A78BFA;
+  --grad1: linear-gradient(135deg,#F0406A,#FF6B45);
+  --grad2: linear-gradient(135deg,#5B9CF6,#A78BFA);
+  --grad3: linear-gradient(135deg,#35D9A4,#5B9CF6);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Cabinet Grotesk',sans-serif;
+  background:var(--ink);color:var(--text);
+  min-height:100vh;overflow-x:hidden;
+}
+/* grain */
+body::after{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23g)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:9999;
+}
+/* ambient glows */
+.glow-orb{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;opacity:0.18;z-index:0;}
+.orb1{width:600px;height:600px;background:var(--rose);top:-200px;right:-200px;}
+.orb2{width:500px;height:500px;background:var(--sky);bottom:-200px;left:-150px;}
+
+/* ── SCREENS ── */
+.screen{display:none;position:relative;z-index:1;flex-direction:column;align-items:center;min-height:100vh;padding:28px 16px 60px;}
+.screen.active{display:flex;}
+
+/* ── BACK BTN ── */
+.back-btn{
+  position:absolute;top:24px;left:20px;
+  background:var(--card2);border:1px solid var(--border2);
+  border-radius:12px;padding:9px 16px;
+  color:var(--muted);font-size:13px;font-weight:600;
+  cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px;
+}
+.back-btn:hover{border-color:var(--rose);color:var(--text);}
+
+/* ── HOME ── */
+.home-wrap{text-align:center;max-width:800px;width:100%;margin-top:40px;}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(240,64,106,0.12);border:1px solid rgba(240,64,106,0.3);
+  border-radius:100px;padding:6px 16px;
+  font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  color:var(--rose);margin-bottom:28px;
+}
+.main-title{
+  font-family:'Clash Display',sans-serif;font-weight:700;
+  font-size:clamp(52px,11vw,96px);line-height:.95;
+  letter-spacing:-2px;margin-bottom:20px;
+}
+.main-title .t1{display:block;color:var(--text);}
+.main-title .t2{
+  display:block;
+  background:var(--grad1);-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;background-clip:text;
+}
+.tagline{color:var(--muted);font-size:17px;line-height:1.6;max-width:480px;margin:0 auto 52px;}
+
+.mode-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;width:100%;margin-bottom:36px;}
+@media(max-width:560px){.mode-grid{grid-template-columns:1fr;}}
+.mode-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:22px;padding:28px 24px;cursor:pointer;
+  transition:all .25s;text-align:left;position:relative;overflow:hidden;
+}
+.mode-card::before{
+  content:'';position:absolute;inset:0;
+  background:var(--card-grad,var(--grad1));opacity:0;transition:opacity .3s;
+}
+.mode-card:hover{transform:translateY(-3px);border-color:rgba(255,255,255,.18);}
+.mode-card:hover::before{opacity:.07;}
+.mode-icon{font-size:32px;margin-bottom:14px;display:block;}
+.mode-name{font-family:'Clash Display',sans-serif;font-weight:600;font-size:19px;margin-bottom:6px;}
+.mode-desc{color:var(--muted);font-size:13.5px;line-height:1.55;}
+.mode-pill{
+  display:inline-block;margin-top:14px;
+  border-radius:100px;padding:4px 12px;font-size:11px;font-weight:700;
+  letter-spacing:.5px;text-transform:uppercase;
+}
+
+.pill-hot{background:rgba(240,64,106,.15);color:var(--rose);}
+.pill-chill{background:rgba(91,156,246,.15);color:var(--sky);}
+.pill-story{background:rgba(255,107,69,.15);color:var(--coral);}
+.pill-speed{background:rgba(53,217,164,.15);color:var(--mint);}
+
+.stats-strip{
+  display:flex;gap:12px;justify-content:center;flex-wrap:wrap;
+}
+.stat-chip{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:100px;padding:10px 20px;
+  font-size:14px;font-weight:500;display:flex;align-items:center;gap:8px;
+}
+.stat-chip .s-icon{font-size:16px;}
+
+/* ── LOGIN MODAL ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.7);
+  display:flex;align-items:center;justify-content:center;
+  z-index:100;backdrop-filter:blur(8px);
+}
+.modal-overlay.hidden{display:none;}
+.modal-box{
+  background:var(--card);border:1px solid var(--border2);
+  border-radius:28px;padding:44px 40px;
+  max-width:420px;width:90%;text-align:center;
+  position:relative;
+}
+.modal-title{font-family:'Clash Display',sans-serif;font-weight:700;font-size:28px;margin-bottom:8px;}
+.modal-sub{color:var(--muted);font-size:14px;margin-bottom:32px;}
+.name-input{
+  width:100%;background:var(--card2);border:2px solid var(--border2);
+  border-radius:14px;padding:16px 18px;
+  color:var(--text);font-family:'Cabinet Grotesk',sans-serif;font-size:16px;
+  outline:none;transition:border .2s;margin-bottom:10px;
+}
+.name-input:focus{border-color:var(--rose);}
+.avatar-grid{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:18px 0 24px;}
+.avatar-btn{
+  width:48px;height:48px;border-radius:14px;border:2px solid var(--border2);
+  font-size:24px;cursor:pointer;background:var(--card2);
+  transition:all .2s;display:flex;align-items:center;justify-content:center;
+}
+.avatar-btn:hover,.avatar-btn.sel{border-color:var(--rose);background:rgba(240,64,106,.1);}
+
+/* ── BUTTONS ── */
+.btn-primary{
+  background:var(--grad1);color:#fff;border:none;
+  border-radius:14px;padding:16px 36px;
+  font-family:'Clash Display',sans-serif;font-weight:600;font-size:16px;
+  cursor:pointer;transition:all .2s;letter-spacing:.3px;
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 40px rgba(240,64,106,.35);}
+.btn-secondary{
+  background:var(--card2);color:var(--text);border:1px solid var(--border2);
+  border-radius:14px;padding:14px 28px;
+  font-family:'Clash Display',sans-serif;font-weight:600;font-size:15px;
+  cursor:pointer;transition:all .2s;
+}
+.btn-secondary:hover{border-color:var(--rose);}
+.btn-icon{
+  width:44px;height:44px;border-radius:12px;
+  background:var(--card2);border:1px solid var(--border2);
+  font-size:18px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .2s;
+}
+.btn-icon:hover{border-color:var(--rose);}
+
+/* ── SCREEN HEADER ── */
+.screen-heading{
+  font-family:'Clash Display',sans-serif;font-weight:700;
+  font-size:30px;margin:52px 0 6px;text-align:center;
+}
+.screen-sub{color:var(--muted);font-size:14px;margin-bottom:32px;text-align:center;}
+
+/* ── CATEGORY SELECT ── */
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:12px;width:100%;max-width:760px;}
+.cat-btn{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:16px;padding:20px 18px;cursor:pointer;
+  transition:all .2s;text-align:left;
+}
+.cat-btn:hover,.cat-btn.sel{border-color:var(--rose);background:var(--card2);}
+.cat-emoji{font-size:26px;margin-bottom:10px;}
+.cat-label{font-family:'Clash Display',sans-serif;font-weight:600;font-size:14px;}
+.cat-count{color:var(--muted);font-size:12px;margin-top:4px;}
+
+/* ── QUIZ ── */
+.quiz-top{
+  width:100%;max-width:700px;
+  display:flex;align-items:center;gap:14px;margin-bottom:24px;
+}
+.pbar-wrap{flex:1;height:5px;background:var(--card2);border-radius:100px;}
+.pbar-fill{height:100%;border-radius:100px;background:var(--grad1);transition:width .4s ease;}
+.quiz-meta{
+  font-family:'Clash Display',sans-serif;font-weight:600;font-size:14px;
+  background:var(--card2);border:1px solid var(--border2);
+  border-radius:100px;padding:7px 16px;white-space:nowrap;
+}
+.q-num{color:var(--muted);font-size:13px;white-space:nowrap;}
+
+.q-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:24px;padding:36px 32px;
+  width:100%;max-width:700px;margin-bottom:18px;
+}
+.q-cat-chip{
+  display:inline-block;font-size:11px;font-weight:700;letter-spacing:1.5px;
+  text-transform:uppercase;padding:4px 12px;border-radius:100px;margin-bottom:18px;
+  background:rgba(240,64,106,.12);color:var(--rose);
+}
+.q-stem{
+  font-family:'Clash Display',sans-serif;font-weight:600;
+  font-size:clamp(18px,3.5vw,24px);line-height:1.35;margin-bottom:6px;
+}
+.q-stem mark{
+  background:rgba(245,200,66,.15);color:var(--gold);
+  padding:2px 6px;border-radius:6px;font-style:normal;
+}
+.q-sub{color:var(--muted);font-size:13px;margin-top:8px;}
+
+.opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:700px;}
+@media(max-width:500px){.opts-grid{grid-template-columns:1fr;}}
+.opt-btn{
+  background:var(--card);border:2px solid var(--border);
+  border-radius:16px;padding:18px 20px;cursor:pointer;
+  color:var(--text);font-size:14px;font-weight:500;
+  text-align:left;line-height:1.5;transition:all .2s;
+  font-family:'Cabinet Grotesk',sans-serif;
+}
+.opt-btn:not(.locked):hover{border-color:rgba(255,255,255,.25);background:var(--card2);}
+.opt-btn.correct{border-color:var(--mint)!important;background:rgba(53,217,164,.1)!important;}
+.opt-btn.wrong{border-color:var(--rose)!important;background:rgba(240,64,106,.1)!important;}
+.opt-btn.locked{cursor:default;}
+
+.fb-box{
+  width:100%;max-width:700px;
+  background:var(--card2);border-radius:16px;padding:20px 24px;
+  border-left:4px solid var(--mint);display:none;margin-top:14px;
+}
+.fb-box.show{display:block;}
+.fb-box.wrong-fb{border-color:var(--rose);}
+.fb-head{font-family:'Clash Display',sans-serif;font-weight:700;font-size:16px;margin-bottom:6px;}
+.fb-body{color:var(--muted);font-size:14px;line-height:1.65;}
+.fb-em{font-size:26px;margin-bottom:8px;}
+
+/* ── FLASHCARDS ── */
+.fc-container{perspective:1200px;width:100%;max-width:600px;height:300px;cursor:pointer;margin-bottom:28px;}
+.fc-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.4,0,.2,1);}
+.fc-container.flipped .fc-inner{transform:rotateY(180deg);}
+.fc-face{
+  position:absolute;inset:0;backface-visibility:hidden;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:24px;padding:36px 32px;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;
+}
+.fc-back{transform:rotateY(180deg);background:var(--card2);}
+.fc-label{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin-bottom:18px;}
+.fc-term{font-family:'Clash Display',sans-serif;font-weight:700;font-size:clamp(30px,8vw,54px);line-height:1;}
+.fc-full{font-size:12px;color:var(--muted);margin-top:8px;}
+.fc-def{font-size:15px;line-height:1.7;}
+.fc-cat-tag{margin-top:16px;font-size:11px;color:var(--muted);background:rgba(255,255,255,.05);padding:4px 12px;border-radius:100px;}
+.fc-tap-hint{font-size:12px;color:var(--muted);margin-top:20px;opacity:.6;}
+
+.fc-controls{display:flex;gap:14px;align-items:center;}
+.fc-count{font-family:'Clash Display',sans-serif;font-weight:700;font-size:18px;}
+.fc-progress{
+  width:120px;height:4px;background:var(--card2);
+  border-radius:100px;overflow:hidden;
+}
+.fc-prog-fill{height:100%;background:var(--grad2);border-radius:100px;transition:width .3s;}
+
+/* ── SCENARIO ── */
+.sc-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:22px;padding:32px;max-width:700px;width:100%;margin-bottom:20px;
+}
+.sc-tag{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--coral);font-weight:700;margin-bottom:16px;}
+.sc-context{
+  background:rgba(255,255,255,.03);border:1px solid var(--border);
+  border-radius:12px;padding:16px 18px;font-size:14px;
+  color:var(--muted);line-height:1.6;margin-bottom:14px;
+  font-style:italic;
+}
+.sc-q{font-size:16px;font-weight:500;line-height:1.6;}
+.sc-blank{
+  display:inline-block;width:120px;height:22px;
+  border-bottom:2px solid var(--rose);margin:0 4px;vertical-align:middle;
+}
+.sc-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:700px;}
+@media(max-width:480px){.sc-opts{grid-template-columns:1fr;}}
+
+/* ── LEADERBOARD ── */
+.lb-wrap{width:100%;max-width:640px;}
+.lb-podium{display:flex;justify-content:center;align-items:flex-end;gap:12px;margin:28px 0 36px;}
+.podium-col{display:flex;flex-direction:column;align-items:center;gap:8px;}
+.podium-avatar{
+  width:56px;height:56px;border-radius:16px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;border:2px solid var(--border2);
+}
+.podium-1 .podium-avatar{
+  width:68px;height:68px;border-radius:20px;font-size:32px;
+  border-color:var(--gold);box-shadow:0 0 24px rgba(245,200,66,.3);
+}
+.podium-2 .podium-avatar{border-color:var(--muted);}
+.podium-3 .podium-avatar{border-color:var(--coral);}
+.podium-name{font-weight:700;font-size:13px;}
+.podium-score{color:var(--muted);font-size:12px;}
+.podium-rank{font-size:20px;}
+.podium-bar{
+  border-radius:10px 10px 0 0;width:80px;
+  background:var(--card2);border:1px solid var(--border);
+}
+.podium-1 .podium-bar{height:90px;background:linear-gradient(180deg,rgba(245,200,66,.25),var(--card2));}
+.podium-2 .podium-bar{height:65px;}
+.podium-3 .podium-bar{height:48px;}
+
+.lb-list{display:flex;flex-direction:column;gap:8px;}
+.lb-row{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;padding:14px 18px;
+  display:flex;align-items:center;gap:14px;
+  transition:all .2s;
+}
+.lb-row.me{border-color:var(--rose);background:rgba(240,64,106,.06);}
+.lb-rank-num{
+  font-family:'Clash Display',sans-serif;font-weight:700;
+  font-size:15px;color:var(--muted);width:28px;text-align:center;flex-shrink:0;
+}
+.lb-av{font-size:22px;flex-shrink:0;}
+.lb-info{flex:1;}
+.lb-uname{font-weight:700;font-size:15px;}
+.lb-details{color:var(--muted);font-size:12px;margin-top:2px;}
+.lb-pts{
+  font-family:'Clash Display',sans-serif;font-weight:700;
+  font-size:16px;color:var(--gold);
+}
+.lb-badge-me{
+  font-size:10px;font-weight:700;letter-spacing:1px;
+  background:rgba(240,64,106,.2);color:var(--rose);
+  padding:2px 8px;border-radius:100px;text-transform:uppercase;
+  margin-left:6px;
+}
+
+/* ── RESULTS ── */
+.res-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:28px;padding:48px 36px;text-align:center;
+  max-width:500px;width:100%;
+}
+.res-em{font-size:64px;margin-bottom:18px;}
+.res-title{font-family:'Clash Display',sans-serif;font-weight:700;font-size:36px;margin-bottom:8px;}
+.res-score{
+  font-family:'Clash Display',sans-serif;font-weight:700;
+  font-size:80px;line-height:1;
+  background:var(--grad1);-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;background-clip:text;
+  margin:12px 0;
+}
+.res-msg{color:var(--muted);font-size:15px;line-height:1.65;margin-bottom:28px;}
+.badges-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:28px;}
+.badge-chip{
+  background:rgba(255,255,255,.06);border-radius:100px;
+  padding:7px 16px;font-size:13px;display:flex;align-items:center;gap:6px;
+}
+.res-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+
+/* ── CONFETTI ── */
+.confetti-wrap{position:fixed;inset:0;pointer-events:none;z-index:9998;}
+.cp{position:absolute;border-radius:3px;animation:fall linear forwards;}
+@keyframes fall{
+  0%{transform:translateY(-30px) rotate(0deg);opacity:1;}
+  100%{transform:translateY(110vh) rotate(800deg);opacity:0;}
+}
+
+/* scrollbar */
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(--ink);}
+::-webkit-scrollbar-thumb{background:var(--card2);border-radius:100px;}
+</style>
+</head>
+<body>
+
+<div class="glow-orb orb1"></div>
+<div class="glow-orb orb2"></div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- LOGIN MODAL -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal-box">
+    <div style="font-size:44px;margin-bottom:12px;">🛍️</div>
+    <div class="modal-title">Welcome to<br>Meesho Lingo</div>
+    <div class="modal-sub">Enter your name to track your score on the leaderboard</div>
+    <input class="name-input" id="nameInput" placeholder="Your name..." maxlength="20" onkeydown="if(event.key==='Enter')startLogin()"/>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:6px;">Pick your avatar</div>
+    <div class="avatar-grid" id="avatarGrid"></div>
+    <button class="btn-primary" onclick="startLogin()" style="width:100%;">Start Playing →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- HOME -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="screen active" id="homeScreen">
+  <div class="home-wrap">
+    <div class="eyebrow">🛍️ &nbsp;Meesho Lingo &nbsp;v2</div>
+    <h1 class="main-title">
+      <span class="t1">Speak</span>
+      <span class="t2">Meesho</span>
+    </h1>
+    <p class="tagline">Master every metric, acronym, and KRA that powers India's fastest-growing e-commerce platform.</p>
+
+    <div class="mode-grid">
+      <div class="mode-card" onclick="startMode('quiz')" style="--card-grad:var(--grad1)">
+        <span class="mode-icon">🎯</span>
+        <div class="mode-name">Quick Quiz</div>
+        <div class="mode-desc">Multiple-choice questions with clever distractors. Real Meesho context, zero spoon-feeding.</div>
+        <div class="mode-pill pill-hot">🔥 Most Popular</div>
+      </div>
+      <div class="mode-card" onclick="startMode('flashcards')" style="--card-grad:var(--grad2)">
+        <span class="mode-icon">🃏</span>
+        <div class="mode-name">Flashcards</div>
+        <div class="mode-desc">Flip-to-reveal cards across all categories. Great for first-time learners or refreshing before a review.</div>
+        <div class="mode-pill pill-chill">📚 Learn Mode</div>
+      </div>
+      <div class="mode-card" onclick="startMode('scenario')" style="--card-grad:var(--grad1)">
+        <span class="mode-icon">💬</span>
+        <div class="mode-name">Real Talk</div>
+        <div class="mode-desc">Decode terms hidden inside real Meesho Slack messages, reviews and meeting notes.</div>
+        <div class="mode-pill pill-story">🎭 Scenario Mode</div>
+      </div>
+      <div class="mode-card" onclick="startMode('speedrun')" style="--card-grad:var(--grad3)">
+        <span class="mode-icon">⚡</span>
+        <div class="mode-name">Speed Run</div>
+        <div class="mode-desc">10 rapid-fire questions, no second chances. Climb the leaderboard with a flawless run.</div>
+        <div class="mode-pill pill-speed">⏱️ Timed Mode</div>
+      </div>
+    </div>
+
+    <div class="stats-strip">
+      <div class="stat-chip"><span class="s-icon">📝</span><span id="statTerms">--</span> terms</div>
+      <div class="stat-chip"><span class="s-icon">🏆</span> <span id="statHigh">0</span> personal best</div>
+      <div class="stat-chip"><span class="s-icon">👥</span> <a href="#" onclick="goLeaderboard();return false;" style="color:var(--text);text-decoration:none;">View Leaderboard</a></div>
+      <div class="stat-chip"><span class="s-icon">👤</span> <span id="statUser">Guest</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- CATEGORY SELECT -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="screen" id="categoryScreen">
+  <button class="back-btn" onclick="goHome()">← Back</button>
+  <div class="screen-heading">Pick a Category</div>
+  <div class="screen-sub">Or go wide with All Categories for maximum challenge</div>
+  <div class="cat-grid" id="catGrid"></div>
+  <br/>
+  <button class="btn-primary" onclick="startSelectedCategory()" style="margin-top:12px;">Let's Go →</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- QUIZ -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="screen" id="quizScreen">
+  <button class="back-btn" onclick="goHome()">✕ Quit</button>
+  <div class="quiz-top">
+    <span class="q-num" id="qNum">1 / 10</span>
+    <div class="pbar-wrap"><div class="pbar-fill" id="pbarFill" style="width:10%"></div></div>
+    <div class="quiz-meta">⭐ <span id="liveSc">0</span></div>
+  </div>
+  <div class="q-card">
+    <div class="q-cat-chip" id="qCatChip">Metrics</div>
+    <div class="q-stem" id="qStem">Question</div>
+    <div class="q-sub" id="qSub"></div>
+  </div>
+  <div class="opts-grid" id="optsGrid"></div>
+  <div class="fb-box" id="fbBox">
+    <div class="fb-em" id="fbEm">✅</div>
+    <div class="fb-head" id="fbHead">Correct!</div>
+    <div class="fb-body" id="fbBody"></div>
+  </div>
+  <div style="margin-top:18px;display:flex;gap:12px;">
+    <button class="btn-primary" id="nextBtn" onclick="nextQuestion()" style="display:none;">Next →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- FLASHCARDS -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="screen" id="flashcardScreen">
+  <button class="back-btn" onclick="goHome()">← Back</button>
+  <div class="screen-heading">Flashcards</div>
+  <div class="screen-sub">Tap to flip · Arrow keys or buttons to navigate</div>
+  <div class="fc-container" id="fcWrap" onclick="flipCard()">
+    <div class="fc-inner">
+      <div class="fc-face">
+        <div class="fc-label">Term</div>
+        <div class="fc-term" id="fcTerm">GMV</div>
+        <div class="fc-full" id="fcFull"></div>
+        <div class="fc-tap-hint">👆 tap to reveal</div>
+      </div>
+      <div class="fc-face fc-back">
+        <div class="fc-label">Definition</div>
+        <div class="fc-def" id="fcDef">Definition</div>
+        <div class="fc-cat-tag" id="fcCat">Category</div>
+      </div>
+    </div>
+  </div>
+  <div class="fc-controls">
+    <button class="btn-icon" onclick="prevCard()">←</button>
+    <div>
+      <div class="fc-count"><span id="fcCur">1</span> / <span id="fcTot">1</span></div>
+      <div class="fc-progress" style="margin-top:6px;"><div class="fc-prog-fill" id="fcProgFill" style="width:0%"></div></div>
+    </div>
+    <button class="btn-icon" onclick="nextCard()">→</button>
+  </div>
+  <div style="display:flex;gap:12px;margin-top:20px;flex-wrap:wrap;justify-content:center;">
+    <button class="btn-secondary" onclick="shuffleDeck()">🔀 Shuffle</button>
+    <button class="btn-secondary" onclick="filterByCategory()">🗂 By Category</button>
+    <button class="btn-secondary" onclick="startMode('quiz')">🎯 Quiz Me</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SCENARIO -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="screen" id="scenarioScreen">
+  <button class="back-btn" onclick="goHome()">← Back</button>
+  <div class="screen-heading">Real Talk</div>
+  <div class="screen-sub">Read the conversation. Pick the right Meesho term.</div>
+  <div class="sc-card">
+    <div class="sc-tag" id="scTag">📧 Slack · #growth-metrics</div>
+    <div class="sc-context" id="scCtx"></div>
+    <div class="sc-q" id="scQ"></div>
+  </div>
+  <div class="sc-opts" id="scOpts"></div>
+  <div class="fb-box" id="scFb" style="max-width:700px;width:100%;margin-top:14px;">
+    <div class="fb-em" id="scFbEm">✅</div>
+    <div class="fb-head" id="scFbHead">Correct!</div>
+    <div class="fb-body" id="scFbBody"></div>
+  </div>
+  <button class="btn-primary" id="scNextBtn" onclick="nextScenario()" style="display:none;margin-top:18px;">Next Scenario →</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- LEADERBOARD -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="screen" id="leaderboardScreen">
+  <button class="back-btn" onclick="goHome()">← Back</button>
+  <div class="screen-heading">🏆 Leaderboard</div>
+  <div class="screen-sub">Top Meesho Lingo players this session</div>
+  <div class="lb-wrap">
+    <div class="lb-podium" id="lbPodium"></div>
+    <div class="lb-list" id="lbList"></div>
+  </div>
+  <div style="margin-top:28px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+    <button class="btn-primary" onclick="goHome()">Play Again</button>
+    <button class="btn-secondary" onclick="clearLeaderboard()">🗑 Reset Board</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- RESULTS -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="screen" id="resultsScreen">
+  <div class="res-card">
+    <div class="res-em" id="resEm">🎉</div>
+    <div class="res-title" id="resTitle">Well Done!</div>
+    <div style="color:var(--muted);font-size:13px;">Your score</div>
+    <div class="res-score" id="resSc">8/10</div>
+    <div class="res-msg" id="resMsg">You're getting the hang of Meesho Lingo!</div>
+    <div class="badges-row" id="ressBadges"></div>
+    <div class="res-btns">
+      <button class="btn-primary" onclick="goHome()">🏠 Home</button>
+      <button class="btn-secondary" onclick="restartQuiz()">🔄 Try Again</button>
+      <button class="btn-secondary" onclick="goLeaderboard()">🏆 Leaderboard</button>
+    </div>
+  </div>
+</div>
+
+<div class="confetti-wrap" id="confettiWrap"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// ALL TERMS — Sheet 1 + Sheet 2 combined
+// ═══════════════════════════════════════════════════════════
+const ALL_TERMS = [
+  // ── GROWTH & BUSINESS METRICS ──
+  {t:"GMV",full:"Gross Merchandise Value",def:"Total value of all orders placed on Meesho before returns or cancellations — the headline scale metric.",cat:"📈 Growth Metrics",lvl:"beginner"},
+  {t:"NMV",full:"Net Merchandise Value",def:"GMV minus cancellations and returns — the actual value of successfully delivered orders.",cat:"📈 Growth Metrics",lvl:"beginner"},
+  {t:"AOV",full:"Average Order Value",def:"Total GMV divided by total orders. Higher AOV means customers are spending more per trip.",cat:"📈 Growth Metrics",lvl:"beginner"},
+  {t:"ASP",full:"Average Selling Price",def:"Average price at which a product or category sells. Different from AOV — ASP is per unit, AOV per basket.",cat:"📈 Growth Metrics",lvl:"beginner"},
+  {t:"MAU",full:"Monthly Active Users",def:"Unique users who engage meaningfully with the Meesho app in a calendar month.",cat:"📈 Growth Metrics",lvl:"beginner"},
+  {t:"DAU",full:"Daily Active Users",def:"Unique users engaging with the Meesho app on a given day. DAU/MAU ratio signals stickiness.",cat:"📈 Growth Metrics",lvl:"intermediate"},
+  {t:"WAU",full:"Weekly Active Users",def:"Unique users active on the platform in a given week — a mid-frequency health signal between DAU and MAU.",cat:"📈 Growth Metrics",lvl:"intermediate"},
+  {t:"MTU",full:"Monthly Transacting Users",def:"Users who complete at least one purchase in a month. The north star for Meesho's growth.",cat:"📈 Growth Metrics",lvl:"beginner"},
+  {t:"CAC",full:"Customer Acquisition Cost",def:"Total spend to acquire a new customer. Lower CAC with high LTV = sustainable growth engine.",cat:"📈 Growth Metrics",lvl:"intermediate"},
+  {t:"F-CAC",full:"Female Customer Acquisition Cost",def:"CAC specifically for female customers — important for tracking gender-specific growth efficiency.",cat:"📈 Growth Metrics",lvl:"advanced"},
+  {t:"LTV",full:"Lifetime Value",def:"Predicted total revenue a customer generates over their entire relationship with Meesho.",cat:"📈 Growth Metrics",lvl:"intermediate"},
+  {t:"OA",full:"Order Activation",def:"A customer reaching their Nth order milestone — signals habit formation. 1OA = 1st order, 3OA = 3rd order.",cat:"📈 Growth Metrics",lvl:"beginner"},
+  {t:"30OA",full:"30 Orders Activation",def:"A customer who has placed 30 orders — a strong signal of deep habit and loyalty.",cat:"📈 Growth Metrics",lvl:"advanced"},
+  {t:"O5M4",full:"5 Orders in 4 Months",def:"The habit formation benchmark — customers who achieve 5 orders in 4 months have a much higher LTV.",cat:"📈 Growth Metrics",lvl:"advanced"},
+  {t:"Repeat Rate",full:"Repeat Purchase Rate",def:"% of buyers who make more than one purchase. High repeat rate signals product-market fit and trust.",cat:"📈 Growth Metrics",lvl:"beginner"},
+  {t:"MoM",full:"Month on Month",def:"Percentage change in a metric from one month to the next — standard growth comparison unit.",cat:"📈 Growth Metrics",lvl:"beginner"},
+  {t:"WoW",full:"Week on Week",def:"Percentage change in a metric from one week to the next. Used in WBR and daily tracking.",cat:"📈 Growth Metrics",lvl:"beginner"},
+  {t:"DoD",full:"Day on Day",def:"Change in a metric from one day to the next — used for fast-moving ops or campaign monitoring.",cat:"📈 Growth Metrics",lvl:"beginner"},
+  {t:"TAM",full:"Total Addressable Market",def:"The total market opportunity available if Meesho achieved 100% market share — used in strategic sizing.",cat:"📈 Growth Metrics",lvl:"intermediate"},
+  {t:"GC",full:"GMV Contribution",def:"The % of total GMV contributed by a specific category, supplier, or cohort.",cat:"📈 Growth Metrics",lvl:"intermediate"},
+  {t:"OC",full:"Order Contribution",def:"% of total orders from a specific category. oc/vc/gc are tracked together to understand category health.",cat:"📈 Growth Metrics",lvl:"intermediate"},
+  {t:"VC",full:"View Contribution",def:"% of total views driven by a category — compared against OC and GC to spot conversion efficiency gaps.",cat:"📈 Growth Metrics",lvl:"intermediate"},
+  {t:"SoW",full:"Share of Wallet",def:"The fraction of a customer's total e-commerce spend that goes to Meesho.",cat:"📈 Growth Metrics",lvl:"advanced"},
+  {t:"G/R",full:"GMV per Reseller",def:"Total GMV divided by number of active resellers — measures reseller productivity.",cat:"📈 Growth Metrics",lvl:"intermediate"},
+  {t:"UPD",full:"Unified Pricing Depth",def:"A measure of how deep Meesho's price advantage goes across a category vs. competitors.",cat:"📈 Growth Metrics",lvl:"advanced"},
+  {t:"UPS",full:"Unified Pricing Score",def:"The % of matched products where Meesho is priced higher than competitors (lower is better — aim for <20).",cat:"📈 Growth Metrics",lvl:"advanced"},
+
+  // ── SUPPLY & CATALOGUE ──
+  {t:"SKU",full:"Stock Keeping Unit",def:"A unique ID for each product variant — one dress in 3 colors = 3 SKUs.",cat:"🏭 Supply & Catalogue",lvl:"beginner"},
+  {t:"OOS",full:"Out of Stock",def:"Products listed but with no available inventory. High OOS directly hurts GMV and buyer experience.",cat:"🏭 Supply & Catalogue",lvl:"beginner"},
+  {t:"SLA",full:"Service Level Agreement",def:"Committed turnaround time — e.g., dispatch within 3 days, CS resolve within 24h.",cat:"🏭 Supply & Catalogue",lvl:"beginner"},
+  {t:"CID",full:"Catalog Identification Number",def:"A unique numeric identifier assigned to every catalog on the Meesho platform.",cat:"🏭 Supply & Catalogue",lvl:"intermediate"},
+  {t:"PID",full:"Product ID",def:"Unique identifier for an individual product (more granular than CID — a catalog can have multiple PIDs).",cat:"🏭 Supply & Catalogue",lvl:"intermediate"},
+  {t:"SID",full:"Supplier Identifier",def:"Unique ID assigned to each supplier on the platform. Used in all supply-side reporting.",cat:"🏭 Supply & Catalogue",lvl:"intermediate"},
+  {t:"C/S",full:"Catalogs per Supplier",def:"Average number of catalogs uploaded per supplier — a signal of supplier variety and engagement.",cat:"🏭 Supply & Catalogue",lvl:"intermediate"},
+  {t:"SoL",full:"Share of Listings",def:"A supplier's or category's share of total active product listings on the platform.",cat:"🏭 Supply & Catalogue",lvl:"advanced"},
+  {t:"LQS",full:"Listing Quality Score",def:"A composite score for how complete, accurate, and appealing a product listing is — images, title, attributes.",cat:"🏭 Supply & Catalogue",lvl:"intermediate"},
+  {t:"FBM",full:"Fulfilled By Meesho",def:"Supplier inventory stored in Meesho's warehouses for faster fulfillment — Meesho handles shipping.",cat:"🏭 Supply & Catalogue",lvl:"beginner"},
+  {t:"CT-QCT",full:"Conversion Testing – Quality Control Testing",def:"Shows a new catalog to a small audience before going live, to rank its likely performance and quality.",cat:"🏭 Supply & Catalogue",lvl:"advanced"},
+  {t:"SSR",full:"Self Serve Registration Flow",def:"The onboarding flow that allows new sellers to register on Meesho without manual support.",cat:"🏭 Supply & Catalogue",lvl:"intermediate"},
+  {t:"PSM",full:"Product Supplier Map",def:"The internal mapping of products to their suppliers — used for routing, returns, and quality attribution.",cat:"🏭 Supply & Catalogue",lvl:"advanced"},
+  {t:"NPS (Supplier)",full:"Supplier Net Promoter Score",def:"How likely are suppliers to recommend Meesho to other sellers? A key health indicator for supply.",cat:"🏭 Supply & Catalogue",lvl:"intermediate"},
+  {t:"SSCAT",full:"Sub Sub Category",def:"The most granular product classification on Meesho — 3 levels: category → sub-category → sub-sub-category.",cat:"🏭 Supply & Catalogue",lvl:"beginner"},
+  {t:"WDRP",full:"Wrong/Defective Returns Only Price",def:"An unbundled returns price suppliers set specifically for wrong or defective items — separate from standard price.",cat:"🏭 Supply & Catalogue",lvl:"advanced"},
+  {t:"SC",full:"Supplier Cancellation",def:"An order cancelled by the supplier before dispatch — tracked as a supply reliability metric.",cat:"🏭 Supply & Catalogue",lvl:"intermediate"},
+  {t:"MOV",full:"Minimum Order Value",def:"The lowest cart value at which Meesho allows an order to be placed.",cat:"🏭 Supply & Catalogue",lvl:"beginner"},
+
+  // ── LOGISTICS & OPS ──
+  {t:"NDR",full:"Non-Delivery Report",def:"Raised when a delivery attempt fails — customer unavailable, wrong address, refused. High NDR leads to RTO.",cat:"🚚 Logistics & Ops",lvl:"intermediate"},
+  {t:"RTO",full:"Return to Origin",def:"A shipment that fails delivery and is sent back to the supplier. High RTO crushes supplier economics.",cat:"🚚 Logistics & Ops",lvl:"intermediate"},
+  {t:"NPR",full:"Non Picked-up Report",def:"When the logistics partner fails to pick up a shipment from the supplier on time.",cat:"🚚 Logistics & Ops",lvl:"intermediate"},
+  {t:"COD",full:"Cash on Delivery",def:"Payment collected at the doorstep. Dominant mode in India — high COD share usually correlates with higher RTO.",cat:"🚚 Logistics & Ops",lvl:"beginner"},
+  {t:"PP",full:"Prepaid",def:"Orders paid upfront via UPI/cards. Lower RTO risk than COD — a healthier payment mix signal.",cat:"🚚 Logistics & Ops",lvl:"beginner"},
+  {t:"TAT",full:"Turnaround Time",def:"Time to complete a process end-to-end — dispatch TAT, CS resolution TAT, refund TAT all tracked separately.",cat:"🚚 Logistics & Ops",lvl:"beginner"},
+  {t:"OTIF",full:"On Time In Full",def:"Orders delivered on time with all items correct. A composite logistics excellence metric.",cat:"🚚 Logistics & Ops",lvl:"intermediate"},
+  {t:"3PL",full:"Third-Party Logistics",def:"External providers (Delhivery, Ecom Express, XpressBees) that handle last-mile delivery for Meesho.",cat:"🚚 Logistics & Ops",lvl:"beginner"},
+  {t:"ADD",full:"Actual Delivery Date",def:"The date a shipment was actually delivered to the customer — compared against CPD/PDD to measure adherence.",cat:"🚚 Logistics & Ops",lvl:"intermediate"},
+  {t:"EDD",full:"Expected Dispatch Date",def:"The date by which a supplier is expected to dispatch an order — SLA compliance is measured against this.",cat:"🚚 Logistics & Ops",lvl:"intermediate"},
+  {t:"CPD",full:"Customer Promise Date",def:"The delivery date promised to the customer at checkout. Missing CPD hurts CSAT and trust.",cat:"🚚 Logistics & Ops",lvl:"intermediate"},
+  {t:"PDD",full:"Promised Delivery Date",def:"Similar to CPD — the commitment made to a buyer for when their order will arrive.",cat:"🚚 Logistics & Ops",lvl:"intermediate"},
+  {t:"OFD",full:"Out for Delivery",def:"Status when a shipment has left the hub and is on its way to the customer for the final leg.",cat:"🚚 Logistics & Ops",lvl:"beginner"},
+  {t:"FAD",full:"First Attempt Delivery",def:"A shipment delivered successfully on the very first try — a gold standard ops metric.",cat:"🚚 Logistics & Ops",lvl:"intermediate"},
+  {t:"O2D",full:"Order to Delivery Time",def:"End-to-end time from order placement to the package reaching the customer's hands.",cat:"🚚 Logistics & Ops",lvl:"beginner"},
+  {t:"O2S",full:"Order to Shipping Time",def:"Time between order placement and when the 3PL scans and accepts the package for transit.",cat:"🚚 Logistics & Ops",lvl:"intermediate"},
+  {t:"S2D",full:"Ship to Delivered",def:"Time between supplier dispatch and final delivery — the 3PL's accountability window.",cat:"🚚 Logistics & Ops",lvl:"intermediate"},
+  {t:"LDR",full:"Late Dispatch Rate",def:"% of orders dispatched after the committed EDD. High LDR is a supplier compliance red flag.",cat:"🚚 Logistics & Ops",lvl:"intermediate"},
+  {t:"M2S",full:"Manifest to Ship",def:"Time between a supplier creating a manifest (packaging list) and the 3PL collecting the parcel.",cat:"🚚 Logistics & Ops",lvl:"advanced"},
+  {t:"NDD",full:"Next Day Dispatch",def:"A commitment by the supplier to dispatch the order the day after it was placed.",cat:"🚚 Logistics & Ops",lvl:"intermediate"},
+  {t:"RVP",full:"Reverse Pickup",def:"Post-delivery return pickup — when a 3PL collects a returned item from the customer.",cat:"🚚 Logistics & Ops",lvl:"intermediate"},
+  {t:"RPC",full:"Return Processing Centre",def:"Warehouse where returned items undergo quality checks and are relisted or disposed of.",cat:"🚚 Logistics & Ops",lvl:"intermediate"},
+  {t:"AWB",full:"Airway Bill",def:"The unique tracking number a 3PL assigns to a courier parcel — the backbone of shipment tracking.",cat:"🚚 Logistics & Ops",lvl:"beginner"},
+  {t:"POD",full:"Proof of Delivery",def:"Digital or physical confirmation that a shipment was delivered — photo, OTP, or signature.",cat:"🚚 Logistics & Ops",lvl:"beginner"},
+  {t:"FTL",full:"Full Truck Load",def:"A logistics shipment that fills an entire truck — more cost-efficient than PTL for high-volume lanes.",cat:"🚚 Logistics & Ops",lvl:"intermediate"},
+  {t:"PTL",full:"Part Truck Load",def:"Partial truck load — used for smaller shipments that don't fill a full truck.",cat:"🚚 Logistics & Ops",lvl:"intermediate"},
+  {t:"DC",full:"Distribution Centre",def:"Facility where items are collected from suppliers, sorted, and dispatched to last-mile hubs.",cat:"🚚 Logistics & Ops",lvl:"beginner"},
+  {t:"WMS",full:"Warehouse Management System",def:"Software managing inventory, picking, packing, and shipping operations inside a warehouse.",cat:"🚚 Logistics & Ops",lvl:"intermediate"},
+  {t:"Line-haul",full:"Line-haul",def:"Logistics movement between source and destination distribution centres — typically inter-city.",cat:"🚚 Logistics & Ops",lvl:"intermediate"},
+  {t:"First Mile",full:"First Mile",def:"Logistics from supplier to Meesho's pickup or DC — the first leg of the delivery chain.",cat:"🚚 Logistics & Ops",lvl:"intermediate"},
+  {t:"Last Mile",full:"Last Mile",def:"Final delivery from the hub to the customer's doorstep — most expensive and complex part.",cat:"🚚 Logistics & Ops",lvl:"beginner"},
+  {t:"Zone (a-e)",full:"Zone Classification",def:"Codification of distance between supply and demand centres into zones A-E — affects logistics pricing and TAT.",cat:"🚚 Logistics & Ops",lvl:"advanced"},
+
+  // ── PRODUCT & TECH ──
+  {t:"OKR",full:"Objectives & Key Results",def:"Goal framework: ambitious Objective + measurable Key Results. All team bets should flow from OKRs.",cat:"💻 Product & Tech",lvl:"beginner"},
+  {t:"KRA",full:"Key Result Area",def:"The specific area of work on which an individual's performance is measured — broader than a KPI.",cat:"💻 Product & Tech",lvl:"beginner"},
+  {t:"KPI",full:"Key Performance Indicator",def:"A measurable metric used to track progress against a KRA or OKR goal.",cat:"💻 Product & Tech",lvl:"beginner"},
+  {t:"PRD",full:"Product Requirement Document",def:"Defines what a feature does, why it exists, and how success is measured — the source of truth for engineers.",cat:"💻 Product & Tech",lvl:"intermediate"},
+  {t:"PFS",full:"Problem First Session",def:"Meesho meeting format used to do root cause analysis before committing to OKRs. No PFS = no OKR.",cat:"💻 Product & Tech",lvl:"intermediate"},
+  {t:"WS",full:"Working Session",def:"Meesho meeting format used for collaborative brainstorming and solutioning.",cat:"💻 Product & Tech",lvl:"beginner"},
+  {t:"Reflections",full:"Reflections",def:"Post-project Meesho retrospective — done after completion to identify learnings and improvement areas.",cat:"💻 Product & Tech",lvl:"beginner"},
+  {t:"Sprint",full:"Sprint",def:"Fixed 2-week agile work cycle where a team commits to delivering specific features or fixes.",cat:"💻 Product & Tech",lvl:"beginner"},
+  {t:"A/B Test",full:"A/B Testing",def:"Running two variants of a feature or UI simultaneously to identify which performs better with real users.",cat:"💻 Product & Tech",lvl:"beginner"},
+  {t:"CTR",full:"Click-Through Rate",def:"% of users who click on a listing, banner, or notification after seeing it.",cat:"💻 Product & Tech",lvl:"beginner"},
+  {t:"ATC",full:"Add to Cart",def:"User action of adding a product to their shopping cart — a key mid-funnel conversion signal.",cat:"💻 Product & Tech",lvl:"beginner"},
+  {t:"DTB",full:"Decision to Buy",def:"The moment in the user journey when intent crystallises — tracked to understand funnel inflection points.",cat:"💻 Product & Tech",lvl:"intermediate"},
+  {t:"PDP",full:"Product Description Page",def:"The product detail page where a customer views images, reviews, and pricing before buying.",cat:"💻 Product & Tech",lvl:"beginner"},
+  {t:"PLP",full:"Product Listing Page",def:"The grid of products shown in search results or category browsing — primary discovery surface.",cat:"💻 Product & Tech",lvl:"beginner"},
+  {t:"CLP",full:"Catalog Listing Page",def:"Page that displays all product variants within a single catalog — step between PLP and PDP.",cat:"💻 Product & Tech",lvl:"intermediate"},
+  {t:"SEO",full:"Search Engine Optimisation",def:"Improving content and structure so Meesho products and pages rank higher on Google and other engines.",cat:"💻 Product & Tech",lvl:"beginner"},
+  {t:"SERP",full:"Search Engine Result Page",def:"The page of results shown by a search engine in response to a query.",cat:"💻 Product & Tech",lvl:"intermediate"},
+  {t:"nDCG",full:"Normalised Discounted Cumulative Gain",def:"Relevance score for search — measures how well search results are ranked by actual buyer intent.",cat:"💻 Product & Tech",lvl:"advanced"},
+  {t:"P0/P1/P2",full:"Priority Levels",def:"Incident severity: P0 = platform down (all hands), P1 = critical feature broken, P2 = important but stable.",cat:"💻 Product & Tech",lvl:"intermediate"},
+  {t:"CI/CD",full:"Continuous Integration / Continuous Delivery",def:"Automation pipeline that lets teams merge, test, and deploy code continuously and reliably.",cat:"💻 Product & Tech",lvl:"advanced"},
+  {t:"RCA",full:"Root Cause Analysis",def:"Structured investigation to find the underlying reason for a problem — standard in Meesho's PFS meetings.",cat:"💻 Product & Tech",lvl:"intermediate"},
+  {t:"SRE",full:"Site Reliability Engineering",def:"Team responsible for deployment, monitoring, latency, and uptime of all production services.",cat:"💻 Product & Tech",lvl:"advanced"},
+  {t:"RPS",full:"Requests per Second",def:"Load metric for backend services — used to determine capacity and detect traffic anomalies.",cat:"💻 Product & Tech",lvl:"advanced"},
+  {t:"IOP",full:"Inference Orchestration Pipeline",def:"The ML infrastructure pipeline that orchestrates model inference at scale across Meesho's systems.",cat:"💻 Product & Tech",lvl:"advanced"},
+  {t:"CMS",full:"Content Management System",def:"Tool for creating, managing, and updating digital content like banners, feeds, and landing pages.",cat:"💻 Product & Tech",lvl:"beginner"},
+  {t:"Deeplinks",full:"Deeplinks",def:"Links that send users directly to a specific in-app screen rather than the home page.",cat:"💻 Product & Tech",lvl:"intermediate"},
+  {t:"PN",full:"Push Notification",def:"App notification sent to a user's device — used for re-engagement, offers, and order updates.",cat:"💻 Product & Tech",lvl:"beginner"},
+  {t:"North Star Metric",full:"North Star Metric",def:"The single most important metric — Meesho's is Monthly Transacting Users (MTU).",cat:"💻 Product & Tech",lvl:"intermediate"},
+  {t:"V2S",full:"Vision to Strategy",def:"Internal planning framework for converting long-term vision into executable quarterly strategy.",cat:"💻 Product & Tech",lvl:"advanced"},
+  {t:"C/S/E",full:"Conceptualisation, Solutioning, Execution",def:"Three OKR phases at Meesho — defines which stage of a problem a team is tackling.",cat:"💻 Product & Tech",lvl:"intermediate"},
+
+  // ── CUSTOMER & QUALITY ──
+  {t:"NPS",full:"Net Promoter Score",def:"Promoters % minus Detractors % from a 0-10 recommendation survey. Tracks platform advocacy.",cat:"⭐ Customer & Quality",lvl:"beginner"},
+  {t:"CSAT",full:"Customer Satisfaction Score",def:"Post-interaction 1-5 survey. Used for delivery, CS, and product quality touchpoints.",cat:"⭐ Customer & Quality",lvl:"beginner"},
+  {t:"FCR",full:"First Contact Resolution",def:"% of customer issues resolved in one interaction — higher FCR = more efficient CS.",cat:"⭐ Customer & Quality",lvl:"intermediate"},
+  {t:"AHT",full:"Average Handle Time",def:"Average time a CS agent spends on a customer interaction. Lower AHT + high FCR = CS efficiency.",cat:"⭐ Customer & Quality",lvl:"intermediate"},
+  {t:"NQD",full:"Net Quality Detractors",def:"Proportion of 1-2 star ratings out of total ratings. Lower is better — drives product conversion.",cat:"⭐ Customer & Quality",lvl:"advanced"},
+  {t:"QDS",full:"Quality Detraction Score",def:"NQD × Product Quality factor — a composite quality signal used to penalise or delist poor products.",cat:"⭐ Customer & Quality",lvl:"advanced"},
+  {t:"PQ",full:"Product Quality Factor",def:"(1-or-2-star quality ratings) / (total ratings with quality L1) — inputs into QDS.",cat:"⭐ Customer & Quality",lvl:"advanced"},
+  {t:"Churn Rate",full:"Churn Rate",def:"% of active buyers who stop purchasing over a given period. Keeping churn low is critical.",cat:"⭐ Customer & Quality",lvl:"intermediate"},
+  {t:"Cohort Analysis",full:"Cohort Analysis",def:"Tracking users who joined at the same time to see how behaviour evolves over months.",cat:"⭐ Customer & Quality",lvl:"advanced"},
+  {t:"Winback Rate",full:"Winback Rate",def:"% of churned users who return to place an order after a reactivation campaign.",cat:"⭐ Customer & Quality",lvl:"advanced"},
+  {t:"MX R%",full:"Month X Retention %",def:"The % of users from a given cohort still transacting in month X (M1, M2, M3…). Core retention metric.",cat:"⭐ Customer & Quality",lvl:"intermediate"},
+  {t:"TOM/TOMA",full:"Top of Mind Awareness",def:"When a brand is the first a customer thinks of in a category — tracked via consumer surveys.",cat:"⭐ Customer & Quality",lvl:"intermediate"},
+  {t:"WFR",full:"Wrong Fulfillment Return",def:"Return initiated because the wrong item was delivered — a supply quality failure.",cat:"⭐ Customer & Quality",lvl:"intermediate"},
+  {t:"WPR",full:"Wrong Product Return",def:"Return because the product doesn't match its listing description — a catalogue quality failure.",cat:"⭐ Customer & Quality",lvl:"intermediate"},
+  {t:"QR",full:"Quality Returns",def:"Returns attributed to product quality issues — tracked as a supplier performance metric.",cat:"⭐ Customer & Quality",lvl:"intermediate"},
+  {t:"ODNR",full:"Orders Delivered Not Returned",def:"Orders successfully delivered and kept by the customer. High ODNR = strong order quality.",cat:"⭐ Customer & Quality",lvl:"intermediate"},
+  {t:"ER",full:"Easy Returns",def:"Meesho's simplified returns product — reduces friction and improves post-purchase trust.",cat:"⭐ Customer & Quality",lvl:"beginner"},
+  {t:"PRP",full:"Premium Return Policy",def:"A higher-tier return policy offering broader coverage — used as a trust signal for hesitant buyers.",cat:"⭐ Customer & Quality",lvl:"intermediate"},
+
+  // ── FINANCE & UNIT ECONOMICS ──
+  {t:"CM",full:"Contribution Margin",def:"Revenue minus direct variable costs — the profitability metric after covering cost of goods and logistics.",cat:"💰 Finance & Unit Economics",lvl:"intermediate"},
+  {t:"CM2",full:"Contribution Margin 2",def:"CM before deducting infrastructure, salaries, and brand spends — an intermediate profitability view.",cat:"💰 Finance & Unit Economics",lvl:"advanced"},
+  {t:"CPO",full:"Cost per Order",def:"Total operational cost to fulfill a single order — includes logistics, CS, and payment gateway costs.",cat:"💰 Finance & Unit Economics",lvl:"intermediate"},
+  {t:"CPS",full:"Cost per Shipment",def:"Total logistics cost for one shipment — used to benchmark 3PL efficiency.",cat:"💰 Finance & Unit Economics",lvl:"intermediate"},
+  {t:"CPSO",full:"Cost per Suborder",def:"Fulfillment cost at the suborder level — used when a single order has items from multiple suppliers.",cat:"💰 Finance & Unit Economics",lvl:"advanced"},
+  {t:"CPC",full:"Cost per Click",def:"Amount spent per click in paid ads — used to measure efficiency of performance marketing.",cat:"💰 Finance & Unit Economics",lvl:"beginner"},
+  {t:"CPR",full:"Cost per Rating Point",def:"Marketing spend per unit of brand rating improvement — used in brand health campaigns.",cat:"💰 Finance & Unit Economics",lvl:"advanced"},
+  {t:"MDR",full:"Merchant Discount Rate",def:"Fee charged by payment gateways as a % of transaction value — a cost input for prepaid orders.",cat:"💰 Finance & Unit Economics",lvl:"advanced"},
+  {t:"N/G",full:"NMV/GMV Ratio",def:"The proportion of GMV that was actually delivered — accounts for cancellations and returns.",cat:"💰 Finance & Unit Economics",lvl:"intermediate"},
+  {t:"FOD",full:"First Order Discount",def:"Discount offered to a new customer on their first purchase — a CAC lever.",cat:"💰 Finance & Unit Economics",lvl:"beginner"},
+  {t:"NOD",full:"Nth Order Discount",def:"Discount triggered at a specific order milestone (e.g., 3rd order) — used for habit formation.",cat:"💰 Finance & Unit Economics",lvl:"intermediate"},
+  {t:"P70/P50/P40",full:"Price Percentile",def:"Selling price at which the 70th/50th/40th percentile of orders are placed — used for pricing strategy.",cat:"💰 Finance & Unit Economics",lvl:"advanced"},
+  {t:"BRP",full:"Basic Return Price",def:"The base price a supplier charges for returned items — inputs into return cost calculations.",cat:"💰 Finance & Unit Economics",lvl:"advanced"},
+  {t:"OCPD",full:"Order Contribution Weighted Price Drop",def:"A measure of price drops weighted by their order contribution — used to track pricing strategy impact.",cat:"💰 Finance & Unit Economics",lvl:"advanced"},
+
+  // ── MEETINGS & REVIEWS ──
+  {t:"WBR",full:"Weekly Business Review",def:"Meesho's weekly structured review of key metrics across all functions — every team is expected to present.",cat:"📋 Reviews & Meetings",lvl:"beginner"},
+  {t:"MBR",full:"Monthly Business Review",def:"Monthly cross-functional review of performance against targets — higher stakes than WBR.",cat:"📋 Reviews & Meetings",lvl:"beginner"},
+  {t:"MBPR",full:"Monthly Business and Product Review",def:"Combined monthly review covering both business metrics and product progress.",cat:"📋 Reviews & Meetings",lvl:"intermediate"},
+  {t:"MBBR",full:"Monthly Metrics Business Review",def:"Metrics-focused monthly review — deep dive on quantitative performance across functions.",cat:"📋 Reviews & Meetings",lvl:"intermediate"},
+  {t:"BAU",full:"Business as Usual",def:"Standard operations and day-to-day work — distinguishes routine activities from project-based work.",cat:"📋 Reviews & Meetings",lvl:"beginner"},
+  {t:"DRI",full:"Directly Responsible Individual",def:"The single person accountable for a decision or deliverable — Meesho's accountability framework.",cat:"📋 Reviews & Meetings",lvl:"intermediate"},
+  {t:"BHAG",full:"Big Hairy Audacious Goal",def:"An ambitious, long-term goal designed to stretch the organisation — often used in annual planning.",cat:"📋 Reviews & Meetings",lvl:"intermediate"},
+  {t:"MBA",full:"Meesho Business Academy",def:"Meesho's internal learning and capability-building programme for team members.",cat:"📋 Reviews & Meetings",lvl:"beginner"},
+  {t:"CEP",full:"Capability Enhancement Programme",def:"Structured internal programme to upskill employees in specific functional or leadership areas.",cat:"📋 Reviews & Meetings",lvl:"intermediate"},
+  {t:"CPM",full:"Corporate Performance Management",def:"System used to set, track, and evaluate organisational performance against strategic goals.",cat:"📋 Reviews & Meetings",lvl:"intermediate"},
+  {t:"HRBP",full:"Human Resource Business Partner",def:"HR professional embedded with a specific business team to align people strategy with business goals.",cat:"📋 Reviews & Meetings",lvl:"beginner"},
+  {t:"CHRO",full:"Chief Human Resources Officer",def:"The executive responsible for all HR strategy and people operations at Meesho.",cat:"📋 Reviews & Meetings",lvl:"beginner"},
+  {t:"FOS",full:"Feet on Street",def:"Field sales agents physically visiting suppliers or partners — offline acquisition and support.",cat:"📋 Reviews & Meetings",lvl:"intermediate"},
+
+  // ── SECURITY & INFRA ──
+  {t:"AWS",full:"Amazon Web Services",def:"Primary cloud infrastructure provider for Meesho — EC2, RDS, EKS, and many other services run here.",cat:"🔒 Security & Infra",lvl:"beginner"},
+  {t:"EC2",full:"Amazon Elastic Compute Cloud",def:"AWS compute service providing resizable virtual servers — the backbone of Meesho's backend.",cat:"🔒 Security & Infra",lvl:"intermediate"},
+  {t:"EKS",full:"Amazon Elastic Kubernetes Service",def:"Managed Kubernetes service on AWS — used to run and scale Meesho's containerised workloads.",cat:"🔒 Security & Infra",lvl:"advanced"},
+  {t:"GCP",full:"Google Cloud Platform",def:"Secondary cloud provider used by Meesho alongside AWS for certain workloads.",cat:"🔒 Security & Infra",lvl:"intermediate"},
+  {t:"DR",full:"Disaster Recovery",def:"Plan and systems to restore operations after a critical failure — RPO and RTO define its quality.",cat:"🔒 Security & Infra",lvl:"intermediate"},
+  {t:"MTTD",full:"Mean Time to Detect",def:"Average time between a failure occurring and the team being alerted — lower is better.",cat:"🔒 Security & Infra",lvl:"advanced"},
+  {t:"MTTR",full:"Mean Time to Recover",def:"Average time to restore a service after an incident — the key reliability metric for engineering.",cat:"🔒 Security & Infra",lvl:"advanced"},
+  {t:"MFA",full:"Multi-Factor Authentication",def:"Security requirement for accessing Meesho systems — adds a second layer beyond just a password.",cat:"🔒 Security & Infra",lvl:"beginner"},
+  {t:"VPN",full:"Virtual Private Network",def:"Encrypted connection for secure remote access to Meesho's internal systems.",cat:"🔒 Security & Infra",lvl:"beginner"},
+  {t:"SIEM",full:"Security Information and Event Management",def:"System that aggregates and analyses security logs across infrastructure to detect threats.",cat:"🔒 Security & Infra",lvl:"advanced"},
+  {t:"VAPT",full:"Vulnerability Assessment and Penetration Testing",def:"Security testing that identifies and exploits weaknesses in systems before attackers can.",cat:"🔒 Security & Infra",lvl:"advanced"},
+  {t:"WAF",full:"Web Application Firewall",def:"Protects Meesho's web apps from common attacks like SQL injection and XSS.",cat:"🔒 Security & Infra",lvl:"intermediate"},
+  {t:"DLP",full:"Data Loss Prevention",def:"Tools and policies that prevent sensitive data from leaving Meesho's controlled environment.",cat:"🔒 Security & Infra",lvl:"intermediate"},
+  {t:"PII",full:"Personally Identifiable Information",def:"Any data that can identify an individual — name, phone, address. Strictly governed under DPDPA.",cat:"🔒 Security & Infra",lvl:"beginner"},
+  {t:"DPDPA",full:"Data Protection and Digital Privacy Act",def:"India's data privacy law — Meesho must comply with its rules for collecting and processing user data.",cat:"🔒 Security & Infra",lvl:"intermediate"},
+  {t:"SOC",full:"Security Operations Center",def:"Team and systems monitoring Meesho's infrastructure 24/7 for threats and incidents.",cat:"🔒 Security & Infra",lvl:"intermediate"},
+  {t:"RPO",full:"Recovery Point Objective",def:"Maximum acceptable data loss measured in time — how old a backup can be in a DR scenario.",cat:"🔒 Security & Infra",lvl:"advanced"},
+  {t:"Amazon MSK",full:"Amazon Managed Streaming for Apache Kafka",def:"AWS-managed Kafka — Meesho's real-time data streaming backbone for event-driven architecture.",cat:"🔒 Security & Infra",lvl:"advanced"},
+];
+
+// ═══════════════════════════════════════════════════════════
+// QUIZ QUESTION TYPES — subtle, context-driven framing
+// ═══════════════════════════════════════════════════════════
+const Q_TYPES = [
+  (t) => ({ stem: `In a weekly business review, someone says "${t.t} dropped 8% this week." What are they referring to?`, sub: `💡 Category: ${t.cat}` }),
+  (t) => ({ stem: `Your PM just added "${t.t}" as a success metric in the PRD. What does it measure?`, sub: `💡 Category: ${t.cat}` }),
+  (t) => ({ stem: `A supplier dashboard shows a red flag on "${t.t}." What does the team need to fix?`, sub: `💡 Full form: ${t.full}` }),
+  (t) => ({ stem: `The ops team is tracking "${t.t}" to spot logistics gaps. What does this metric tell them?`, sub: `💡 Category: ${t.cat}` }),
+  (t) => ({ stem: `"${t.t}" appears on a WBR slide labelled 'Opportunities.' What does it represent?`, sub: `💡 Category: ${t.cat}` }),
+  (t) => ({ stem: `A team member says "we need to improve our ${t.t} this sprint." Which definition matches?`, sub: `💡 Hint: ${t.full}` }),
+  (t) => ({ stem: `You see "${t.t}" spiking in a Looker dashboard. What should you investigate?`, sub: `💡 Category: ${t.cat}` }),
+  (t) => ({ stem: `During onboarding, your buddy mentions "${t.t}" as a KRA for your role. What does it mean?`, sub: `💡 Full form: ${t.full}` }),
+  (t) => ({ stem: `A cross-functional meeting flags "${t.t}" as a risk for Q3. What metric is at stake?`, sub: `💡 Category: ${t.cat}` }),
+  (t) => ({ stem: `The data team sends an alert: "${t.t} is below the 30-day average." What are they monitoring?`, sub: `💡 Category: ${t.cat}` }),
+];
+
+// ═══════════════════════════════════════════════════════════
+// SCENARIOS
+// ═══════════════════════════════════════════════════════════
+const SCENARIOS = [
+  {
+    tag:"📧 Slack · #ops-daily", channel:"ops",
+    ctx:"Priya (Ops Lead): Just checked the morning report — numbers in the UP cluster look bad.",
+    q:"The delivery partner couldn't reach most customers — attempts failed and packages are heading back. Which term describes this outcome?",
+    answer:"RTO", opts:["RTO","NDR","FAD","NDD"],
+    exp:"RTO (Return to Origin) is when a shipment fails delivery and is sent back to the supplier. NDR is the report filed when an attempt fails — RTO is the downstream consequence."
+  },
+  {
+    tag:"💬 WBR Slide Commentary", channel:"metrics",
+    ctx:"Business Analyst: The slide shows an 18% gap between what we promised customers and when orders actually landed.",
+    q:"The team is comparing CPD against ADD. What metric represents how long the full journey took — from order to delivery?",
+    answer:"O2D", opts:["O2D","S2D","M2S","TAT"],
+    exp:"O2D (Order to Delivery) measures end-to-end time from placement to delivery. S2D is the narrower supplier-to-delivered window, while TAT is a generic process time term."
+  },
+  {
+    tag:"📊 Monthly Business Review", channel:"growth",
+    ctx:"Growth Lead: Last cohort's curve is flattening fast — 60% of December users haven't ordered since February.",
+    q:"What metric captures how many users from a specific cohort are still transacting in a given month?",
+    answer:"MX R%", opts:["MX R%","MAU","Winback Rate","Churn Rate"],
+    exp:"MX R% (Month X Retention %) tracks the % of a cohort still transacting in month X (M1, M2, M3…). Churn Rate is the inverse, and Winback Rate tracks re-activated churned users."
+  },
+  {
+    tag:"📦 Supplier Health Review", channel:"supply",
+    ctx:"Category Manager: Supplier #3847 dispatched 40% of orders after the promised date last week.",
+    q:"Which metric is this supplier being penalised on?",
+    answer:"LDR", opts:["LDR","NDR","RTO","EDD"],
+    exp:"LDR (Late Dispatch Rate) is the % of orders dispatched after the EDD (Expected Dispatch Date). High LDR hurts TAT and CPD adherence downstream."
+  },
+  {
+    tag:"🔎 Search Quality Review", channel:"product",
+    ctx:"PM: Our search results are ranking high-inventory items first, but they're not what users actually click on.",
+    q:"What metric quantifies how well search results are ranked by actual buyer intent?",
+    answer:"nDCG", opts:["nDCG","CTR","SERP","ATC"],
+    exp:"nDCG (Normalised Discounted Cumulative Gain) is the relevance score for search — it penalises results where relevant items appear lower in the list."
+  },
+  {
+    tag:"💰 Finance Weekly", channel:"finance",
+    ctx:"Finance analyst: Our GMV is up, but after we account for what came back, the real number looks much lower.",
+    q:"What metric shows the proportion of GMV that was actually delivered and not returned?",
+    answer:"N/G", opts:["N/G","NMV","CM2","CM"],
+    exp:"N/G (NMV/GMV ratio) shows what fraction of gross value was actually delivered. NMV alone is the absolute number — N/G is the ratio that shows delivery quality."
+  },
+  {
+    tag:"🏭 Supply Onboarding", channel:"supply",
+    ctx:"Onboarding exec: This new supplier uploaded 400 products but their listings are missing size attributes and have blurry images.",
+    q:"Which score is likely low for this supplier's listings?",
+    answer:"LQS", opts:["LQS","SoL","C/S","SKU"],
+    exp:"LQS (Listing Quality Score) measures how complete, accurate, and appealing a product listing is — images, title, attributes, and description all factor in."
+  },
+  {
+    tag:"📧 Slack · #growth-levers", channel:"growth",
+    ctx:"Marketing lead: We're spending the same as last quarter to acquire buyers, but they're ordering once and vanishing.",
+    q:"What ratio best captures the sustainability of our acquisition economics?",
+    answer:"LTV:CAC", opts:["LTV:CAC","CAC","AOV","MoM"],
+    exp:"LTV:CAC (Lifetime Value to Customer Acquisition Cost ratio) is the key unit economics metric. If LTV is low and CAC is high, every new customer is destroying value."
+  },
+];
+
+// ═══════════════════════════════════════════════════════════
+// STATE & STORAGE
+// ═══════════════════════════════════════════════════════════
+let currentUser = null;
+let selectedAvatar = "🛍️";
+let currentMode = null;
+let selectedCat = "All";
+let filteredTerms = [];
+let quizQs = [];
+let qIdx = 0, score = 0, answered = false;
+let fcIdx = 0;
+let scIdx = 0, scScore = 0;
+
+const AVATARS = ["🦁","🐼","🦊","🐸","🦋","🌟","🔥","🚀","🎯","💎","🌈","🎸"];
+
+function getLeaderboard(){
+  try{ return JSON.parse(localStorage.getItem("meeshoLB")||"[]"); }
+  catch(e){ return []; }
+}
+function saveLeaderboard(lb){ localStorage.setItem("meeshoLB", JSON.stringify(lb)); }
+function addScore(user, avatar, pts, mode){
+  const lb = getLeaderboard();
+  lb.push({user, avatar, pts, mode, ts: Date.now()});
+  lb.sort((a,b)=>b.pts-a.pts);
+  saveLeaderboard(lb.slice(0,50));
+}
+function getPersonalBest(user){
+  return getLeaderboard().filter(e=>e.user===user).reduce((m,e)=>Math.max(m,e.pts),0);
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+document.getElementById("statTerms").textContent = ALL_TERMS.length;
+const AVATARS_GRID = document.getElementById("avatarGrid");
+AVATARS.forEach(av=>{
+  const b = document.createElement("button");
+  b.className = "avatar-btn" + (av===selectedAvatar?" sel":"");
+  b.textContent = av;
+  b.onclick = () => {
+    selectedAvatar = av;
+    document.querySelectorAll(".avatar-btn").forEach(x=>x.classList.remove("sel"));
+    b.classList.add("sel");
+  };
+  AVATARS_GRID.appendChild(b);
+});
+
+// Check if returning user
+const savedUser = localStorage.getItem("meeshoUser");
+const savedAv = localStorage.getItem("meeshoAvatar");
+if(savedUser){
+  currentUser = savedUser;
+  selectedAvatar = savedAv || "🛍️";
+  document.getElementById("loginModal").classList.add("hidden");
+  document.getElementById("statUser").textContent = `${selectedAvatar} ${currentUser}`;
+  document.getElementById("statHigh").textContent = getPersonalBest(currentUser);
+}
+
+function startLogin(){
+  const n = document.getElementById("nameInput").value.trim();
+  if(!n){ document.getElementById("nameInput").focus(); return; }
+  currentUser = n;
+  localStorage.setItem("meeshoUser", n);
+  localStorage.setItem("meeshoAvatar", selectedAvatar);
+  document.getElementById("loginModal").classList.add("hidden");
+  document.getElementById("statUser").textContent = `${selectedAvatar} ${currentUser}`;
+  document.getElementById("statHigh").textContent = getPersonalBest(currentUser);
+}
+
+// ═══════════════════════════════════════════════════════════
+// NAV
+// ═══════════════════════════════════════════════════════════
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0,0);
+}
+function goHome(){
+  document.getElementById("statHigh").textContent = getPersonalBest(currentUser||"Guest");
+  showScreen("homeScreen");
+}
+function goLeaderboard(){
+  renderLeaderboard();
+  showScreen("leaderboardScreen");
+}
+
+// ═══════════════════════════════════════════════════════════
+// CATEGORY
+// ═══════════════════════════════════════════════════════════
+const CATS = ["All", ...new Set(ALL_TERMS.map(t=>t.cat))];
+function buildCatGrid(){
+  const g = document.getElementById("catGrid"); g.innerHTML="";
+  CATS.forEach(cat=>{
+    const n = cat==="All" ? ALL_TERMS.length : ALL_TERMS.filter(t=>t.cat===cat).length;
+    const b = document.createElement("div");
+    b.className = "cat-btn" + (cat===selectedCat?" sel":"");
+    b.innerHTML = `<div class="cat-emoji">${cat==="All"?"🌐":cat.split(" ")[0]}</div>
+      <div class="cat-label">${cat==="All"?"All Categories":cat.split(" ").slice(1).join(" ")}</div>
+      <div class="cat-count">${n} terms</div>`;
+    b.onclick = () => {
+      document.querySelectorAll(".cat-btn").forEach(x=>x.classList.remove("sel"));
+      b.classList.add("sel"); selectedCat=cat;
+    };
+    g.appendChild(b);
+  });
+}
+
+function startMode(mode){
+  currentMode = mode;
+  if(mode==="flashcards"){
+    filteredTerms = shuffle([...ALL_TERMS]);
+    fcIdx = 0; loadFlashcard();
+    showScreen("flashcardScreen");
+  } else if(mode==="scenario"){
+    scIdx = 0; scScore = 0;
+    loadScenario();
+    showScreen("scenarioScreen");
+  } else {
+    selectedCat = "All"; buildCatGrid();
+    showScreen("categoryScreen");
+  }
+}
+
+function startSelectedCategory(){
+  const pool = selectedCat==="All" ? ALL_TERMS : ALL_TERMS.filter(t=>t.cat===selectedCat);
+  filteredTerms = shuffle([...pool]);
+  const limit = currentMode==="speedrun" ? 10 : Math.min(12, filteredTerms.length);
+  buildQuiz(filteredTerms.slice(0, limit));
+  qIdx=0; score=0; answered=false;
+  loadQuestion();
+  showScreen("quizScreen");
+}
+
+// ═══════════════════════════════════════════════════════════
+// QUIZ — Dynamic question types, no visible KPI labels
+// ═══════════════════════════════════════════════════════════
+function buildQuiz(pool){
+  quizQs = pool.map(term=>{
+    // Pick a random question framing
+    const qType = Q_TYPES[Math.floor(Math.random()*Q_TYPES.length)];
+    const {stem, sub} = qType(term);
+    // Build 3 wrong answers from same category first, then any
+    const sameCat = ALL_TERMS.filter(t=>t.t!==term.t && t.cat===term.cat);
+    const other = ALL_TERMS.filter(t=>t.t!==term.t && t.cat!==term.cat);
+    const wrongPool = shuffle([...sameCat,...other]);
+    const wrongs = wrongPool.slice(0,3).map(t=>t.def);
+    const opts = shuffle([term.def, ...wrongs]);
+    return {term, stem, sub, opts, correct: term.def};
+  });
+}
+
+function loadQuestion(){
+  answered = false;
+  const q = quizQs[qIdx];
+  const total = quizQs.length;
+  document.getElementById("qNum").textContent = `${qIdx+1} / ${total}`;
+  document.getElementById("pbarFill").style.width = `${((qIdx+1)/total)*100}%`;
+  document.getElementById("liveSc").textContent = score;
+  document.getElementById("qCatChip").textContent = q.term.cat;
+  document.getElementById("qStem").textContent = q.stem;
+  document.getElementById("qSub").textContent = q.sub;
+  document.getElementById("fbBox").className = "fb-box";
+  document.getElementById("nextBtn").style.display = "none";
+
+  const g = document.getElementById("optsGrid"); g.innerHTML="";
+  q.opts.forEach(opt=>{
+    const b = document.createElement("button");
+    b.className = "opt-btn"; b.textContent = opt;
+    b.onclick = () => selectAns(b, opt, q);
+    g.appendChild(b);
+  });
+}
+
+function selectAns(btn, sel, q){
+  if(answered) return; answered=true;
+  const ok = sel===q.correct;
+  if(ok){ score++; btn.classList.add("correct"); }
+  else { btn.classList.add("wrong"); }
+  document.querySelectorAll(".opt-btn").forEach(b=>{
+    b.classList.add("locked");
+    if(b.textContent===q.correct) b.classList.add("correct");
+  });
+  const fb = document.getElementById("fbBox");
+  fb.className = "fb-box show" + (ok?"":" wrong-fb");
+  document.getElementById("fbEm").textContent = ok?"✅":"❌";
+  document.getElementById("fbHead").textContent = ok
+    ? ["Nailed it! 🔥","Correct! ⭐","You got it! 💯","Perfect! 🎯"][Math.floor(Math.random()*4)]
+    : `Not quite — that's ${q.term.t} (${q.term.full})`;
+  document.getElementById("fbBody").textContent = q.term.def;
+  document.getElementById("liveSc").textContent = score;
+  document.getElementById("nextBtn").style.display = "inline-block";
+}
+
+function nextQuestion(){
+  qIdx++;
+  if(qIdx>=quizQs.length){ showResults(); return; }
+  loadQuestion();
+}
+
+function showResults(){
+  const total = quizQs.length;
+  const pct = Math.round((score/total)*100);
+  // Save to leaderboard
+  if(currentUser){
+    const modeLabel = currentMode==="speedrun"?"⚡ Speed Run":"🎯 Quiz";
+    addScore(currentUser, selectedAvatar, score, modeLabel);
+  }
+  const emojis=["😅","📚","🙂","👍","🔥","⭐","🏆","💎"];
+  const msgs=[
+    "Don't worry — every Meesho expert started here. Try Flashcards first!",
+    "You're building the foundation. Review and retry!",
+    "Not bad! A few more rounds and you'll speak fluent Meesho.",
+    "Solid! You know the essentials. Keep pushing.",
+    "Nice work! You're clearly paying attention in WBRs.",
+    "Impressive! You're speaking fluent Meesho 🛍️",
+    "Outstanding! The leaderboard is your domain.",
+    "🏆 FLAWLESS. You are the playbook."
+  ];
+  const tier = Math.min(7,Math.floor(pct/13));
+  document.getElementById("resEm").textContent = emojis[tier];
+  document.getElementById("resTitle").textContent = pct===100?"Flawless Victory!":pct>=70?"Well Done!":"Keep Learning!";
+  document.getElementById("resSc").textContent = `${score}/${total}`;
+  document.getElementById("resMsg").textContent = msgs[tier];
+  const badges=[];
+  if(score===total) badges.push("🏆 Perfect Score");
+  if(selectedCat!=="All") badges.push(`🎯 ${selectedCat.split(" ").slice(1).join(" ")} Expert`);
+  if(pct>=70) badges.push("⭐ Meesho Literate");
+  if(currentMode==="speedrun"&&pct===100) badges.push("⚡ Speed Demon");
+  document.getElementById("ressBadges").innerHTML = badges.map(b=>`<div class="badge-chip">${b}</div>`).join("");
+  if(pct===100) launchConfetti();
+  showScreen("resultsScreen");
+}
+
+function restartQuiz(){ startSelectedCategory(); }
+
+// ═══════════════════════════════════════════════════════════
+// FLASHCARDS
+// ═══════════════════════════════════════════════════════════
+function loadFlashcard(){
+  const t = filteredTerms[fcIdx];
+  document.getElementById("fcTerm").textContent = t.t;
+  document.getElementById("fcFull").textContent = t.full || "";
+  document.getElementById("fcDef").textContent = t.def;
+  document.getElementById("fcCat").textContent = `${t.cat} · ${t.lvl}`;
+  document.getElementById("fcCur").textContent = fcIdx+1;
+  document.getElementById("fcTot").textContent = filteredTerms.length;
+  document.getElementById("fcProgFill").style.width = `${((fcIdx+1)/filteredTerms.length)*100}%`;
+  document.getElementById("fcWrap").classList.remove("flipped");
+}
+function flipCard(){ document.getElementById("fcWrap").classList.toggle("flipped"); }
+function nextCard(){ fcIdx=(fcIdx+1)%filteredTerms.length; loadFlashcard(); }
+function prevCard(){ fcIdx=(fcIdx-1+filteredTerms.length)%filteredTerms.length; loadFlashcard(); }
+function shuffleDeck(){ filteredTerms=shuffle([...ALL_TERMS]); fcIdx=0; loadFlashcard(); }
+function filterByCategory(){
+  selectedCat="All"; buildCatGrid(); currentMode="flashcards"; showScreen("categoryScreen");
+}
+document.addEventListener("keydown",e=>{
+  const fs=document.getElementById("flashcardScreen");
+  if(!fs.classList.contains("active")) return;
+  if(e.key==="ArrowRight") nextCard();
+  if(e.key==="ArrowLeft") prevCard();
+  if(e.key===" "){ e.preventDefault(); flipCard(); }
+});
+
+// ═══════════════════════════════════════════════════════════
+// SCENARIO
+// ═══════════════════════════════════════════════════════════
+function loadScenario(){
+  const sc = SCENARIOS[scIdx % SCENARIOS.length];
+  document.getElementById("scTag").textContent = sc.tag;
+  document.getElementById("scCtx").textContent = sc.ctx;
+  document.getElementById("scQ").textContent = sc.q;
+  document.getElementById("scFb").className = "fb-box";
+  document.getElementById("scNextBtn").style.display = "none";
+
+  const opts = shuffle([...sc.opts]);
+  const g = document.getElementById("scOpts"); g.innerHTML="";
+  opts.forEach(opt=>{
+    const b = document.createElement("button");
+    b.className = "opt-btn";
+    b.textContent = opt;
+    b.onclick = () => checkScenario(b, opt, sc);
+    g.appendChild(b);
+  });
+}
+
+function checkScenario(btn, sel, sc){
+  const ok = sel===sc.answer;
+  document.querySelectorAll("#scOpts .opt-btn").forEach(b=>{
+    b.classList.add("locked");
+    if(b.textContent===sc.answer) b.classList.add("correct");
+  });
+  if(!ok) btn.classList.add("wrong");
+  if(ok) scScore++;
+  const fb = document.getElementById("scFb");
+  fb.className = "fb-box show" + (ok?"":" wrong-fb");
+  document.getElementById("scFbEm").textContent = ok?"✅":"❌";
+  document.getElementById("scFbHead").textContent = ok?"Great read! 🔍":`Not quite — it's ${sc.answer}`;
+  document.getElementById("scFbBody").textContent = sc.exp;
+  document.getElementById("scNextBtn").style.display = "inline-block";
+}
+
+function nextScenario(){
+  scIdx++;
+  if(scIdx>=SCENARIOS.length){
+    if(currentUser){ addScore(currentUser, selectedAvatar, scScore, "💬 Real Talk"); }
+    document.getElementById("resEm").textContent = scScore>=6?"🕵️":"📖";
+    document.getElementById("resTitle").textContent = "Scenarios Done!";
+    document.getElementById("resSc").textContent = `${scScore}/${SCENARIOS.length}`;
+    document.getElementById("resMsg").textContent = scScore>=6?"You can decode Meesho conversations like a pro!":"Keep reading those Slack messages — context is everything.";
+    document.getElementById("ressBadges").innerHTML = scScore===SCENARIOS.length?'<div class="badge-chip">🕵️ Context Detective</div>':"";
+    showScreen("resultsScreen"); return;
+  }
+  loadScenario();
+}
+
+// ═══════════════════════════════════════════════════════════
+// LEADERBOARD
+// ═══════════════════════════════════════════════════════════
+function renderLeaderboard(){
+  const lb = getLeaderboard();
+  const podium = document.getElementById("lbPodium");
+  const list = document.getElementById("lbList");
+  podium.innerHTML=""; list.innerHTML="";
+
+  if(lb.length===0){
+    list.innerHTML=`<div style="text-align:center;color:var(--muted);padding:40px">No scores yet — play a round to get on the board! 🎯</div>`;
+    return;
+  }
+
+  // Podium (top 3)
+  const top3 = lb.slice(0,3);
+  const podiumOrder = top3.length>=3 ? [top3[1], top3[0], top3[2]] : top3.length===2 ? [top3[0], top3[1]] : [top3[0]];
+  const pClasses = top3.length>=3 ? ["podium-col podium-2","podium-col podium-1","podium-col podium-3"] : ["podium-col podium-1","podium-col podium-2"];
+  const medals = ["🥈","🥇","🥉"];
+  podiumOrder.forEach((entry,i)=>{
+    if(!entry) return;
+    const col = document.createElement("div");
+    col.className = pClasses[i];
+    const actualRank = lb.indexOf(entry);
+    col.innerHTML=`
+      <div class="podium-rank">${medals[i]}</div>
+      <div class="podium-avatar">${entry.avatar}</div>
+      <div class="podium-name">${entry.user}</div>
+      <div class="podium-score">${entry.pts} pts · ${entry.mode}</div>
+      <div class="podium-bar"></div>`;
+    podium.appendChild(col);
+  });
+
+  // Full list (4th+)
+  lb.forEach((entry,i)=>{
+    const isMe = currentUser && entry.user===currentUser;
+    const row = document.createElement("div");
+    row.className = "lb-row" + (isMe?" me":"");
+    row.innerHTML=`
+      <div class="lb-rank-num">#${i+1}</div>
+      <div class="lb-av">${entry.avatar}</div>
+      <div class="lb-info">
+        <div class="lb-uname">${entry.user}${isMe?'<span class="lb-badge-me">You</span>':''}</div>
+        <div class="lb-details">${entry.mode} · ${new Date(entry.ts).toLocaleDateString()}</div>
+      </div>
+      <div class="lb-pts">${entry.pts}</div>`;
+    list.appendChild(row);
+  });
+}
+
+function clearLeaderboard(){
+  if(confirm("Reset the leaderboard? This can't be undone."))
+    { localStorage.removeItem("meeshoLB"); renderLeaderboard(); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function launchConfetti(){
+  const colors=["#F0406A","#FF6B45","#F5C842","#35D9A4","#5B9CF6","#A78BFA"];
+  const wrap=document.getElementById("confettiWrap"); wrap.innerHTML="";
+  for(let i=0;i<100;i++){
+    const p=document.createElement("div");
+    p.className="cp";
+    const sz=6+Math.random()*8;
+    p.style.cssText=`left:${Math.random()*100}%;top:-20px;
+      width:${sz}px;height:${sz}px;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      border-radius:${Math.random()>.5?"50%":"3px"};
+      animation:fall ${1.5+Math.random()*1.5}s ${Math.random()*0.8}s ease-in forwards;`;
+    wrap.appendChild(p);
+  }
+  setTimeout(()=>wrap.innerHTML="",4000);
+}
+</script>
+</body>
+</html>
