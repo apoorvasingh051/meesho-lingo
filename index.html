@@ -530,19 +530,83 @@ const JOURNEY_STAGES = [
 ];
 
 // ═══════════════════════════════════════════════════════════
-// WAR ROOM QUESTION CONTEXTS
+// WAR ROOM — 7 QUESTION FORMATS (no full-form lookup, real reasoning required)
 // ═══════════════════════════════════════════════════════════
-const WR_CONTEXTS = [
-  {tag:"📊 Slack · #wbr-prep",gen:(t)=>({slack:`<span class="slack-sender">Priya (Growth):</span> Just pulled the numbers — ${t.t} dropped 6% WoW in North cluster. Any ideas?`,stem:`What is Priya referring to when she mentions <mark>${t.t}</mark>?`,sub:`💡 ${t.full}`})},
-  {tag:"📋 MBR Slide · Performance",gen:(t)=>({slack:null,stem:`The MBR deck has a red cell: "<mark>${t.t}</mark> missed target by 14%." What metric is off-track?`,sub:`💡 Category: ${t.cat}`})},
-  {tag:"💬 Slack · #ops-daily",gen:(t)=>({slack:`<span class="slack-sender">Rahul (Ops):</span> Bihar cluster showing bad ${t.t} numbers. Need to call the 3PL today.`,stem:`What problem is Rahul flagging with <mark>${t.t}</mark>?`,sub:`💡 ${t.full}`})},
-  {tag:"📈 Looker Dashboard Alert",gen:(t)=>({slack:null,stem:`An alert fires: "<mark>${t.t}</mark> is 2 standard deviations below the 30-day average." What should you investigate?`,sub:`💡 Category: ${t.cat}`})},
-  {tag:"🏭 Supplier Health Review",gen:(t)=>({slack:null,stem:`The supplier dashboard flags supplier #3847 for poor <mark>${t.t}</mark>. What does the team need to fix?`,sub:`💡 ${t.full}`})},
-  {tag:"💬 Slack · #product-guild",gen:(t)=>({slack:`<span class="slack-sender">Ananya (PM):</span> We need to move the needle on ${t.t} this sprint — 40% behind on OKR.`,stem:`Which metric is Ananya's team prioritizing?`,sub:`💡 Category: ${t.cat}`})},
-  {tag:"📧 Investor Update",gen:(t)=>({slack:null,stem:`The investor update says: "We improved <mark>${t.t}</mark> by 18% QoQ, demonstrating supply chain maturity." What did Meesho improve?`,sub:`💡 ${t.full}`})},
-  {tag:"🔎 P1 Post-mortem",gen:(t)=>({slack:null,stem:`The post-mortem cites: "<mark>${t.t}</mark> degraded during the incident, impacting 40,000 buyers." What was affected?`,sub:`💡 Category: ${t.cat}`})},
-  {tag:"💬 Slack · #cs-escalations",gen:(t)=>({slack:`<span class="slack-sender">Meera (CS Lead):</span> Surge in ${t.t}-related tickets eating into our FCR. Need a fix this week.`,stem:`What CS issue is Meera escalating related to <mark>${t.t}</mark>?`,sub:`💡 ${t.full}`})},
-  {tag:"📊 Category Deep-dive",gen:(t)=>({slack:null,stem:`Category review: "Women's ethnic has the worst <mark>${t.t}</mark> on the platform — must be a KRA for Q3." What needs to improve?`,sub:`💡 Category: ${t.cat}`})},
+
+// Format 1 — CAUSE & EFFECT: given a symptom, pick the metric that explains it
+const FMT_CAUSE = [
+  { tag:"💬 Slack · #ops-war-room", situation:"COD orders in UP are piling up undelivered. Customers aren't home, addresses are wrong, and the 3PL has made 3 attempts with no success. Packages are now heading back to suppliers.", question:"Which metric has just spiked and is causing a cash flow hit for suppliers?", answerKey:"RTO" },
+  { tag:"📊 WBR · Logistics slide", situation:"The last-mile team reports that 1 in 5 delivery attempts in Rajasthan is failing. The driver calls the customer, gets no response, and closes the attempt.", question:"Which metric is being tracked to capture every failed attempt — before the package gives up and goes back?", answerKey:"NDR" },
+  { tag:"🏭 Supplier Review · #fashion", situation:"A saree supplier dispatched 800 orders. By day 10, only 580 were still in buyers' hands — the rest came back. Return reasons: wrong size, colour mismatch, and quality issues.", question:"Which ratio directly captures how much of their shipped value actually stayed with customers?", answerKey:"ODNR" },
+  { tag:"📋 MBR · Growth chapter", situation:"MAU grew 18% this quarter but revenue didn't move proportionally. The CEO asks: 'Are people browsing or actually buying?' The analyst pulls a single number to answer this.", question:"Which metric tells you the fraction of users who actually transacted — not just visited?", answerKey:"MTU" },
+  { tag:"💬 Slack · #finance-ops", situation:"An ops analyst notices that although gross order value looks healthy, after subtracting returns and cancellations the real delivered value is much lower — only 74% of the top-line number.", question:"What ratio is the analyst looking at when they say 'our quality of GMV is degrading'?", answerKey:"N/G" },
+  { tag:"📦 Category deep-dive · Electronics", situation:"Electronics listings have sharp images, detailed specs, and accurate size info. Ethnic wear listings have blurry photos and missing attributes. The conversion gap between the two categories is massive.", question:"Which score explains why ethnic wear underperforms despite having competitive prices?", answerKey:"LQS" },
+  { tag:"💰 Finance weekly · #unit-econ", situation:"A category manager celebrates GMV growth. The CFO opens a spreadsheet and says: 'After logistics, CS, returns, and payment gateway fees — we're actually losing money on each order in this category.'", question:"Which metric, if negative, is the CFO's red flag for this category?", answerKey:"CM" },
+  { tag:"🚚 Ops review · #dispatch", situation:"It's Monday morning. Sunday's orders were manifested at 11pm but the 3PL didn't pick them up until Tuesday — 38 hours later. This delay pushed the customer promise date by 2 days.", question:"Which metric captures how long the package sat after being manifested before the 3PL actually moved it?", answerKey:"M2S" },
+];
+
+// Format 2 — SPOT THE DIFFERENCE: two similar terms, player must pick the right one for the context
+const FMT_DIFF = [
+  { tag:"🧠 Terms Showdown", situation:"Your delivery partner successfully drops the order. The customer signs. The exact date this happened is logged in the system.", question:"Which field just got updated in the system?", correctTerm:"ADD", wrongTerm:"EDD", correctExplain:"ADD (Actual Delivery Date) — the real date it landed. EDD is what you promised the supplier would dispatch by.", wrongExplain:"That's EDD — Expected Dispatch Date. That's about when the supplier ships, not when the customer receives." },
+  { tag:"🧠 Terms Showdown", situation:"Your WBR slide shows the total value of everything customers ordered this week — including items that were later returned or cancelled.", question:"Which number is on the slide — before any deductions?", correctTerm:"GMV", wrongTerm:"NMV", correctExplain:"GMV (Gross Merchandise Value) — the raw total before subtracting returns. NMV is the cleaned, post-return figure.", wrongExplain:"NMV (Net Merchandise Value) already strips out returns and cancellations — that's the delivered value, not the gross." },
+  { tag:"🧠 Terms Showdown", situation:"A supplier listed 400 products but their 3PL partner didn't show up for pickup on the scheduled day — leaving the packages sitting at the warehouse.", question:"Which report gets filed for this failure?", correctTerm:"NPR", wrongTerm:"NDR", correctExplain:"NPR (Non Picked-up Report) — 3PL failed to collect from the supplier. NDR is for failed delivery to customers.", wrongExplain:"NDR (Non-Delivery Report) is for when the customer doesn't receive it. This failure happened at the supplier end — it's an NPR." },
+  { tag:"🧠 Terms Showdown", situation:"Marketing ran an Instagram campaign. 50,000 people saw the ad. 3,200 clicked through to the product page.", question:"What metric does 3,200 ÷ 50,000 give you?", correctTerm:"CTR", wrongTerm:"ATC", correctExplain:"CTR (Click-Through Rate) — clicks divided by impressions. ATC is 'Add to Cart', a deeper funnel action.", wrongExplain:"ATC (Add to Cart) is about adding to cart, not clicking from an ad. CTR measures the click from impression." },
+  { tag:"🧠 Terms Showdown", situation:"A customer received a kurta in the wrong colour. They complained and initiated a return, citing that the product was not what they ordered.", question:"Which return type gets logged for this case?", correctTerm:"WFR", wrongTerm:"WPR", correctExplain:"WFR (Wrong Fulfillment Return) — the wrong item was delivered. WPR is when the item matches but doesn't match its listing.", wrongExplain:"WPR (Wrong Product Return) is for listing mismatch — what they received didn't match the description. Here the item itself was wrong — that's WFR." },
+];
+
+// Format 3 — BROKEN METRIC: metric is misbehaving, player diagnoses the stage
+const FMT_BROKEN = [
+  { tag:"🚨 Incident · Metric alert", situation:"CSAT scores have tanked from 4.1 to 3.2 in 10 days. CS ticket analysis shows the top complaint is: 'My order arrived 4 days late.' No listing or product quality issues.", question:"The CSAT crash is a symptom. Which upstream metric actually broke first and caused this?", answerKey:"LDR", explain:"LDR (Late Dispatch Rate) — when suppliers dispatch late, CPD is missed, and CSAT suffers. Fix dispatch first, CSAT follows." },
+  { tag:"🚨 Incident · WBR debrief", situation:"NPS dropped 8 points. Customer verbatims say: 'I got the right product but the quality was terrible — nothing like the photos.' No logistics issues. No late deliveries.", question:"Which supplier-level metric is the root cause that needs to be fixed at source?", answerKey:"NQD", explain:"NQD (Net Quality Detractors) — the proportion of 1-2 star reviews about quality. High NQD means the product consistently disappoints vs the listing." },
+  { tag:"🚨 Incident · Finance review", situation:"The category P&L looks healthy on GMV but the finance team is alarmed. Payment gateway fees are eating into margin because 80% of orders in this category are COD, and customers are paying by card on delivery.", question:"Which cost line is unexpectedly high due to the payment mix?", answerKey:"MDR", explain:"MDR (Merchant Discount Rate) — the fee charged per transaction by payment gateways. High card/COD mix with MDR on card settlements spikes this cost." },
+  { tag:"🚨 Post-mortem · #growth", situation:"A cohort of 10,000 users acquired in January placed their first order. By April, only 1,800 of them had ordered again. The team says 'activation is great but something is broken after order 1.'", question:"Which metric would you track monthly to diagnose the specific drop-off point in this cohort's journey?", answerKey:"MX R%", explain:"MX R% (Month X Retention %) tracks what % of a cohort still transacts in month 1, 2, 3… It shows exactly where users fall off the habit curve." },
+];
+
+// Format 4 — WHAT HAPPENS NEXT: chain of events, player picks the consequence
+const FMT_CHAIN = [
+  { tag:"⛓️ Chain Reaction", situation:"A supplier's LDR spikes to 35% during Diwali week. Orders are dispatching 2–3 days after EDD.", question:"Which customer-facing promise is most directly broken as a direct consequence?", answerKey:"CPD", explain:"CPD (Customer Promise Date) — when LDR spikes, dispatch is late, so the promised delivery date to the customer is missed. CSAT follows." },
+  { tag:"⛓️ Chain Reaction", situation:"NDR hits 20% in a cluster. The 3PL makes 3 reattempt calls — no response each time. The maximum attempt limit is reached.", question:"What is the automatic outcome for these packages?", answerKey:"RTO", explain:"RTO (Return to Origin) — after maximum NDR reattempts, the shipment heads back to the supplier. The supplier absorbs reverse logistics cost." },
+  { tag:"⛓️ Chain Reaction", situation:"A new fashion category launches. Products have stunning images and are priced 30% below market. CTR on PLP is excellent, but 65% of buyers who click never add to cart.", question:"Which metric between CTR and the next funnel step reveals the drop-off the team needs to fix?", answerKey:"ATC", explain:"ATC (Add to Cart) — high CTR but low ATC means users are interested enough to click but something on the product page is stopping purchase intent. Classic PDP conversion problem." },
+  { tag:"⛓️ Chain Reaction", situation:"Meesho runs a prepaid incentive — ₹50 cashback on UPI orders. The COD:prepaid ratio shifts from 70:30 to 50:50 in 3 weeks.", question:"Which logistics metric is most likely to improve as a direct result of this shift?", answerKey:"RTO", explain:"RTO (Return to Origin) — prepaid orders have significantly lower RTO (~8%) vs COD (~22%). Shifting the payment mix is one of the most effective RTO levers." },
+];
+
+// Format 5 — WHO OWNS IT: given a situation, who/which team and metric owns the outcome
+const FMT_OWNER = [
+  { tag:"🗂️ Accountability check", situation:"An order was delivered on time, right product, right quality. But 3 days later the customer initiated a return saying the stitching was poor. The return is now being processed at a facility.", question:"Which facility handles the return, and what's it called?", answerKey:"RPC", explain:"RPC (Return Processing Centre) — the warehouse where returned items undergo quality checks and are either relisted or disposed of." },
+  { tag:"🗂️ Accountability check", situation:"The growth team hit their MTU target but the CFO points out that acquiring these users cost ₹340 each on average — 40% above the benchmark.", question:"Which metric is the CFO highlighting as out of control?", answerKey:"CAC", explain:"CAC (Customer Acquisition Cost) — total spend divided by new customers acquired. High CAC with uncertain LTV is a unit economics red flag." },
+  { tag:"🗂️ Accountability check", situation:"A category manager is reviewing why their category drives 22% of total views on the platform but only 11% of orders.", question:"Which two metrics side-by-side reveal this conversion gap?", answerKey:"VC", explain:"VC (View Contribution) vs OC (Order Contribution) — when VC >> OC, the category drives traffic but fails to convert. It's a discovery-to-purchase gap problem." },
+];
+
+// Format 6 — TRUE NORTH: pick the ONE metric that best answers the question a leader would ask
+const FMT_TRUENORTH = [
+  { tag:"🧭 The North Star test", question:"The CEO walks into a Monday review and asks one question: 'Did more real buyers transact on Meesho this month compared to last month?' Which single metric answers this?", answerKey:"MTU", explain:"MTU (Monthly Transacting Users) — Meesho's north star. It captures real purchasing activity, not just visits or installs." },
+  { tag:"🧭 The North Star test", question:"An investor asks: 'For every rupee you spend acquiring a customer, how much lifetime value do you get back?' Which ratio are they asking for?", answerKey:"LTV:CAC", explain:"LTV:CAC — the holy grail ratio of e-commerce unit economics. >3x is generally considered healthy. Anything below 1x means you're destroying value." },
+  { tag:"🧭 The North Star test", question:"A logistics VP asks: 'What % of our orders land with the customer on time AND with all items correct — no partial deliveries, no delays?' Which metric answers this perfectly?", answerKey:"OTIF", explain:"OTIF (On Time In Full) — the composite logistics excellence metric. It captures both timing and completeness in one number." },
+  { tag:"🧭 The North Star test", question:"A category lead asks: 'Are we cheaper than Flipkart on the majority of matched products in our category right now?' Which metric gives them this answer?", answerKey:"UPS", explain:"UPS (Unified Pricing Score) — % of price-matched products where Meesho is priced higher than competitors. Lower UPS = more competitive. Target < 20%." },
+];
+
+// Format 7 — REAL SLACK (multi-turn convo, player identifies the key term in context)
+const FMT_SLACK = [
+  { tag:"💬 Slack · #ops-daily", slack:[
+      {name:"Karan (3PL Lead)", msg:"Morning team — Lucknow hub showing 19% failure rate on first delivery attempts today."},
+      {name:"Divya (Ops)", msg:"What's the breakdown? Customer not home or wrong address?"},
+      {name:"Karan (3PL Lead)", msg:"60% 'customer unavailable', 30% wrong address, 10% refused. All getting logged."},
+    ], question:"Karan is logging these as a specific report type. What is it called?", answerKey:"NDR", explain:"NDR (Non-Delivery Report) — filed for every failed delivery attempt. After max NDRs, the shipment becomes an RTO." },
+  { tag:"💬 Slack · #growth", slack:[
+      {name:"Priya (Growth PM)", msg:"New cohort data is in — users who did 5 orders in their first 4 months have 3x the LTV of those who did 2 or fewer."},
+      {name:"Rohit (Analytics)", msg:"Exactly. That's why this is our activation threshold."},
+      {name:"Priya (Growth PM)", msg:"All our retention campaigns are pointed at getting users there. It's the habit trigger."},
+    ], question:"What is the specific Meesho milestone that Priya and Rohit are describing?", answerKey:"O5M4", explain:"O5M4 — 5 orders in 4 months. Meesho's internal habit-formation benchmark. Users who hit this threshold have dramatically higher retention and LTV." },
+  { tag:"💬 Slack · #supplier-health", slack:[
+      {name:"Ananya (Category)", msg:"Supplier #4421 is flagging a lot. 38% of their orders last week were dispatched after the committed date."},
+      {name:"Rahul (Ops)", msg:"Yeah I saw that. Their performance has been declining for 3 weeks straight."},
+      {name:"Ananya (Category)", msg:"We need to put them on a performance improvement plan or they'll start affecting our promise dates."},
+    ], question:"Which supplier metric is Ananya referring to when she says 'dispatched after the committed date'?", answerKey:"LDR", explain:"LDR (Late Dispatch Rate) — % of orders dispatched after EDD. Sustained high LDR triggers CPD misses and supplier performance reviews." },
+  { tag:"💬 Slack · #cs-escalations", slack:[
+      {name:"Meera (CS Lead)", msg:"Getting a spike of 'item not as described' complaints in Ethnic Wear. Customers say the product looks different from the photos."},
+      {name:"Pooja (Quality)", msg:"I checked — the listing images are old stock. Supplier updated the product but not the listing."},
+      {name:"Meera (CS Lead)", msg:"So the listing quality is the problem. These returns are going to hit the supplier's scorecard."},
+    ], question:"What type of return will these get classified as on the supplier's performance dashboard?", answerKey:"WPR", explain:"WPR (Wrong Product Return) — when the received item doesn't match the listing description. Distinct from WFR (wrong item delivered entirely)." },
 ];
 
 // ═══════════════════════════════════════════════════════════
