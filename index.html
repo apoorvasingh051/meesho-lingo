@@ -6,17 +6,9 @@
 <title>Meesho Lingo 🛍️</title>
 <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet"/>
 
-<!-- ═══════════════════════════════════════════════════════════
-  FIREBASE — Drop your config here for live leaderboard.
-  1. Go to console.firebase.google.com → Create project
-  2. Add a Web app → copy the config object below
-  3. Go to Realtime Database → Create database → Start in test mode
-  Uncomment the scripts below once you have your config.
-═══════════════════════════════════════════════════════════ -->
-<!--
+<!-- ✅ Firebase COMPAT SDK — works in plain HTML, no "import" needed -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
--->
 
 <style>
 :root {
@@ -98,23 +90,17 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .data-status.ok{color:var(--mint);}
 .data-status.err{color:var(--coral);}
 
-/* ── JOURNEY MAP (inline on home) ── */
+/* ── JOURNEY MAP ── */
 .journey-section{width:100%;max-width:900px;margin-top:60px;}
 .section-label{display:flex;align-items:center;gap:12px;margin-bottom:28px;}
 .section-label-text{font-family:'Clash Display',sans-serif;font-weight:700;font-size:22px;}
 .section-label-line{flex:1;height:1px;background:var(--border2);}
-
-/* Horizontal scrollable journey map */
 .journey-map-wrap{overflow-x:auto;padding-bottom:16px;-webkit-overflow-scrolling:touch;}
 .journey-map-wrap::-webkit-scrollbar{height:4px;}
 .journey-map-wrap::-webkit-scrollbar-thumb{background:var(--card2);border-radius:100px;}
-
 .journey-map{display:flex;align-items:flex-start;gap:0;min-width:max-content;padding:8px 4px 4px;}
-
-/* Stage node */
 .j-node-wrap{display:flex;flex-direction:column;align-items:center;position:relative;}
-.j-connector-h{width:48px;height:2px;background:var(--border2);margin-top:28px;flex-shrink:0;position:relative;}
-.j-connector-h.branch-below::after{content:'';position:absolute;left:50%;top:0;width:2px;height:32px;background:var(--border2);transform:translateX(-50%);}
+.j-connector-h{width:48px;height:2px;background:var(--border2);margin-top:28px;flex-shrink:0;}
 .j-stage-node{width:56px;height:56px;border-radius:18px;background:var(--card);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;transition:all .3s;position:relative;flex-shrink:0;}
 .j-stage-node:hover{border-color:var(--rose);transform:translateY(-2px);box-shadow:0 8px 24px rgba(240,64,106,.2);}
 .j-stage-node.active{border-color:var(--rose);background:rgba(240,64,106,.12);box-shadow:0 0 0 4px rgba(240,64,106,.15);}
@@ -123,8 +109,6 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .j-kpi-dots{display:flex;gap:3px;justify-content:center;margin-top:5px;flex-wrap:wrap;max-width:72px;}
 .j-kpi-dot{font-size:9px;font-weight:700;padding:2px 6px;border-radius:100px;background:var(--card2);color:var(--muted);border:1px solid var(--border2);cursor:pointer;transition:all .15s;white-space:nowrap;}
 .j-kpi-dot:hover{border-color:var(--rose);color:var(--rose);}
-
-/* Branch nodes below */
 .j-branch-wrap{display:flex;gap:0;align-items:flex-start;margin-top:0;}
 .j-branch-col{display:flex;flex-direction:column;align-items:center;}
 .j-branch-vline{width:2px;height:24px;}
@@ -135,8 +119,6 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .j-branch-box.fail{border-color:rgba(240,64,106,.3);color:var(--rose);background:rgba(240,64,106,.06);}
 .j-branch-box:hover{transform:scale(1.04);}
 .j-branch-spacer{width:20px;flex-shrink:0;}
-
-/* Detail panel that slides up */
 .journey-detail-panel{width:100%;max-width:900px;background:var(--card2);border:1px solid var(--border2);border-radius:20px;padding:24px 28px;margin-top:16px;display:none;animation:slideUp .25s ease;}
 .journey-detail-panel.open{display:block;}
 @keyframes slideUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
@@ -241,7 +223,6 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .lb-pts{font-family:'Clash Display',sans-serif;font-weight:700;font-size:16px;color:var(--gold);}
 .lb-you{font-size:10px;font-weight:700;background:rgba(240,64,106,.2);color:var(--rose);padding:2px 8px;border-radius:100px;text-transform:uppercase;margin-left:6px;}
 .lb-empty{text-align:center;padding:40px;color:var(--muted);font-size:14px;}
-
 .screen-heading{font-family:'Clash Display',sans-serif;font-weight:700;font-size:28px;margin:52px 0 6px;text-align:center;}
 .screen-sub{color:var(--muted);font-size:13.5px;margin-bottom:28px;text-align:center;}
 
@@ -249,7 +230,6 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .confetti-wrap{position:fixed;inset:0;pointer-events:none;z-index:9998;}
 .cp{position:absolute;border-radius:3px;animation:fall linear forwards;}
 @keyframes fall{0%{transform:translateY(-30px) rotate(0deg);opacity:1;}100%{transform:translateY(110vh) rotate(800deg);opacity:0;}}
-
 ::-webkit-scrollbar{width:5px;height:5px;}
 ::-webkit-scrollbar-track{background:var(--ink);}
 ::-webkit-scrollbar-thumb{background:var(--card2);border-radius:100px;}
@@ -272,7 +252,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
   </div>
 </div>
 
-<!-- ═══════════════════════ HOME ═══════════════════════ -->
+<!-- HOME -->
 <div class="screen active" id="homeScreen">
   <div class="home-wrap">
     <div class="eyebrow">🛍️ &nbsp;Meesho Lingo &nbsp;v4</div>
@@ -301,11 +281,11 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
       <div class="stat-chip"><span>📝</span><span id="statTerms">—</span> terms</div>
       <div class="stat-chip"><span>🏆</span><span id="statHigh">0</span> personal best</div>
       <div class="stat-chip"><span>👤</span><span id="statUser">Guest</span></div>
-      <div class="stat-chip" onclick="goTo('leaderboardScreen')" style="cursor:pointer;"><span>👥</span>Leaderboard</div>
+      <div class="stat-chip" onclick="goTo('leaderboardScreen');loadLB()" style="cursor:pointer;"><span>👥</span>Leaderboard</div>
     </div>
-    <div class="data-status" id="dataStatus">⏳ Loading terms from database…</div>
+    <div class="data-status" id="dataStatus">⏳ Loading terms…</div>
 
-    <!-- ORDER JOURNEY MAP — inline on home -->
+    <!-- ORDER JOURNEY MAP -->
     <div class="journey-section">
       <div class="section-label">
         <div class="section-label-line"></div>
@@ -313,7 +293,6 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
         <div class="section-label-line"></div>
       </div>
       <p style="text-align:center;color:var(--muted);font-size:13px;margin-bottom:20px;">Click any stage to see which KPIs matter — and what happens when things go wrong</p>
-
       <div class="journey-map-wrap">
         <div class="journey-map" id="journeyMap"></div>
       </div>
@@ -322,7 +301,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
   </div>
 </div>
 
-<!-- ═══════════════════════ GLOSSARY ═══════════════════════ -->
+<!-- GLOSSARY -->
 <div class="screen" id="glossaryScreen">
   <button class="back-btn" onclick="goTo('homeScreen')">← Back</button>
   <div class="screen-heading">Search & Glossary</div>
@@ -346,7 +325,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
   </div>
 </div>
 
-<!-- ═══════════════════════ WAR ROOM ═══════════════════════ -->
+<!-- WAR ROOM -->
 <div class="screen" id="warRoomScreen">
   <button class="back-btn" onclick="exitWR()">✕ Quit</button>
   <div class="wr-header">
@@ -372,7 +351,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
   </div>
 </div>
 
-<!-- ═══════════════════════ RESULTS ═══════════════════════ -->
+<!-- RESULTS -->
 <div class="screen" id="resultsScreen">
   <div class="res-card">
     <div class="res-em" id="resEm">🎉</div>
@@ -389,16 +368,16 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
   </div>
 </div>
 
-<!-- ═══════════════════════ LEADERBOARD ═══════════════════════ -->
+<!-- LEADERBOARD -->
 <div class="screen" id="leaderboardScreen">
   <button class="back-btn" onclick="goTo('homeScreen')">← Back</button>
   <div class="screen-heading">🏆 Leaderboard</div>
   <div class="screen-sub">Live rankings across all Meesho Lingo players</div>
   <div class="lb-wrap">
     <div style="text-align:center;">
-      <div class="lb-live-badge"><div class="lb-live-dot"></div> <span id="lbLiveLabel">Live</span></div>
+      <div class="lb-live-badge"><div class="lb-live-dot"></div><span id="lbLiveLabel">Connecting…</span></div>
     </div>
-    <div class="lb-list" id="lbList"></div>
+    <div class="lb-list" id="lbList"><div class="lb-empty">Loading…</div></div>
     <div style="margin-top:20px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
       <button class="btn-primary" onclick="startWarRoom()">Play Now</button>
       <button class="btn-secondary" onclick="loadLB()">🔄 Refresh</button>
@@ -408,33 +387,46 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 
 <div class="confetti-wrap" id="confettiWrap"></div>
 
+<!-- ✅ ONE clean script tag — no "import" statements -->
 <script>
 // ═══════════════════════════════════════════════════════════
-// CONFIG — UPDATE THESE
+// STEP 1: Firebase is already loaded via the <script> tags above.
+// ✅ Initialize it here using the compat API (firebase.initializeApp)
 // ═══════════════════════════════════════════════════════════
-
-// 1. Google Sheet CSV URL
-// HOW TO GET: Open your Google Sheet → File → Share → Publish to web
-//             → Sheet: Database → Format: CSV → Publish → copy URL
-const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/1iaKWoERCIFE6I1fyxEFYwAAhqIDYP6mkXVymSGZdves/export?format=csv&gid=1421478307";
-// If publishing doesn't work, paste the published CSV URL here ↑
-
-// 2. Firebase config (for live leaderboard)
-// Uncomment and fill in after creating a Firebase project:
-/*
 const FIREBASE_CONFIG = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-  projectId: "YOUR_PROJECT",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyAnAPEKPouIc7h0PHCcAGq0AUM26IF9Uk4",
+  authDomain: "meesho-lingo-app.firebaseapp.com",
+  projectId: "meesho-lingo-app",
+  storageBucket: "meesho-lingo-app.firebasestorage.app",
+  messagingSenderId: "251971219469",
+  appId: "1:251971219469:web:0001cc8e884aae06576544",
+  measurementId: "G-J570T8C908",
+  databaseURL: "https://meesho-lingo-app-default-rtdb.firebaseio.com"
 };
-*/
+
+let firebaseDB = null;
+try {
+  firebase.initializeApp(FIREBASE_CONFIG);
+  firebaseDB = firebase.database();
+  console.log("✅ Firebase connected");
+  document.getElementById("lbLiveLabel").textContent = "Live • Updates in real-time";
+} catch(e) {
+  console.warn("Firebase init failed:", e.message);
+  document.getElementById("lbLiveLabel").textContent = "Local mode";
+}
 
 // ═══════════════════════════════════════════════════════════
-// FALLBACK TERMS (used if sheet fails to load)
+// STEP 2: Google Sheet CSV URL
+// HOW TO SET UP:
+//   1. Open your Google Sheet
+//   2. File → Share → Publish to web
+//   3. Select your sheet tab → CSV format → Publish
+//   4. Copy the URL and paste it below
+// ═══════════════════════════════════════════════════════════
+const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/1iaKWoERCIFE6I1fyxEFYwAAhqIDYP6mkXVymSGZdves/export?format=csv&gid=1421478307";
+
+// ═══════════════════════════════════════════════════════════
+// FALLBACK TERMS (shown if sheet can't load)
 // ═══════════════════════════════════════════════════════════
 const FALLBACK_TERMS = [
   {t:"GMV",full:"Gross Merchandise Value",def:"Total value of all orders placed before returns or cancellations.",cat:"📈 Growth Metrics",lvl:"beginner",ex:"In the WBR, GMV was up 12% WoW but NMV was flat — meaning extra orders were returning at a higher rate."},
@@ -447,63 +439,68 @@ const FALLBACK_TERMS = [
   {t:"LDR",full:"Late Dispatch Rate",def:"% of orders dispatched after the committed EDD.",cat:"🚚 Logistics & Ops",lvl:"intermediate",ex:"LDR hit 28% in sarees during bridal season — the team fast-tracked onboarding 50 more suppliers."},
   {t:"NPS",full:"Net Promoter Score",def:"% promoters minus % detractors from a recommendation survey.",cat:"⭐ Customer & Quality",lvl:"beginner",ex:"NPS in Tier 2 towns was 42 vs 18 in metros — the value proposition resonated more with price-sensitive buyers."},
   {t:"CAC",full:"Customer Acquisition Cost",def:"Total spend to acquire one new customer.",cat:"📈 Growth Metrics",lvl:"intermediate",ex:"Instagram CAC was 2x Google's, but Instagram users had 1.6x LTV — making the channel still efficient."},
+  {t:"COD",full:"Cash on Delivery",def:"Payment collected at the doorstep — dominant mode in India.",cat:"🚚 Logistics & Ops",lvl:"beginner",ex:"COD orders have a 22% RTO vs 8% for prepaid — reducing COD share is a key ops lever."},
+  {t:"LTV",full:"Lifetime Value",def:"Predicted total revenue a customer generates over their entire relationship with Meesho.",cat:"📈 Growth Metrics",lvl:"intermediate",ex:"Instagram CAC was high but LTV was 1.6x higher — still an efficient channel overall."},
+  {t:"OTIF",full:"On Time In Full",def:"Orders delivered on time and with all items correct.",cat:"🚚 Logistics & Ops",lvl:"intermediate",ex:"OTIF dropped to 71% during Diwali peak — the logistics SLA breach triggered a supplier penalty review."},
+  {t:"AOV",full:"Average Order Value",def:"Total GMV divided by total number of orders.",cat:"📈 Growth Metrics",lvl:"beginner",ex:"AOV in ethnic wear is ₹450 vs ₹280 in daily essentials — category mix matters for revenue quality."},
+  {t:"CSAT",full:"Customer Satisfaction Score",def:"Post-delivery 1–5 star rating measuring customer experience.",cat:"⭐ Customer & Quality",lvl:"beginner",ex:"CSAT fell to 3.8 after monsoon logistics delays — the team ran a refund-first policy to recover trust."},
 ];
 
 // ═══════════════════════════════════════════════════════════
 // JOURNEY STAGES DATA
 // ═══════════════════════════════════════════════════════════
 const JOURNEY_STAGES = [
-  {id:"j1",icon:"🛍️",label:"Seller Lists\nCatalogue",color:"var(--sky)",
+  {id:"j1",icon:"🛍️",label:"Seller Lists\nCatalogue",
    kpis:["LQS","SKU","SSCAT","C/S","SoL"],
    kpiDetails:[
      {name:"LQS",def:"Listing Quality Score — image quality, title accuracy, attribute completeness.",good:"LQS > 75 = 30%+ higher conversion"},
-     {name:"SKU",def:"Stock Keeping Unit — each product variant has a unique ID.",good:"More SKUs = more variety but needs inventory control"},
-     {name:"SSCAT",def:"Sub Sub Category — most granular product classification (3 levels).",good:"Correct SSCAT tagging boosts search ranking significantly"},
+     {name:"SKU",def:"Stock Keeping Unit — each product variant gets a unique ID.",good:"More SKUs = variety; needs inventory control"},
+     {name:"SSCAT",def:"Sub Sub Category — most granular classification (3 levels).",good:"Correct SSCAT tagging boosts search ranking"},
    ],
    failure:"Poor LQS → low CTR on PLP → fewer orders → supplier risks delisting."},
-  {id:"j2",icon:"📱",label:"User Views\n& Orders",color:"var(--lavender)",
+  {id:"j2",icon:"📱",label:"User Views\n& Orders",
    kpis:["CTR","ATC","AOV","PDP","MOV"],
    kpiDetails:[
      {name:"CTR",def:"Click-Through Rate — % of users who tap a listing after seeing it.",good:"Healthy PLP CTR: 3–8% by category"},
      {name:"ATC",def:"Add to Cart — mid-funnel purchase intent signal.",good:"ATC → Purchase conversion target: >40%"},
      {name:"AOV",def:"Average Order Value — total GMV ÷ orders.",good:"Higher AOV improves CM; varies by category"},
    ],
-   failure:"Low CTR → algorithm deprioritises product → vicious cycle of less visibility.",
+   failure:"Low CTR → algorithm deprioritises product → less visibility spiral.",
    branch:{label:"Payment?",left:{label:"💳 Prepaid",type:"success",detail:"UPI/card. Lower RTO (~8%). Immediate settlement."},right:{label:"💵 COD",type:"fail",detail:"Cash at door. Higher RTO (~22%). More expensive to manage."}}},
-  {id:"j3",icon:"🧾",label:"Order ID\nCreated",color:"var(--mint)",
+  {id:"j3",icon:"🧾",label:"Order ID\nCreated",
    kpis:["GMV","MTU","OA","NMV"],
    kpiDetails:[
      {name:"GMV",def:"Every order placed adds to GMV — regardless of delivery outcome.",good:"GMV is leading; NMV is the quality check"},
      {name:"MTU",def:"This order may count toward Monthly Transacting Users — the north star.",good:"One new first-time buyer = MTU +1"},
      {name:"OA",def:"Order Activation — customer's Nth order milestone on the habit curve.",good:"3OA is the key habit formation signal"},
    ],
-   failure:"Order creation failures spike SC rates before dispatch, killing NMV.",
+   failure:"Order creation failures spike Supplier Cancellation rates before dispatch.",
    branch:{label:"Supplier?",left:{label:"✅ Accepted",type:"success",detail:"Supplier confirms. EDD clock starts."},right:{label:"❌ SC — Supplier Cancel",type:"fail",detail:"OOS or capacity issue. GMV doesn't convert to NMV. Customer refunded."}}},
-  {id:"j4",icon:"📦",label:"Supplier\nDispatches",color:"var(--coral)",
+  {id:"j4",icon:"📦",label:"Supplier\nDispatches",
    kpis:["EDD","LDR","NDD","M2S","AWB"],
    kpiDetails:[
      {name:"EDD",def:"Expected Dispatch Date — committed date by which supplier must dispatch.",good:"EDD adherence target: >90%"},
      {name:"LDR",def:"Late Dispatch Rate — % of orders after EDD. Cascades into CPD misses.",good:"LDR target: <5% for healthy suppliers"},
-     {name:"M2S",def:"Manifest to Ship — time between supplier creating manifest and 3PL collecting.",good:"M2S < 4 hours is the SLA target"},
+     {name:"M2S",def:"Manifest to Ship — time between supplier manifest and 3PL collection.",good:"M2S < 4 hours is the SLA target"},
    ],
    failure:"High LDR → CPD miss → CSAT drop → NPS detractors → buyer churn."},
-  {id:"j5",icon:"🚚",label:"3PL Picks\nUp",color:"var(--sky)",
-   kpis:["NPR","M2S","TAT","3PL","AWB"],
+  {id:"j5",icon:"🚚",label:"3PL Picks\nUp",
+   kpis:["NPR","TAT","3PL","AWB"],
    kpiDetails:[
      {name:"NPR",def:"Non Picked-up Report — 3PL failed to collect from supplier on time.",good:"NPR rate target: < 2% per 3PL partner"},
-     {name:"3PL",def:"Third-Party Logistics — Delhivery, Ecom Express, XpressBees etc.",good:"Partner selection is zone-based — FAD rates vary by region"},
      {name:"TAT",def:"Turnaround Time — end-to-end process time for pickup leg.",good:"Pickup TAT SLA: same day for morning manifests"},
+     {name:"3PL",def:"Third-Party Logistics — Delhivery, Ecom Express, XpressBees etc.",good:"Partner selection is zone-based — FAD rates vary"},
    ],
    failure:"NPR → EDD pushed → LDR spike → CPD miss → CSAT impact downstream."},
-  {id:"j6",icon:"🏭",label:"In Transit\n/ Line-haul",color:"var(--gold)",
-   kpis:["O2S","S2D","Zone","FTL","PTL"],
+  {id:"j6",icon:"🏭",label:"In Transit\nLine-haul",
+   kpis:["O2S","S2D","Zone","FTL"],
    kpiDetails:[
      {name:"O2S",def:"Order to Ship — from order placement to 3PL pickup scan.",good:"O2S < 36 hours for standard categories"},
-     {name:"S2D",def:"Ship to Delivered — 3PL accountability window, pickup to delivery.",good:"Zone A: ~1.5 days. Zone E: 5–7 days."},
-     {name:"Zone",def:"A–E classification based on distance between origin and destination.",good:"Zone affects SLA, CPD promise, and 3PL cost"},
+     {name:"S2D",def:"Ship to Delivered — 3PL accountability window.",good:"Zone A: ~1.5 days. Zone E: 5–7 days."},
+     {name:"Zone",def:"A–E classification based on origin-to-destination distance.",good:"Zone affects SLA, CPD promise, and 3PL cost"},
    ],
-   failure:"Transit delays cascade to CPD misses — especially critical for Zone D/E."},
-  {id:"j7",icon:"🏠",label:"Last Mile\nDelivery",color:"var(--mint)",
+   failure:"Transit delays cascade to CPD misses — critical for Zone D/E shipments."},
+  {id:"j7",icon:"🏠",label:"Last Mile\nDelivery",
    kpis:["OFD","FAD","NDR","CPD","OTIF"],
    kpiDetails:[
      {name:"FAD",def:"First Attempt Delivery — delivered successfully on first try.",good:"FAD > 88% is the 3PL benchmark"},
@@ -511,17 +508,17 @@ const JOURNEY_STAGES = [
      {name:"CPD",def:"Customer Promise Date — delivery date shown to buyer at checkout.",good:"CPD adherence target: >85%"},
    ],
    failure:"NDR loop → 2–3 reattempts → RTO. Each reattempt costs ₹25–40 in logistics.",
-   branch:{label:"Delivered?",left:{label:"✅ Delivered",type:"success",detail:"POD captured. ADD recorded. OTIF measured vs CPD."},right:{label:"❌ NDR → RTO",type:"fail",detail:"Max reattempts exhausted → Return to Origin. Supplier pays reverse logistics. COD cash not collected."}}},
-  {id:"j8",icon:"⭐",label:"Post-Delivery\n& Quality",color:"var(--lavender)",
+   branch:{label:"Delivered?",left:{label:"✅ Delivered",type:"success",detail:"POD captured. ADD recorded. OTIF measured vs CPD."},right:{label:"❌ NDR → RTO",type:"fail",detail:"Max reattempts exhausted → Return to Origin. Supplier pays reverse logistics."}}},
+  {id:"j8",icon:"⭐",label:"Post-Delivery\n& Quality",
    kpis:["CSAT","NPS","NQD","ODNR","WFR"],
    kpiDetails:[
      {name:"CSAT",def:"Customer Satisfaction Score — post-delivery 1–5 star rating.",good:"CSAT > 4.2 target for fulfilled orders"},
      {name:"NPS",def:"Net Promoter Score — would you recommend Meesho?",good:"NPS > 40 is strong for Indian e-commerce"},
-     {name:"ODNR",def:"Orders Delivered Not Returned — proxy for 'customer loved the product'.",good:"ODNR > 85% is the quality benchmark"},
+     {name:"ODNR",def:"Orders Delivered Not Returned — proxy for 'customer loved it'.",good:"ODNR > 85% is the quality benchmark"},
    ],
    failure:"Low CSAT + high NQD → algorithm demotes product → supplier loses visibility.",
    branch:{label:"Happy?",left:{label:"✅ Kept (ODNR)",type:"success",detail:"Repeat purchase probability increases. Positive review lifts LQS."},right:{label:"↩️ Return (RVP)",type:"fail",detail:"RVP scheduled. RPC processes item. WFR/WPR/QR logged and attributed to supplier."}}},
-  {id:"j9",icon:"💰",label:"Payment\nSettlement",color:"var(--gold)",
+  {id:"j9",icon:"💰",label:"Settlement\n& Unit Econ",
    kpis:["MDR","CM","N/G","NMV","CPO"],
    kpiDetails:[
      {name:"N/G",def:"NMV/GMV ratio — what fraction of gross value was actually delivered.",good:"N/G > 83% is a healthy supply chain signal"},
@@ -529,11 +526,11 @@ const JOURNEY_STAGES = [
      {name:"MDR",def:"Merchant Discount Rate — card gateway fee (0% UPI, 1.5–2% cards).",good:"Shifting mix toward UPI reduces cost at scale"},
    ],
    failure:"High RTO + COD + MDR = negative CM. The unit economics death spiral.",
-   branch:{label:"Payment flow",left:{label:"💳 PP → Direct",type:"success",detail:"User paid at checkout → T+1 settlement to supplier after delivery confirmation."},right:{label:"💵 COD → 3PL remits",type:"fail",detail:"3PL collects cash at door → remits to Meesho (T+3 to T+7) → Meesho pays supplier."}}},
+   branch:{label:"Payment flow",left:{label:"💳 PP → Direct",type:"success",detail:"Paid at checkout → T+1 settlement after delivery confirmation."},right:{label:"💵 COD → 3PL remits",type:"fail",detail:"3PL collects cash → remits to Meesho T+3–7 → Meesho pays supplier."}}},
 ];
 
 // ═══════════════════════════════════════════════════════════
-// WAR ROOM CONTEXTS
+// WAR ROOM QUESTION CONTEXTS
 // ═══════════════════════════════════════════════════════════
 const WR_CONTEXTS = [
   {tag:"📊 Slack · #wbr-prep",gen:(t)=>({slack:`<span class="slack-sender">Priya (Growth):</span> Just pulled the numbers — ${t.t} dropped 6% WoW in North cluster. Any ideas?`,stem:`What is Priya referring to when she mentions <mark>${t.t}</mark>?`,sub:`💡 ${t.full}`})},
@@ -549,57 +546,42 @@ const WR_CONTEXTS = [
 ];
 
 // ═══════════════════════════════════════════════════════════
-// STATE
+// APP STATE
 // ═══════════════════════════════════════════════════════════
 let ALL_TERMS = [];
 let currentUser = null, selectedAvatar = "🛍️";
 let wrQs = [], wrIdx = 0, wrScore = 0, wrStreak = 0, wrMaxStreak = 0;
 let wrAnswered = false, wrTimer = null, wrTimeLeft = 25;
 let glCat = "All", glLvl = "all";
-let firebaseDB = null;
 const AVATARS = ["🦁","🐼","🦊","🐸","🦋","🌟","🔥","🚀","🎯","💎","🌈","🎸"];
 const WR_COUNT = 12;
 const WR_TIME = 25;
 
 // ═══════════════════════════════════════════════════════════
-// FIREBASE SETUP
-// ═══════════════════════════════════════════════════════════
-function initFirebase(){
-  try {
-    if(typeof FIREBASE_CONFIG !== 'undefined' && typeof firebase !== 'undefined'){
-      firebase.initializeApp(FIREBASE_CONFIG);
-      firebaseDB = firebase.database();
-      document.getElementById("lbLiveLabel").textContent = "Live • Updates in real-time";
-      console.log("Firebase connected ✓");
-    }
-  } catch(e){ console.log("Firebase not configured — using local storage"); }
-}
-
-// ═══════════════════════════════════════════════════════════
-// GOOGLE SHEETS DATA LOADING
+// GOOGLE SHEETS LOADER
 // ═══════════════════════════════════════════════════════════
 function catFromSheet(abbr, desc){
-  const a = abbr.toLowerCase(), d = desc.toLowerCase();
-  if(/gmv|nmv|aov|asp|mau|dau|wau|mtu|cac|ltv|order activation|\boa\b|mom|wow|dod|tam|sow|\bgc\b|\boc\b|\bvc\b|tpc|t\/v|t\/i|tby10k|aiuser|aiu|r%|mx r|shopex|b2c|r&e|retention %|churn|repeat rate|winback|f1oa|f5oa|f6oa|30oa|o5m|vbyr|obyv|high ob|s\/r|s\/v|v\/r|v\/vi|g\/r|ug |user growth/.test(a+d)) return '📈 Growth Metrics';
-  if(/sku|vsku|sscat|cat\/scat|catalog|collection|oos|out of stock|lqs|listing quality|fbm|fulfilled by|ssr|self serve|supplier cancel|\bsc\b|minimum order|mov|wdrp|psm|product supplier|sid|supplier identifier|\bcid\b|catalog identification|\bpid\b|product id|l\/s|listing per|c\/s|catalog per|cby|ideal product|variation|selection growth|\bsg\b|pla|product listing ad|ct-qct|sub sub cat/.test(a+d)) return '🏭 Supply & Catalogue';
-  if(/\bndr\b|non deliver|\brto\b|return to origin|\bnpr\b|non picked|\bcod\b|cash on delivery|prepaid|\btat\b|turnaround|otif|ontime|\b3pl\b|third party logistic|\badd\b|actual delivery|edd|expected dispatch|\bcpd\b|customer promise|\bofd\b|out for delivery|\bfad\b|first attempt|\bo2d\b|\bldr\b|late dispatch|\bm2s\b|manifest to ship|\bndd\b|next day dispatch|\brvp\b|reverse pickup|\brpc\b|return processing|\bawb\b|airway|\bpod\b|proof of delivery|\bftl\b|full truck|\bptl\b|part truck|\bdc\b|distribution cent|\bwms\b|warehouse|line.haul|first mile|last mile|\bfm\b|\blm\b|zone a|zone b|zone c|zone d|zone e|\bo2s\b|\bs2d\b|o2fofd|o2m|p2d|r2c|s2r|cpso|cpo\/s|cost per shipment|logistics|dispatch|delivery|shipment|pickup|courier/.test(a+d)) return '🚚 Logistics & Ops';
-  if(/\bokr\b|\bkra\b|\bkpi\b|\bprd\b|\bpfs\b|problem first|working session|reflections|sprint|a\/b test|clickthrough|click.through|\batc\b|add to cart|\bdtb\b|decision to buy|\bpdp\b|product description|\bplp\b|product listing page|\bclp\b|catalog listing|\bseo\b|\bserp\b|ndcg|relevance score|ci\/cd|root cause|\bsre\b|site reliability|\brps\b|requests per|\biop\b|inference|\bcms\b|content management|deeplink|push notif|\bpn\b|north star|v2s|c\/s\/e|pbd|product based|\bofs\b|organic feed|\bosm\b|order state|\bors\b|order reconcil|\btoss\b|transact order|\bqcl\b|query correct|o\/v|o\/r|o\/s|o\/se|t\/i|\bctr\b/.test(a+d)) return '💻 Product & Tech';
-  if(/\bnps\b|net promoter|\bcsat\b|customer satisfaction|\bfcr\b|first contact|\baht\b|average handle|\bnqd\b|net quality|\bqds\b|quality detr|\bpq\b|product quality|\bodnr\b|orders delivered not|\ber\b|easy return|\bprp\b|premium return|\bwfr\b|wrong fulfil|\bwpr\b|wrong product|\bqr\b|quality return|winback|\bmx r\b|month x retain|\bihao\b|\brnr\b|ring not|\bcmb\b|call me back/.test(a+d)) return '⭐ Customer & Quality';
-  if(/\bcm\b|\bcm2\b|contribution margin|\bcpo\b|cost per order|\bcpc\b|cost per click|\bcpr\b|cost per rat|\bcps\b|cost per ship|cpso|cost per sub|\bmdr\b|merchant discount|\bn\/g\b|nmv.*gmv|\bfod\b|first order discount|\bnod\b|nth order|p70|p50|p40|\bbrp\b|basic return|ocpd|\bepg\b|external payment|\bsp\b|savings plan|server costs/.test(a+d)) return '💰 Finance & Unit Economics';
-  if(/\bwbr\b|weekly business|\bmbr\b|monthly business|\bmbbr\b|\bmbpr\b|\bbau\b|business as usual|\bdri\b|directly responsible|\bbhag\b|big hairy|\bmba\b|meesho business academy|\bcep\b|capability|\bcpm\b|corporate performance|\bhrbp\b|human resource|\bchro\b|\bfos\b|feet on street|\bfow\b|future of work|\bkam\b|key account|\bjfm|amj|jas|ond|quarter|pd\/vd|\bur\b|user research|\bcmr\b|change manage|f & o|f&o|field.*out/.test(a+d)) return '📋 Reviews & Meetings';
-  if(/\baws\b|amazon web|\bec2\b|\beks\b|\bgcp\b|google cloud|disaster recov|\bdr\b|mttd|mean time to detect|\bmttr\b|mean time to recover|\bmfa\b|multi.factor|\bvpn\b|virtual private|\bsiem\b|security information|\bvapt\b|vulnerability|\bwaf\b|web application firewall|\bdlp\b|data loss|\bpii\b|personally identifiable|\bdpdpa\b|\bsoc\b|security operat|\bcasb\b|\bcdr\b|cloud detect|\bciem\b|\bcnapp\b|\bcspm\b|\bcwpp\b|\bdast\b|\bedr\b|endpoint detect|\bepp\b|endpoint protect|\bgrc\b|governance|\biam\b|identity access|\biso\b|international organ|\bmdm\b|mobile device|\bnac\b|network access|\brds\b|amazon relation|\brpo\b|recovery point|\bsagemaker\b|\bsast\b|\btls\b|transport layer|\but\b|unit test|\bxdr\b|extended detect|backend|\bupsi\b|unpublished sensitive|soc2/.test(a+d)) return '🔒 Security & Infra';
+  const s = (abbr+desc).toLowerCase();
+  if(/gmv|nmv|aov|asp|mau|dau|wau|mtu|cac|ltv|\boa\b|mom|wow|dod|tam|sow|\bgc\b|\boc\b|\bvc\b|retention|churn|repeat rate|winback|f1oa|f5oa|f6oa|30oa|o5m|user growth|aiuser|shopex/.test(s)) return '📈 Growth Metrics';
+  if(/sku|vsku|sscat|catalog|oos|out of stock|lqs|listing quality|fbm|fulfilled by|ssr|self serve|supplier cancel|minimum order|mov|wdrp|psm|product supplier|sid|supplier id|\bcid\b|\bpid\b|listing per|catalog per|ideal product|variation|selection growth|\bsg\b|pla|ct-qct|sub sub cat/.test(s)) return '🏭 Supply & Catalogue';
+  if(/\bndr\b|non deliver|\brto\b|return to origin|\bnpr\b|non picked|\bcod\b|cash on delivery|prepaid|\btat\b|turnaround|otif|\b3pl\b|third.party|\badd\b|actual delivery|edd|expected dispatch|\bcpd\b|customer promise|\bofd\b|out for delivery|\bfad\b|first attempt|\bldr\b|late dispatch|\bm2s\b|manifest|\bndd\b|next day|\brvp\b|reverse pickup|\brpc\b|return process|\bawb\b|airway|\bpod\b|proof of delivery|\bftl\b|\bptl\b|\bdc\b|distribution|\bwms\b|warehouse|line.haul|first mile|last mile|logistics|dispatch|delivery|shipment|courier|\bo2d\b|\bo2s\b|\bs2d\b/.test(s)) return '🚚 Logistics & Ops';
+  if(/\bokr\b|\bkra\b|\bkpi\b|\bprd\b|\bpfs\b|problem first|working session|reflections|sprint|a\/b test|\batc\b|add to cart|\bdtb\b|\bpdp\b|product description|\bplp\b|product listing|\bclp\b|catalog listing|\bseo\b|\bserp\b|ndcg|ci\/cd|root cause|\bsre\b|\brps\b|requests per|\biop\b|\bcms\b|content manage|deeplink|push notif|\bpn\b|north star|v2s|c\/s\/e|\bctr\b|click.through/.test(s)) return '💻 Product & Tech';
+  if(/\bnps\b|net promoter|\bcsat\b|customer satisf|\bfcr\b|first contact|\baht\b|average handle|\bnqd\b|quality detract|\bqds\b|\bpq\b|product quality|\bodnr\b|orders delivered not|\ber\b|easy return|\bprp\b|premium return|\bwfr\b|wrong fulfil|\bwpr\b|wrong product|\bqr\b|quality return|winback|\bmx r\b/.test(s)) return '⭐ Customer & Quality';
+  if(/\bcm\b|\bcm2\b|contribution margin|\bcpo\b|cost per order|\bcpc\b|cost per click|\bcps\b|cost per ship|cpso|\bmdr\b|merchant discount|\bn\/g\b|\bfod\b|first order discount|\bnod\b|nth order|p70|p50|p40|\bbrp\b|ocpd|server cost/.test(s)) return '💰 Finance & Unit Economics';
+  if(/\bwbr\b|weekly business|\bmbr\b|monthly business|\bmbbr\b|\bmbpr\b|\bbau\b|business as usual|\bdri\b|directly responsible|\bbhag\b|\bmba\b|meesho business|\bcep\b|capability|\bcpm\b|corporate perf|\bhrbp\b|human resource|\bchro\b|\bfos\b|feet on street|\bfow\b|future of work/.test(s)) return '📋 Reviews & Meetings';
+  if(/\baws\b|amazon web|\bec2\b|\beks\b|\bgcp\b|google cloud|disaster recov|\bmttd\b|\bmttr\b|\bmfa\b|multi.factor|\bvpn\b|virtual private|\bsiem\b|\bvapt\b|\bwaf\b|web application firewall|\bdlp\b|data loss|\bpii\b|personally identif|\bdpdpa\b|\bsoc\b|security operat|\bcasb\b|\bcdr\b|\bciem\b|\bcnapp\b|\bcspm\b|\bcwpp\b|\bdast\b|\bedr\b|\bepp\b|\bgrc\b|\biam\b|\biso\b|\bmdm\b|\bnac\b|\brds\b|\brpo\b|\bsagemaker\b|\bsast\b|\btls\b|\bxdr\b|backend/.test(s)) return '🔒 Security & Infra';
   return '📦 Platform Concepts';
 }
 function lvlFromSheet(a,d){
-  if(/ndcg|ocpd|cpso|qds|cm2|f-cac|o5m4|30oa|wdrp|ups|upd|siem|vapt|cwpp|ciem|cnapp|cspm|casb|mttd|mttr|rpo|sast|dast|xdr|edr|iop|eks|sre|ors|osm|toss|qcl|p2d|o2fofd|o2m|s2r|r2c|tby10k|grc|epg|upsi/.test(a.toLowerCase()+d.toLowerCase())) return 'advanced';
-  if(/cac|ltv|mtu|dau|wau|nqd|fcr|aht|lqs|cid|pid|sid|edd|cpd|add|s2d|o2s|m2s|ldr|npr|ndr|otif|fad|rpc|rvp|prp|odnr|wfr|wpr|cm |cpo|cps|mdr|n\/g|nod|mx r|rca|pfs|dri|hrbp|cep|mbbr|mbpr|sre|rps|ec2|gcp|iam|soc2|rds|rpo|sagemaker|ssr|fbm|sscat|f1oa|f5oa|f6oa|pq|psm|ct-qct|ofs|osm|ors|p70|bhag|tls|mdm|dlp|dpdpa|o\/v|t\/v|l\/s|c\/s/.test(a.toLowerCase()+d.toLowerCase())) return 'intermediate';
+  const s=(a+d).toLowerCase();
+  if(/ndcg|ocpd|cpso|qds|cm2|f-cac|o5m4|30oa|wdrp|ups|upd|siem|vapt|cwpp|ciem|cnapp|cspm|casb|mttd|mttr|rpo|sast|dast|xdr|edr|iop|eks|sre|ors|osm|toss|qcl|p2d|o2fofd|grc|epg|upsi/.test(s)) return 'advanced';
+  if(/cac|ltv|mtu|dau|wau|nqd|fcr|aht|lqs|cid|pid|sid|edd|cpd|add|s2d|o2s|m2s|ldr|npr|ndr|otif|fad|rpc|rvp|prp|odnr|wfr|wpr|cm |cpo|cps|mdr|n\/g|nod|mx r|rca|pfs|dri|hrbp|cep|mbbr|mbpr|ec2|gcp|iam|soc2|rds|rpo|sagemaker|ssr|fbm|sscat|f1oa|f5oa|pq|psm|ct-qct|ofs|p70|bhag|tls|mdm|dlp|dpdpa/.test(s)) return 'intermediate';
   return 'beginner';
 }
 
 async function loadTermsFromSheet(){
   const statusEl = document.getElementById("dataStatus");
   try {
-    // Try fetching the Google Sheet as CSV
     const resp = await fetch(SHEET_CSV_URL);
     if(!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const text = await resp.text();
@@ -607,13 +589,12 @@ async function loadTermsFromSheet(){
     const terms = [];
     const seen = new Set();
     for(let i=1; i<lines.length; i++){
-      // Parse CSV (handle quoted fields)
       const parts = parseCSVLine(lines[i]);
       if(parts.length < 2) continue;
       let abbr = parts[0].trim().replace(/^"|"$/g,'').trim();
       let desc = parts[1].trim().replace(/^"|"$/g,'').trim();
-      if(!abbr || !desc) continue;
-      const key = abbr.toUpperCase().replace(/[^A-Z0-9]/g,'');
+      if(!abbr || !desc || abbr.length > 60) continue;
+      const key = abbr.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,20);
       if(seen.has(key)) continue;
       seen.add(key);
       terms.push({
@@ -622,7 +603,7 @@ async function loadTermsFromSheet(){
         def: desc,
         cat: catFromSheet(abbr, desc),
         lvl: lvlFromSheet(abbr, desc),
-        ex: `In the WBR, the team referenced ${abbr} when reviewing performance against quarterly targets.`
+        ex: `In context: "${abbr}" is referenced in Meesho's internal reviews and operational dashboards.`
       });
     }
     if(terms.length < 5) throw new Error("Too few terms parsed");
@@ -631,10 +612,9 @@ async function loadTermsFromSheet(){
     statusEl.textContent = `✓ ${ALL_TERMS.length} terms loaded live from Google Sheets`;
     statusEl.className = "data-status ok";
     initGlossary();
-    return;
   } catch(e){
-    console.warn("Sheet load failed:", e.message, "— using fallback data");
-    statusEl.textContent = `⚠️ Couldn't reach sheet — using ${FALLBACK_TERMS.length} built-in terms. Publish your sheet to enable live data.`;
+    console.warn("Sheet load failed:", e.message);
+    statusEl.textContent = `⚠️ Using ${FALLBACK_TERMS.length} built-in terms. To enable live data: File → Share → Publish to web (CSV) in your Google Sheet.`;
     statusEl.className = "data-status err";
     ALL_TERMS = FALLBACK_TERMS;
     document.getElementById("statTerms").textContent = ALL_TERMS.length + " (offline)";
@@ -643,69 +623,78 @@ async function loadTermsFromSheet(){
 }
 
 function parseCSVLine(line){
-  const result = []; let cur = ''; let inQ = false;
+  const result=[]; let cur=''; let inQ=false;
   for(let i=0;i<line.length;i++){
-    const c = line[i];
-    if(c==='"'){ inQ=!inQ; }
-    else if(c===','&&!inQ){ result.push(cur); cur=''; }
-    else { cur+=c; }
+    const c=line[i];
+    if(c==='"'){inQ=!inQ;}
+    else if(c===','&&!inQ){result.push(cur);cur='';}
+    else{cur+=c;}
   }
   result.push(cur);
   return result;
 }
 
 // ═══════════════════════════════════════════════════════════
-// LEADERBOARD (Firebase if configured, localStorage fallback)
+// LEADERBOARD — Firebase (live) with localStorage fallback
 // ═══════════════════════════════════════════════════════════
-function getLocalLB(){ try{ return JSON.parse(localStorage.getItem("meeshoLBv4")||"[]"); }catch(e){ return []; }}
+function getLocalLB(){ try{return JSON.parse(localStorage.getItem("meeshoLBv4")||"[]");}catch(e){return[];}}
 function saveLocalLB(lb){ localStorage.setItem("meeshoLBv4", JSON.stringify(lb)); }
 
 function submitScore(pts){
   const entry = {user: currentUser||"Guest", avatar: selectedAvatar, pts, ts: Date.now()};
   if(firebaseDB){
-    // Push to Firebase — real-time sync
     firebaseDB.ref("leaderboard").push(entry)
-      .then(()=>console.log("Score submitted to Firebase"))
-      .catch(e=>console.warn("Firebase submit failed:", e));
+      .then(()=>console.log("✅ Score saved to Firebase"))
+      .catch(e=>{ console.warn("Firebase write failed:", e); saveToLocal(entry); });
   } else {
-    // Fallback to localStorage
-    const lb = getLocalLB();
-    lb.push(entry);
-    lb.sort((a,b)=>b.pts-a.pts);
-    saveLocalLB(lb.slice(0,100));
+    saveToLocal(entry);
   }
   const pb = getPersonalBest();
-  if(pts > pb) localStorage.setItem("meeshoPB", pts);
-  document.getElementById("statHigh").textContent = Math.max(pts, pb);
+  if(pts > pb){ localStorage.setItem("meeshoPB", pts); document.getElementById("statHigh").textContent = pts; }
+}
+
+function saveToLocal(entry){
+  const lb = getLocalLB();
+  lb.push(entry);
+  lb.sort((a,b)=>b.pts-a.pts);
+  saveLocalLB(lb.slice(0,100));
 }
 
 function getPersonalBest(){ return parseInt(localStorage.getItem("meeshoPB")||"0"); }
 
 function loadLB(){
   const listEl = document.getElementById("lbList");
+  listEl.innerHTML = '<div class="lb-empty">Loading…</div>';
   if(firebaseDB){
-    // Real-time Firebase listener
-    firebaseDB.ref("leaderboard").orderByChild("pts").limitToLast(50).on("value", snap=>{
-      const entries = [];
-      snap.forEach(child=>entries.push(child.val()));
-      entries.sort((a,b)=>b.pts-a.pts);
-      renderLBRows(entries.slice(0,20));
-    });
+    // Real-time listener — auto-updates whenever anyone submits a score
+    firebaseDB.ref("leaderboard").orderByChild("pts").limitToLast(50)
+      .on("value", snap => {
+        const entries = [];
+        snap.forEach(child => entries.push(child.val()));
+        entries.sort((a,b)=>b.pts-a.pts);
+        renderLBRows(entries.slice(0,20));
+        document.getElementById("lbLiveLabel").textContent = `Live · ${entries.length} player${entries.length!==1?"s":""} on the board`;
+      }, err => {
+        console.warn("Firebase read failed:", err);
+        // Fall back to local
+        const lb = getLocalLB().sort((a,b)=>b.pts-a.pts);
+        renderLBRows(lb.slice(0,20));
+        document.getElementById("lbLiveLabel").textContent = "Local mode — Firebase unreachable";
+      });
   } else {
-    // localStorage fallback
     const lb = getLocalLB().sort((a,b)=>b.pts-a.pts);
     if(!lb.length){ listEl.innerHTML=`<div class="lb-empty">🎮 No scores yet — be the first to play!<br><br><button class="btn-primary" onclick="startWarRoom()" style="margin-top:12px;">Play Now</button></div>`; return; }
     renderLBRows(lb.slice(0,20));
-    document.getElementById("lbLiveLabel").textContent = "Local · Play on same device only";
+    document.getElementById("lbLiveLabel").textContent = "Local only · Firebase not connected";
   }
 }
 
 function renderLBRows(entries){
   const listEl = document.getElementById("lbList");
-  if(!entries.length){ listEl.innerHTML=`<div class="lb-empty">🎮 No scores yet — be the first!</div>`; return; }
+  if(!entries.length){ listEl.innerHTML=`<div class="lb-empty">🎮 No scores yet — play to get on the board!</div>`; return; }
   listEl.innerHTML = entries.map((e,i)=>`
     <div class="lb-row${e.user===currentUser?' me':''}${i===0?' top1':''}">
-      <div class="lb-rank">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</div>
+      <div class="lb-rank">${i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1)}</div>
       <div class="lb-av">${e.avatar||'🛍️'}</div>
       <div class="lb-info">
         <div class="lb-name">${e.user}${e.user===currentUser?'<span class="lb-you">You</span>':''}</div>
@@ -716,7 +705,7 @@ function renderLBRows(entries){
 }
 
 // ═══════════════════════════════════════════════════════════
-// INIT & LOGIN
+// LOGIN & USER INIT
 // ═══════════════════════════════════════════════════════════
 const agGrid = document.getElementById("avatarGrid");
 AVATARS.forEach(av=>{
@@ -724,10 +713,13 @@ AVATARS.forEach(av=>{
   b.onclick=()=>{ selectedAvatar=av; document.querySelectorAll(".avatar-btn").forEach(x=>x.classList.remove("sel")); b.classList.add("sel"); };
   agGrid.appendChild(b);
 });
-
-const saved = localStorage.getItem("meeshoUser");
-if(saved){ currentUser=saved; selectedAvatar=localStorage.getItem("meeshoAvatar")||"🛍️"; document.getElementById("loginModal").classList.add("hidden"); updateUserUI(); }
-
+const savedUser = localStorage.getItem("meeshoUser");
+if(savedUser){
+  currentUser=savedUser;
+  selectedAvatar=localStorage.getItem("meeshoAvatar")||"🛍️";
+  document.getElementById("loginModal").classList.add("hidden");
+  updateUserUI();
+}
 function startLogin(){
   const n=document.getElementById("nameInput").value.trim();
   if(!n){ document.getElementById("nameInput").focus(); return; }
@@ -755,32 +747,25 @@ function goTo(id){
 // ORDER JOURNEY MAP
 // ═══════════════════════════════════════════════════════════
 let activeJourneyId = null;
-
 function buildJourneyMap(){
   const map = document.getElementById("journeyMap");
   map.innerHTML = "";
-  JOURNEY_STAGES.forEach((stage, idx)=>{
-    // Stage node block
+  JOURNEY_STAGES.forEach((stage,idx)=>{
     const wrap = document.createElement("div");
     wrap.className = "j-node-wrap";
-
     const kpiDots = stage.kpis.map(k=>`<div class="j-kpi-dot" onclick="event.stopPropagation();quickLookup('${k}')">${k}</div>`).join('');
-
     wrap.innerHTML = `
       <div class="j-stage-node" id="${stage.id}" onclick="toggleJourneyStage('${stage.id}')">
-        <div class="j-stage-num">${idx+1}</div>
-        ${stage.icon}
+        <div class="j-stage-num">${idx+1}</div>${stage.icon}
       </div>
       <div class="j-stage-label">${stage.label.replace('\n','<br>')}</div>
       <div class="j-kpi-dots">${kpiDots}</div>`;
-
-    // Branch nodes below
     if(stage.branch){
-      const branchWrap = document.createElement("div");
-      branchWrap.style.cssText="display:flex;flex-direction:column;align-items:center;margin-top:4px;";
-      branchWrap.innerHTML=`
+      const bw=document.createElement("div");
+      bw.style.cssText="display:flex;flex-direction:column;align-items:center;margin-top:4px;";
+      bw.innerHTML=`
         <div style="width:2px;height:14px;background:var(--border2);"></div>
-        <div style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.5px;margin:3px 0;">${stage.branch.label}</div>
+        <div style="font-size:10px;color:var(--muted);font-weight:700;margin:3px 0;">${stage.branch.label}</div>
         <div style="display:flex;gap:6px;align-items:flex-start;">
           <div style="display:flex;flex-direction:column;align-items:center;">
             <div class="j-branch-vline success"></div>
@@ -792,95 +777,73 @@ function buildJourneyMap(){
             <div class="j-branch-box fail" onclick="showBranchDetail(event,'${stage.id}','right')">${stage.branch.right.label}</div>
           </div>
         </div>`;
-      wrap.appendChild(branchWrap);
+      wrap.appendChild(bw);
     }
-
     map.appendChild(wrap);
-
-    // Connector between stages
-    if(idx < JOURNEY_STAGES.length-1){
-      const conn = document.createElement("div");
-      conn.className = "j-connector-h";
-      conn.style.marginTop = stage.branch ? "4px" : "28px";
+    if(idx<JOURNEY_STAGES.length-1){
+      const conn=document.createElement("div");
+      conn.className="j-connector-h";
+      conn.style.marginTop=stage.branch?"4px":"28px";
       map.appendChild(conn);
     }
   });
 }
 
 function toggleJourneyStage(id){
-  const panel = document.getElementById("journeyPanel");
-  const node = document.getElementById(id);
-  const stage = JOURNEY_STAGES.find(s=>s.id===id);
+  const panel=document.getElementById("journeyPanel");
+  const node=document.getElementById(id);
+  const stage=JOURNEY_STAGES.find(s=>s.id===id);
   if(!stage) return;
-
-  if(activeJourneyId === id){ // close
-    panel.classList.remove("open");
-    node.classList.remove("active");
-    activeJourneyId = null;
-    return;
-  }
-  activeJourneyId = id;
+  if(activeJourneyId===id){ panel.classList.remove("open"); node.classList.remove("active"); activeJourneyId=null; return; }
+  activeJourneyId=id;
   document.querySelectorAll(".j-stage-node").forEach(n=>n.classList.remove("active"));
   node.classList.add("active");
-
-  panel.innerHTML = `
+  panel.innerHTML=`
     <div class="jdp-header">
       <div class="jdp-icon">${stage.icon}</div>
-      <div>
-        <div class="jdp-title">${stage.label.replace('\n',' ')}</div>
-        <div class="jdp-sublabel">KPIs that matter at this stage</div>
-      </div>
+      <div><div class="jdp-title">${stage.label.replace('\n',' ')}</div><div class="jdp-sublabel">KPIs that matter at this stage</div></div>
       <button class="jdp-close" onclick="toggleJourneyStage('${id}')">✕</button>
     </div>
-    <div class="jdp-kpi-row">
-      ${stage.kpiDetails.map(k=>`
-        <div class="jdp-kpi-card">
-          <div class="jdp-kpi-name">${k.name}</div>
-          <div class="jdp-kpi-def">${k.def}</div>
-          <div class="jdp-kpi-good">✓ ${k.good}</div>
-        </div>`).join('')}
-    </div>
-    <div class="jdp-failure">
-      <div class="jdp-failure-label">⚠️ When this stage fails</div>
-      <div class="jdp-failure-text">${stage.failure}</div>
-    </div>`;
-
+    <div class="jdp-kpi-row">${stage.kpiDetails.map(k=>`
+      <div class="jdp-kpi-card">
+        <div class="jdp-kpi-name">${k.name}</div>
+        <div class="jdp-kpi-def">${k.def}</div>
+        <div class="jdp-kpi-good">✓ ${k.good}</div>
+      </div>`).join('')}</div>
+    <div class="jdp-failure"><div class="jdp-failure-label">⚠️ When this stage fails</div><div class="jdp-failure-text">${stage.failure}</div></div>`;
   panel.classList.add("open");
-  setTimeout(()=>panel.scrollIntoView({behavior:"smooth",block:"nearest"}), 100);
+  setTimeout(()=>panel.scrollIntoView({behavior:"smooth",block:"nearest"}),100);
 }
 
-function showBranchDetail(e, stageId, side){
+function showBranchDetail(e,stageId,side){
   e.stopPropagation();
-  const stage = JOURNEY_STAGES.find(s=>s.id===stageId);
+  const stage=JOURNEY_STAGES.find(s=>s.id===stageId);
   if(!stage||!stage.branch) return;
-  const branch = side==="left" ? stage.branch.left : stage.branch.right;
-  const panel = document.getElementById("journeyPanel");
-  const color = branch.type==="success" ? "var(--mint)" : "var(--rose)";
-  panel.innerHTML = `
+  const branch=side==="left"?stage.branch.left:stage.branch.right;
+  const panel=document.getElementById("journeyPanel");
+  const color=branch.type==="success"?"var(--mint)":"var(--rose)";
+  panel.innerHTML=`
     <div class="jdp-header">
       <div class="jdp-icon">${branch.type==="success"?"✅":"⚠️"}</div>
-      <div>
-        <div class="jdp-title">${branch.label}</div>
-        <div class="jdp-sublabel">${stage.branch.label} — ${side==="left"?"success path":"failure branch"}</div>
-      </div>
+      <div><div class="jdp-title">${branch.label}</div><div class="jdp-sublabel">${stage.branch.label} — ${side==="left"?"success path":"failure branch"}</div></div>
       <button class="jdp-close" onclick="closePanel()">✕</button>
     </div>
     <div style="background:${branch.type==="success"?"rgba(53,217,164,.06)":"rgba(240,64,106,.06)"};border:1px solid ${color}33;border-radius:14px;padding:18px 20px;">
-      <div style="font-size:14px;line-height:1.7;color:var(--text);">${branch.detail}</div>
+      <div style="font-size:14px;line-height:1.7;">${branch.detail}</div>
     </div>`;
   panel.classList.add("open");
-  setTimeout(()=>panel.scrollIntoView({behavior:"smooth",block:"nearest"}), 100);
+  setTimeout(()=>panel.scrollIntoView({behavior:"smooth",block:"nearest"}),100);
 }
 
 function closePanel(){
   document.getElementById("journeyPanel").classList.remove("open");
   document.querySelectorAll(".j-stage-node").forEach(n=>n.classList.remove("active"));
-  activeJourneyId = null;
+  activeJourneyId=null;
 }
 
 function quickLookup(term){
-  document.getElementById("searchInput").value = term;
-  glCat = "All"; glLvl = "all";
+  document.getElementById("searchInput").value=term;
+  glCat="All"; glLvl="all";
   goTo("glossaryScreen");
 }
 
@@ -888,53 +851,52 @@ function quickLookup(term){
 // GLOSSARY
 // ═══════════════════════════════════════════════════════════
 function initGlossary(){
-  const cats = ["All", ...new Set(ALL_TERMS.map(t=>t.cat))];
-  const row = document.getElementById("catPills");
-  row.innerHTML = cats.map(c=>`<div class="cat-pill${c===glCat?' active':''}" onclick="setCat('${c.replace(/'/g,"\\'")}')">${c==="All"?"🌐 All":c}</div>`).join('');
+  const cats=["All",...new Set(ALL_TERMS.map(t=>t.cat))];
+  document.getElementById("catPills").innerHTML=cats.map(c=>`<div class="cat-pill${c===glCat?' active':''}" onclick="setCat('${c.replace(/'/g,"\\'")}')">${c==="All"?"🌐 All":c}</div>`).join('');
   renderSearch();
 }
 function setCat(c){ glCat=c; initGlossary(); }
 function setLvl(l){
   glLvl=l;
   ["all","beginner","intermediate","advanced"].forEach(x=>{
-    const id=x==="all"?"lvlAll":x==="beginner"?"lvlBeg":x==="intermediate"?"lvlInt":"lvlAdv";
+    const id={"all":"lvlAll","beginner":"lvlBeg","intermediate":"lvlInt","advanced":"lvlAdv"}[x];
     document.getElementById(id)?.classList.toggle("active",x===l);
   });
   renderSearch();
 }
-function catColor(cat){
-  const m={"📈 Growth Metrics":"#F0406A","🏭 Supply & Catalogue":"#FF6B45","🚚 Logistics & Ops":"#5B9CF6","💻 Product & Tech":"#A78BFA","⭐ Customer & Quality":"#F5C842","💰 Finance & Unit Economics":"#35D9A4","📋 Reviews & Meetings":"#A78BFA","🔒 Security & Infra":"#8A82A8","📦 Platform Concepts":"#5B9CF6"};
-  return m[cat]||"#8A82A8";
-}
+const CAT_COLORS={"📈 Growth Metrics":"#F0406A","🏭 Supply & Catalogue":"#FF6B45","🚚 Logistics & Ops":"#5B9CF6","💻 Product & Tech":"#A78BFA","⭐ Customer & Quality":"#F5C842","💰 Finance & Unit Economics":"#35D9A4","📋 Reviews & Meetings":"#A78BFA","🔒 Security & Infra":"#8A82A8","📦 Platform Concepts":"#5B9CF6"};
+function catColor(cat){ return CAT_COLORS[cat]||"#8A82A8"; }
+
 function renderSearch(){
   if(!ALL_TERMS.length) return;
   const q=(document.getElementById("searchInput")||{}).value?.toLowerCase()||"";
-  let res = [...ALL_TERMS];
+  let res=[...ALL_TERMS];
   if(glCat!=="All") res=res.filter(t=>t.cat===glCat);
   if(glLvl!=="all") res=res.filter(t=>t.lvl===glLvl);
   if(q) res=res.filter(t=>(t.t+t.full+t.def+(t.cat||"")).toLowerCase().includes(q));
-  document.getElementById("searchCount").textContent=`${res.length} term${res!==1?"s":""} found`;
+  document.getElementById("searchCount").textContent=`${res.length} term${res.length!==1?"s":""} found`;
   const el=document.getElementById("searchResults");
   if(!res.length){el.innerHTML=`<div class="search-empty">🔍 No terms match "${q}"</div>`;return;}
-  const c=catColor;
-  el.innerHTML=res.slice(0,80).map(t=>`
-    <div class="term-card">
+  el.innerHTML=res.slice(0,80).map(t=>{
+    const c=catColor(t.cat);
+    return `<div class="term-card">
       <div class="term-header">
         <div><div class="term-abbr">${t.t}</div><div class="term-full">${t.full!==t.t?t.full:""}</div></div>
         <div class="term-badges">
-          <div class="term-cat-badge" style="background:${c(t.cat)}20;color:${c(t.cat)};border:1px solid ${c(t.cat)}40;">${t.cat}</div>
+          <div class="term-cat-badge" style="background:${c}20;color:${c};border:1px solid ${c}40;">${t.cat}</div>
           <div class="term-lvl lvl-${t.lvl}">${t.lvl}</div>
         </div>
       </div>
       <div class="term-def">${t.def}</div>
       <div class="term-example"><div class="term-ex-label">📌 In context</div>${t.ex||"Used in Meesho's internal metrics and business reviews."}</div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 // ═══════════════════════════════════════════════════════════
-// WAR ROOM
+// WAR ROOM GAME
 // ═══════════════════════════════════════════════════════════
-function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a; }
 
 function buildWRQ(term){
   const ctx=WR_CONTEXTS[Math.floor(Math.random()*WR_CONTEXTS.length)];
@@ -943,11 +905,11 @@ function buildWRQ(term){
   const other=ALL_TERMS.filter(t=>t.t!==term.t&&t.cat!==term.cat);
   const wrongs=shuffle([...sameCat,...other]).slice(0,3).map(w=>w.def);
   const opts=shuffle([{text:term.def,correct:true},...wrongs.map(w=>({text:w,correct:false}))]);
-  return{term,slack,stem,sub,opts,tag:ctx.tag,ex:term.ex};
+  return{term,slack,stem,sub,opts,tag:ctx.tag};
 }
 
 function startWarRoom(){
-  if(ALL_TERMS.length<4){alert("Terms still loading — please wait a moment!");return;}
+  if(ALL_TERMS.length<4){alert("Terms still loading — try again in a moment!");return;}
   if(wrTimer) clearInterval(wrTimer);
   const pool=shuffle([...ALL_TERMS]).slice(0,WR_COUNT);
   wrQs=pool.map(t=>buildWRQ(t));
@@ -972,7 +934,7 @@ function loadQ(){
   document.getElementById("wrNext").style.display="none";
   const fb=document.getElementById("wrFb");fb.className="fb-box";fb.style.display="none";
   document.getElementById("wrOpts").innerHTML=q.opts.map((o,i)=>`<button class="opt-btn" onclick="pickOpt(${i})">${o.text}</button>`).join('');
-  wrTimeLeft=WR_TIME;tickTimer();
+  wrTimeLeft=WR_TIME; tickTimer();
   if(wrTimer) clearInterval(wrTimer);
   wrTimer=setInterval(()=>{wrTimeLeft--;tickTimer();if(wrTimeLeft<=0){clearInterval(wrTimer);if(!wrAnswered)timeUp();}},1000);
 }
@@ -984,52 +946,53 @@ function tickTimer(){
 }
 
 function timeUp(){
-  wrAnswered=true;wrStreak=0;
+  wrAnswered=true; wrStreak=0;
   const q=wrQs[wrIdx];
   document.querySelectorAll(".opt-btn").forEach((b,i)=>{b.classList.add("locked");if(q.opts[i].correct)b.classList.add("correct");});
-  showFB(false,"Time's up! ⏰",q.ex||q.term.def);
+  showFB(false,"Time's up! ⏰",q.term.def);
   document.getElementById("wrNext").style.display="block";
 }
 
 function pickOpt(i){
-  if(wrAnswered)return;
-  wrAnswered=true;clearInterval(wrTimer);
+  if(wrAnswered) return;
+  wrAnswered=true; clearInterval(wrTimer);
   const q=wrQs[wrIdx];
   const correct=q.opts[i].correct;
   document.querySelectorAll(".opt-btn").forEach((b,bi)=>{b.classList.add("locked");if(q.opts[bi].correct)b.classList.add("correct");});
   if(!correct) document.querySelectorAll(".opt-btn")[i].classList.add("wrong");
   if(correct){
-    wrStreak++;if(wrStreak>wrMaxStreak)wrMaxStreak=wrStreak;
+    wrStreak++; if(wrStreak>wrMaxStreak) wrMaxStreak=wrStreak;
     const bonus=wrStreak>=3?Math.min(wrStreak*5,25):0;
     const tBonus=Math.floor(wrTimeLeft/WR_TIME*10);
     const pts=10+bonus+tBonus;
     wrScore+=pts;
     document.getElementById("wrScore").textContent=wrScore;
     document.getElementById("wrStreak").textContent=`🔥 ${wrStreak}`;
-    showFB(true,`+${pts}pts${bonus?` · ${wrStreak}🔥 streak!`:""}`,q.ex||q.term.def);
-    if(wrScore>=100)confetti();
+    showFB(true,`+${pts}pts${bonus?` · ${wrStreak}🔥 streak bonus!`:""}`,q.term.def);
+    if(wrScore>=100) confetti();
   } else {
-    wrStreak=0;document.getElementById("wrStreak").textContent="🔥 0";
-    showFB(false,"Not quite.",q.ex||q.term.def);
+    wrStreak=0; document.getElementById("wrStreak").textContent="🔥 0";
+    showFB(false,"Not quite — the correct term was: "+q.term.t,q.term.def);
   }
   document.getElementById("wrNext").style.display="block";
 }
 
 function showFB(ok,head,body){
   const fb=document.getElementById("wrFb");
-  fb.style.display="block";fb.className="fb-box show"+(ok?"":" wrong-fb");
+  fb.style.display="block"; fb.className="fb-box show"+(ok?"":" wrong-fb");
   document.getElementById("wrFbHead").textContent=(ok?"✅ ":"❌ ")+head;
   document.getElementById("wrFbBody").textContent=body;
 }
 
-function nextQ(){wrIdx++;wrIdx>=wrQs.length?endWR():loadQ();}
-function exitWR(){clearInterval(wrTimer);goTo("homeScreen");}
+function nextQ(){ wrIdx++; wrIdx>=wrQs.length?endWR():loadQ(); }
+function exitWR(){ clearInterval(wrTimer); goTo("homeScreen"); }
 
 function endWR(){
   clearInterval(wrTimer);
   submitScore(wrScore);
-  const pct=wrScore/(WR_COUNT*20);
-  let em="🎯",title="Good run!",msg="";
+  const maxPossible=WR_COUNT*20;
+  const pct=wrScore/maxPossible;
+  let em,title,msg;
   if(pct>=.9){em="🏆";title="War Room cleared!";msg="You're fluent in Meesho. The WBR fears you.";}
   else if(pct>=.7){em="🎉";title="Strong showing!";msg="Solid Meesho vocab. A few more rounds and you'll be dangerous.";}
   else if(pct>=.5){em="📚";title="Getting there!";msg="Check the Glossary for the ones that tripped you up.";}
@@ -1039,10 +1002,10 @@ function endWR(){
   document.getElementById("resSc").textContent=wrScore+"pts";
   document.getElementById("resMsg").textContent=msg;
   const badges=[];
-  if(wrMaxStreak>=5)badges.push("🔥 5x Streak");
-  if(wrScore>=100)badges.push("💯 Century");
-  if(wrMaxStreak>=3&&wrMaxStreak<5)badges.push("⚡ On Fire");
-  if(wrScore>=150)badges.push("🧠 Galaxy Brain");
+  if(wrMaxStreak>=5) badges.push("🔥 5x Streak");
+  if(wrScore>=100) badges.push("💯 Century Club");
+  if(wrMaxStreak>=3&&wrMaxStreak<5) badges.push("⚡ On Fire");
+  if(wrScore>=150) badges.push("🧠 Galaxy Brain");
   document.getElementById("resBadges").innerHTML=badges.map(b=>`<div class="badge-chip">${b}</div>`).join('');
   goTo("resultsScreen");
 }
@@ -1051,10 +1014,10 @@ function endWR(){
 // CONFETTI
 // ═══════════════════════════════════════════════════════════
 function confetti(){
-  const wrap=document.getElementById("confettiWrap");wrap.innerHTML="";
+  const wrap=document.getElementById("confettiWrap"); wrap.innerHTML="";
   const colors=["#F0406A","#FF6B45","#F5C842","#35D9A4","#5B9CF6","#A78BFA"];
   for(let i=0;i<70;i++){
-    const p=document.createElement("div");p.className="cp";
+    const p=document.createElement("div"); p.className="cp";
     const s=Math.random()*10+5;
     p.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}%;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.6}s;`;
     wrap.appendChild(p);
@@ -1066,29 +1029,7 @@ function confetti(){
 // BOOT
 // ═══════════════════════════════════════════════════════════
 buildJourneyMap();
-initFirebase();
 loadTermsFromSheet();
-// ═══════════════════════════════════════════
-  // FIREBASE — Live Leaderboard
-  // ═══════════════════════════════════════════
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-  import { getDatabase, ref, push, onValue, query, orderByChild, limitToLast } 
-    from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyAnAPEKPouIc7h0PHCcAGq0AUM26IF9Uk4",
-    authDomain: "meesho-lingo-app.firebaseapp.com",
-    projectId: "meesho-lingo-app",
-    storageBucket: "meesho-lingo-app.firebasestorage.app",
-    messagingSenderId: "251971219469",
-    appId: "1:251971219469:web:0001cc8e884aae06576544",
-    measurementId: "G-J570T8C908",
-    databaseURL: "https://meesho-lingo-app-default-rtdb.firebaseio.com"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-
 </script>
 </body>
 </html>
