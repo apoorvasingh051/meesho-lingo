@@ -1068,6 +1068,27 @@ function confetti(){
 buildJourneyMap();
 initFirebase();
 loadTermsFromSheet();
+// ═══════════════════════════════════════════
+  // FIREBASE — Live Leaderboard
+  // ═══════════════════════════════════════════
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+  import { getDatabase, ref, push, onValue, query, orderByChild, limitToLast } 
+    from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAnAPEKPouIc7h0PHCcAGq0AUM26IF9Uk4",
+    authDomain: "meesho-lingo-app.firebaseapp.com",
+    projectId: "meesho-lingo-app",
+    storageBucket: "meesho-lingo-app.firebasestorage.app",
+    messagingSenderId: "251971219469",
+    appId: "1:251971219469:web:0001cc8e884aae06576544",
+    measurementId: "G-J570T8C908",
+    databaseURL: "https://meesho-lingo-app-default-rtdb.firebaseio.com"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
 </script>
 </body>
 </html>
