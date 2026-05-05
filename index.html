@@ -398,7 +398,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 <div class="screen" id="leaderboardScreen">
   <button class="back-btn" data-nav="homeScreen">← Back</button>
   <div class="screen-heading">🏆 Leaderboard</div>
-  <div class="screen-sub">Live rankings across all Meesho Lingo players</div>
+  <div class="screen-sub">Best score per player, ranked from all saved War Room attempts</div>
   <div class="lb-wrap">
     <div style="text-align:center;">
       <div class="lb-live-badge"><div class="lb-live-dot"></div><span id="lbLiveLabel">Connecting...</span></div>
@@ -471,6 +471,7 @@ let wrAnswered = false;
 let wrTimer = null;
 let wrTimeLeft = WR_TIME;
 let lbListenerAttached = false;
+let lbDataCache = {attempts:null, legacy:null};
 
 const FALLBACK_TERMS = [
   {t:"GMV",full:"Gross Merchandise Value",def:"Total value of all orders placed before returns or cancellations.",cat:"📈 Growth Metrics",lvl:"beginner",ex:"In the WBR, GMV was up 12% WoW but NMV was flat because more orders were returning."},
@@ -1251,23 +1252,139 @@ function endWR(){
   goTo("resultsScreen");
 }
 
-function getLocalLB(){try{return JSON.parse(localStorage.getItem("meeshoLBv5") || "[]");}catch(e){return [];}}
-function saveLocalLB(lb){localStorage.setItem("meeshoLBv5", JSON.stringify(lb));}
-function saveToLocal(entry){
-  const lb = getLocalLB();
-  lb.push(entry);
-  lb.sort((a,b) => b.pts - a.pts);
-  saveLocalLB(lb.slice(0,100));
+function getLocalAttempts(){try{return JSON.parse(localStorage.getItem("meeshoScoreAttemptsV1") || "[]");}catch(e){return [];}}
+function saveLocalAttempts(attempts){localStorage.setItem("meeshoScoreAttemptsV1", JSON.stringify(attempts));}
+function getPlayerId(){
+  let id = localStorage.getItem("meeshoPlayerId");
+  if(!id){
+    id = globalThis.crypto && typeof globalThis.crypto.randomUUID === "function" ? crypto.randomUUID() : `player_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    localStorage.setItem("meeshoPlayerId", id);
+  }
+  return id;
+}
+function playerGroupKey(entry){
+  return entry.playerId || String(entry.user || "Guest").trim().toLowerCase().replace(/\s+/g, " ");
+}
+function safeFirebaseKey(value){return String(value || "guest").replace(/[.#$/\[\]]/g, "_");}
+function createScoreEntry(pts){
+  const playerId = getPlayerId();
+  return {
+    attemptId:`attempt_${playerId}_${Date.now()}_${Math.random().toString(36).slice(2,8)}`,
+    playerId,
+    user:currentUser || "Guest",
+    avatar:selectedAvatar,
+    pts:Number(pts || 0),
+    maxStreak:wrMaxStreak,
+    questions:wrQs.length || WR_COUNT,
+    ts:Date.now(),
+    version:"v5"
+  };
+}
+function saveAttemptLocal(entry){
+  const attempts = getLocalAttempts();
+  attempts.push(entry);
+  attempts.sort((a,b) => (b.ts || 0) - (a.ts || 0));
+  saveLocalAttempts(attempts.slice(0,500));
+}
+function normalizeAttempt(entry){
+  return {
+    playerId:entry.playerId || null,
+    user:entry.user || "Guest",
+    avatar:entry.avatar || "🛍️",
+    pts:Number(entry.pts || 0),
+    maxStreak:Number(entry.maxStreak || 0),
+    questions:Number(entry.questions || WR_COUNT),
+    ts:Number(entry.ts || 0),
+    attemptId:entry.attemptId || null
+  };
+}
+function rankWinners(attempts){
+  const winners = new Map();
+  attempts.map(normalizeAttempt).forEach(entry => {
+    const key = playerGroupKey(entry);
+    const current = winners.get(key);
+    const isBetter = !current ||
+      entry.pts > current.pts ||
+      (entry.pts === current.pts && entry.maxStreak > current.maxStreak) ||
+      (entry.pts === current.pts && entry.maxStreak === current.maxStreak && entry.ts > current.ts);
+    if(isBetter){
+      winners.set(key, {
+        ...entry,
+        attempts:(current?.attempts || 0) + 1,
+        lastPts:entry.pts,
+        lastTs:entry.ts
+      });
+    }else{
+      current.attempts = (current.attempts || 0) + 1;
+      if(entry.ts > (current.lastTs || 0)){
+        current.lastTs = entry.ts;
+        current.lastPts = entry.pts;
+        current.user = entry.user || current.user;
+        current.avatar = entry.avatar || current.avatar;
+      }
+    }
+  });
+  return [...winners.values()].sort((a,b) =>
+    b.pts - a.pts ||
+    b.maxStreak - a.maxStreak ||
+    b.lastTs - a.lastTs ||
+    String(a.user).localeCompare(String(b.user))
+  );
+}
+function entriesFromSnap(snap){
+  const entries = [];
+  snap.forEach(child => {
+    const val = child.val();
+    if(val && typeof val === "object") entries.push({...val, attemptId:val.attemptId || child.key});
+  });
+  return entries;
+}
+function renderLeaderboardFromAttempts(attempts, sourceLabel = "Local"){
+  const uniqueAttempts = [];
+  const seen = new Set();
+  attempts.forEach(entry => {
+    const key = entry.attemptId || `${entry.playerId || entry.user}_${entry.pts}_${entry.ts}`;
+    if(seen.has(key)) return;
+    seen.add(key);
+    uniqueAttempts.push(entry);
+  });
+  const winners = rankWinners(uniqueAttempts);
+  renderLBRows(winners.slice(0,20));
+  byId("lbLiveLabel").textContent = `${sourceLabel} · ${uniqueAttempts.length} attempt${uniqueAttempts.length !== 1 ? "s" : ""} · ${winners.length} player${winners.length !== 1 ? "s" : ""}`;
+}
+function updateRemoteWinner(entry){
+  const key = safeFirebaseKey(entry.playerId || playerGroupKey(entry));
+  return firebaseDB.ref("leaderboardWinners").child(key).transaction(current => {
+    const attempts = (current?.attempts || 0) + 1;
+    const base = {
+      playerId:entry.playerId,
+      user:entry.user,
+      avatar:entry.avatar,
+      attempts,
+      lastPts:entry.pts,
+      lastTs:entry.ts
+    };
+    if(!current || entry.pts > Number(current.pts || 0) || (entry.pts === Number(current.pts || 0) && entry.maxStreak > Number(current.maxStreak || 0))){
+      return {...base, pts:entry.pts, maxStreak:entry.maxStreak, ts:entry.ts, questions:entry.questions};
+    }
+    return {...current, ...base};
+  });
 }
 function getPersonalBest(){return parseInt(localStorage.getItem("meeshoPB") || "0", 10);}
 function submitScore(pts){
-  const entry = {user:currentUser || "Guest", avatar:selectedAvatar, pts, ts:Date.now()};
+  const entry = createScoreEntry(pts);
+  saveAttemptLocal(entry);
   if(firebaseDB){
+    const attemptRef = firebaseDB.ref("scoreAttempts").child(safeFirebaseKey(entry.attemptId));
+    attemptRef.set(entry)
+      .then(() => updateRemoteWinner(entry))
+      .catch(e => {
+        console.warn("Firebase score save failed:", e);
+      });
     firebaseDB.ref("leaderboard").push(entry).catch(e => {
-      console.warn("Firebase write failed:", e);
-      saveToLocal(entry);
+      console.warn("Legacy leaderboard write failed:", e);
     });
-  }else saveToLocal(entry);
+  }
   const pb = getPersonalBest();
   if(pts > pb){
     localStorage.setItem("meeshoPB", String(pts));
@@ -1279,24 +1396,27 @@ function loadLB(){
   if(firebaseDB){
     if(!lbListenerAttached){
       listEl.innerHTML = '<div class="lb-empty">Loading...</div>';
-      firebaseDB.ref("leaderboard").orderByChild("pts").limitToLast(50).on("value", snap => {
-        const entries = [];
-        snap.forEach(child => entries.push(child.val()));
-        entries.sort((a,b) => b.pts - a.pts);
-        renderLBRows(entries.slice(0,20));
-        byId("lbLiveLabel").textContent = `Live · ${entries.length} player${entries.length !== 1 ? "s" : ""} on the board`;
+      firebaseDB.ref("scoreAttempts").limitToLast(500).on("value", snap => {
+        lbDataCache.attempts = entriesFromSnap(snap);
+        renderLeaderboardFromAttempts([...(lbDataCache.attempts || []), ...(lbDataCache.legacy || [])], "Live");
       }, () => {
-        const lb = getLocalLB().sort((a,b) => b.pts - a.pts);
-        renderLBRows(lb.slice(0,20));
-        byId("lbLiveLabel").textContent = "Local mode - Firebase unreachable";
+        lbDataCache.attempts = [];
+        renderLeaderboardFromAttempts(getLocalAttempts(), "Local mode");
+      });
+      firebaseDB.ref("leaderboard").limitToLast(500).on("value", snap => {
+        lbDataCache.legacy = entriesFromSnap(snap);
+        renderLeaderboardFromAttempts([...(lbDataCache.attempts || []), ...(lbDataCache.legacy || [])], "Live");
+      }, () => {
+        lbDataCache.legacy = [];
+        if(!lbDataCache.attempts?.length) renderLeaderboardFromAttempts(getLocalAttempts(), "Local mode");
       });
       lbListenerAttached = true;
+    }else{
+      renderLeaderboardFromAttempts([...(lbDataCache.attempts || []), ...(lbDataCache.legacy || []), ...getLocalAttempts()], "Live");
     }
   }else{
     listEl.innerHTML = '<div class="lb-empty">Loading...</div>';
-    const lb = getLocalLB().sort((a,b) => b.pts - a.pts);
-    renderLBRows(lb.slice(0,20));
-    byId("lbLiveLabel").textContent = "Local only · Firebase not connected";
+    renderLeaderboardFromAttempts(getLocalAttempts(), "Local only");
   }
 }
 function renderLBRows(entries){
@@ -1306,15 +1426,18 @@ function renderLBRows(entries){
     return;
   }
   listEl.innerHTML = entries.map((e, i) => {
-    const isMe = e.user === currentUser;
+    const isMe = e.playerId === localStorage.getItem("meeshoPlayerId") || e.user === currentUser;
     const rank = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`;
     const date = e.ts ? new Date(e.ts).toLocaleDateString("en-IN",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}) : "";
+    const attempts = Number(e.attempts || 1);
+    const streak = e.maxStreak ? ` · best streak ${e.maxStreak}` : "";
+    const last = e.lastPts !== undefined && e.lastPts !== e.pts ? ` · latest ${e.lastPts}pts` : "";
     return `<div class="lb-row${isMe ? " me" : ""}${i === 0 ? " top1" : ""}">
       <div class="lb-rank">${rank}</div>
       <div class="lb-av">${escapeHTML(e.avatar || "🛍️")}</div>
       <div class="lb-info">
         <div class="lb-name">${escapeHTML(e.user || "Guest")}${isMe ? '<span class="lb-you">You</span>' : ""}</div>
-        <div class="lb-sub">${escapeHTML(date)}</div>
+        <div class="lb-sub">Best on ${escapeHTML(date)} · ${attempts} attempt${attempts !== 1 ? "s" : ""}${streak}${last}</div>
       </div>
       <div class="lb-pts">${Number(e.pts || 0)}pts</div>
     </div>`;
