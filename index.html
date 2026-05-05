@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meesho Lingo</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+<style>
+:root{--ink:#0c0a14;--surface:#13111f;--card:#1c1930;--card2:#241f3a;--border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.14);--text:#ede8f5;--muted:#8a82a8;--rose:#f0406a;--coral:#ff6b45;--gold:#f5c842;--mint:#35d9a4;--sky:#5b9cf6;--lavender:#a78bfa;--grad1:linear-gradient(135deg,#f0406a,#ff6b45);--grad2:linear-gradient(135deg,#5b9cf6,#a78bfa);--grad3:linear-gradient(135deg,#35d9a4,#5b9cf6);--grad4:linear-gradient(135deg,#f5c842,#ff6b45);}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Cabinet Grotesk',sans-serif;background:var(--ink);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23g)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;}
+.glow-orb{position:fixed;border-radius:50%;filter:blur(130px);pointer-events:none;z-index:0;}
+.orb1{width:700px;height:700px;background:#f0406a;opacity:.12;top:-250px;right:-200px;}
+.orb2{width:600px;height:600px;background:#5b9cf6;opacity:.1;bottom:-250px;left:-200px;}
+.screen{display:none;position:relative;z-index:1;flex-direction:column;align-items:center;min-height:100vh;padding:28px 16px 80px;}
+.screen.active{display:flex;}
+.back-btn{position:absolute;top:24px;left:20px;background:var(--card2);border:1px solid var(--border2);border-radius:12px;padding:9px 16px;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px;z-index:10;}
+.back-btn:hover{border-color:var(--rose);color:var(--text);}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(10px);}
+.modal-overlay.hidden{display:none;}
+.modal-box{background:var(--card);border:1px solid var(--border2);border-radius:28px;padding:44px 40px;max-width:420px;width:90%;text-align:center;}
+.modal-title{font-family:'Clash Display',sans-serif;font-weight:700;font-size:28px;margin-bottom:8px;}
+.modal-sub{color:var(--muted);font-size:14px;margin-bottom:28px;}
+.name-input{width:100%;background:var(--card2);border:2px solid var(--border2);border-radius:14px;padding:16px 18px;color:var(--text);font-family:'Cabinet Grotesk',sans-serif;font-size:16px;outline:none;transition:border .2s;margin-bottom:10px;}
+.name-input:focus{border-color:var(--rose);}
+.avatar-grid{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:16px 0 24px;}
+.avatar-btn{width:48px;height:48px;border-radius:14px;border:2px solid var(--border2);font-size:24px;cursor:pointer;background:var(--card2);transition:all .2s;display:flex;align-items:center;justify-content:center;}
+.avatar-btn:hover,.avatar-btn.sel{border-color:var(--rose);background:rgba(240,64,106,.12);}
+.btn-primary{background:var(--grad1);color:#fff;border:none;border-radius:14px;padding:16px 36px;font-family:'Clash Display',sans-serif;font-weight:600;font-size:16px;cursor:pointer;transition:all .2s;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(240,64,106,.4);}
+.btn-secondary{background:var(--card2);color:var(--text);border:1px solid var(--border2);border-radius:14px;padding:13px 26px;font-family:'Clash Display',sans-serif;font-weight:600;font-size:14px;cursor:pointer;transition:all .2s;}
+.btn-secondary:hover{border-color:var(--rose);}
+.btn-sm{background:var(--card2);color:var(--muted);border:1px solid var(--border2);border-radius:10px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;font-family:'Cabinet Grotesk',sans-serif;}
+.btn-sm.active,.btn-sm:hover{border-color:var(--rose);color:var(--text);}
+.home-wrap{text-align:center;max-width:900px;width:100%;margin-top:20px;}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(240,64,106,.12);border:1px solid rgba(240,64,106,.3);border-radius:100px;padding:6px 18px;font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--rose);margin-bottom:24px;}
+.main-title{font-family:'Clash Display',sans-serif;font-weight:700;font-size:clamp(48px,10vw,90px);line-height:.92;letter-spacing:-3px;margin-bottom:18px;}
+.main-title .t1{display:block;color:var(--text);}
+.main-title .t2{display:block;background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.tagline{color:var(--muted);font-size:16px;line-height:1.65;max-width:440px;margin:0 auto 44px;}
+.mode-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;width:100%;max-width:680px;margin:0 auto 28px;}
+@media(max-width:560px){.mode-grid{grid-template-columns:1fr;}}
+.mode-card{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:26px 22px;cursor:pointer;transition:all .25s;text-align:left;position:relative;overflow:hidden;}
+.mode-card::before{content:'';position:absolute;inset:0;background:var(--card-grad,var(--grad1));opacity:0;transition:opacity .3s;}
+.mode-card:hover{transform:translateY(-3px);border-color:rgba(255,255,255,.16);}
+.mode-card:hover::before{opacity:.07;}
+.mode-icon{font-size:30px;margin-bottom:12px;display:block;}
+.mode-name{font-family:'Clash Display',sans-serif;font-weight:600;font-size:18px;margin-bottom:5px;}
+.mode-desc{color:var(--muted);font-size:13px;line-height:1.55;}
+.mode-pill{display:inline-block;margin-top:12px;border-radius:100px;padding:3px 11px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;}
+.pill-hot{background:rgba(240,64,106,.15);color:var(--rose);}
+.pill-chill{background:rgba(91,156,246,.15);color:var(--sky);}
+.stats-strip{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:0;}
+.stat-chip{background:var(--card);border:1px solid var(--border);border-radius:100px;padding:9px 18px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px;}
+.data-status{font-size:11px;color:var(--muted);margin-top:8px;text-align:center;}
+.data-status.ok{color:var(--mint);}
+.data-status.err{color:var(--coral);}
+.journey-section{width:100%;max-width:900px;margin-top:60px;}
+.section-label{display:flex;align-items:center;gap:12px;margin-bottom:28px;}
+.section-label-text{font-family:'Clash Display',sans-serif;font-weight:700;font-size:22px;}
+.section-label-line{flex:1;height:1px;background:var(--border2);}
+.journey-map-wrap{overflow-x:auto;padding-bottom:16px;-webkit-overflow-scrolling:touch;}
+.journey-map-wrap::-webkit-scrollbar{height:4px;}
+.journey-map-wrap::-webkit-scrollbar-thumb{background:var(--card2);border-radius:100px;}
+.journey-map{display:flex;align-items:flex-start;gap:0;min-width:max-content;padding:8px 4px 4px;}
+.j-node-wrap{display:flex;flex-direction:column;align-items:center;position:relative;}
+.j-connector-h{width:48px;height:2px;background:var(--border2);margin-top:28px;flex-shrink:0;}
+.j-stage-node{width:56px;height:56px;border-radius:18px;background:var(--card);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;transition:all .3s;position:relative;flex-shrink:0;}
+.j-stage-node:hover{border-color:var(--rose);transform:translateY(-2px);box-shadow:0 8px 24px rgba(240,64,106,.2);}
+.j-stage-node.active{border-color:var(--rose);background:rgba(240,64,106,.12);box-shadow:0 0 0 4px rgba(240,64,106,.15);}
+.j-stage-num{position:absolute;top:-8px;left:-8px;width:20px;height:20px;border-radius:50%;background:var(--grad1);font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;color:#fff;}
+.j-stage-label{font-size:11px;font-weight:700;color:var(--muted);text-align:center;margin-top:8px;max-width:72px;line-height:1.35;}
+.j-kpi-dots{display:flex;gap:3px;justify-content:center;margin-top:5px;flex-wrap:wrap;max-width:72px;}
+.j-kpi-dot{font-size:9px;font-weight:700;padding:2px 6px;border-radius:100px;background:var(--card2);color:var(--muted);border:1px solid var(--border2);cursor:pointer;transition:all .15s;white-space:nowrap;}
+.j-kpi-dot:hover{border-color:var(--rose);color:var(--rose);}
+.j-branch-vline{width:2px;height:24px;}
+.j-branch-vline.success{background:rgba(53,217,164,.4);}
+.j-branch-vline.fail{background:rgba(240,64,106,.4);}
+.j-branch-box{border-radius:12px;padding:7px 10px;font-size:10px;font-weight:700;text-align:center;border:1px solid;max-width:100px;cursor:pointer;transition:all .2s;line-height:1.3;}
+.j-branch-box.success{border-color:rgba(53,217,164,.3);color:var(--mint);background:rgba(53,217,164,.06);}
+.j-branch-box.fail{border-color:rgba(240,64,106,.3);color:var(--rose);background:rgba(240,64,106,.06);}
+.j-branch-box:hover{transform:scale(1.04);}
+.j-branch-spacer{width:20px;flex-shrink:0;}
+.journey-detail-panel{width:100%;max-width:900px;background:var(--card2);border:1px solid var(--border2);border-radius:20px;padding:24px 28px;margin-top:16px;display:none;animation:slideUp .25s ease;}
+.journey-detail-panel.open{display:block;}
+@keyframes slideUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.jdp-header{display:flex;align-items:center;gap:14px;margin-bottom:18px;}
+.jdp-icon{font-size:32px;}
+.jdp-title{font-family:'Clash Display',sans-serif;font-weight:700;font-size:18px;}
+.jdp-sublabel{color:var(--muted);font-size:13px;margin-top:2px;}
+.jdp-kpi-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:16px;}
+.jdp-kpi-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;}
+.jdp-kpi-name{font-weight:800;font-size:13px;color:var(--text);margin-bottom:3px;}
+.jdp-kpi-def{font-size:12px;color:var(--muted);line-height:1.5;}
+.jdp-kpi-good{font-size:11px;color:var(--mint);font-weight:700;margin-top:5px;}
+.jdp-kpi-meta{font-size:10px;color:var(--muted);line-height:1.35;margin-top:7px;padding-top:7px;border-top:1px solid rgba(255,255,255,.08);}
+.jdp-failure{background:rgba(240,64,106,.06);border:1px solid rgba(240,64,106,.18);border-radius:12px;padding:12px 16px;}
+.jdp-failure-label{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--rose);margin-bottom:5px;}
+.jdp-failure-text{font-size:13px;color:var(--muted);line-height:1.6;}
+.jdp-close{margin-left:auto;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:4px 8px;border-radius:8px;transition:all .2s;}
+.jdp-close:hover{color:var(--text);background:var(--card);}
+.home-wrap{max-width:1180px;margin-top:0;}
+.main-title{font-size:clamp(42px,8vw,76px);margin-bottom:14px;}
+.tagline{margin-bottom:22px;}
+.mode-grid{max-width:760px;margin:30px auto 18px;}
+.stats-strip{margin-top:12px;}
+.journey-section{width:100%;max-width:1180px;margin:8px auto 0;text-align:center;position:relative;}
+.journey-hero-copy{max-width:680px;margin:0 auto 12px;}
+.journey-kicker{display:inline-flex;align-items:center;gap:7px;background:rgba(91,156,246,.1);border:1px solid rgba(91,156,246,.25);border-radius:100px;color:var(--sky);font-size:10px;font-weight:800;letter-spacing:1.8px;text-transform:uppercase;padding:5px 14px;margin-bottom:10px;}
+.journey-kicker::before{content:"✦";color:var(--gold);}
+.journey-title{font-family:'Clash Display',sans-serif;font-size:clamp(26px,4.8vw,48px);line-height:1;letter-spacing:-1px;margin-bottom:10px;}
+.journey-intro{color:var(--muted);font-size:14px;line-height:1.55;max-width:590px;margin:0 auto;}
+.journey-graphic{width:min(920px,100%);height:126px;margin:14px auto 0;overflow:hidden;opacity:.95;}
+.journey-graphic svg{width:100%;height:100%;display:block;}
+.route-shadow{fill:none;stroke:rgba(0,0,0,.4);stroke-width:16;stroke-linecap:round;}
+.route-line{fill:none;stroke:url(#routeGrad);stroke-width:7;stroke-linecap:round;stroke-dasharray:12 14;animation:routeMove 18s linear infinite;}
+.scene-pin{filter:drop-shadow(0 14px 22px rgba(0,0,0,.3));}
+.scene-pin rect,.scene-pin path{fill:#211d38;stroke:rgba(255,255,255,.18);stroke-width:2;}
+.scene-pin text{font-size:26px;text-anchor:middle;dominant-baseline:middle;}
+@keyframes routeMove{to{stroke-dashoffset:-260;}}
+.journey-map-wrap{overflow-x:auto;padding:8px 6px 24px;margin-top:2px;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;}
+.journey-map{display:flex;align-items:flex-start;gap:14px;min-width:max-content;padding:20px 10px 8px;position:relative;}
+.journey-map::before{content:'';position:absolute;left:72px;right:72px;top:92px;height:5px;border-radius:100px;background:linear-gradient(90deg,rgba(240,64,106,.7),rgba(91,156,246,.65),rgba(53,217,164,.7));box-shadow:0 0 24px rgba(91,156,246,.28);}
+.j-node-wrap{width:150px;align-items:center;scroll-snap-align:center;z-index:1;}
+.j-connector-h{display:none;}
+.j-stage-node{width:150px;height:164px;border-radius:18px;padding:8px 8px 12px;background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.03)),var(--card);border:1px solid rgba(255,255,255,.15);display:flex;flex-direction:column;justify-content:flex-start;gap:8px;box-shadow:0 16px 40px rgba(0,0,0,.22);}
+.j-stage-node:hover{border-color:rgba(255,255,255,.3);transform:translateY(-5px);box-shadow:0 22px 48px rgba(0,0,0,.3),0 0 0 4px rgba(240,64,106,.1);}
+.j-stage-node.active{border-color:var(--rose);background:linear-gradient(180deg,rgba(240,64,106,.16),rgba(255,255,255,.04)),var(--card);box-shadow:0 18px 48px rgba(240,64,106,.18),0 0 0 4px rgba(240,64,106,.15);}
+.j-stage-art{position:relative;width:100%;height:76px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 25% 20%,rgba(255,255,255,.32),transparent 28%),linear-gradient(135deg,var(--stage-a),var(--stage-b));overflow:hidden;}
+.j-stage-art::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.2),transparent 35%),repeating-linear-gradient(45deg,rgba(255,255,255,.09) 0 1px,transparent 1px 10px);}
+.j-stage-art::after{content:'';position:absolute;width:46px;height:20px;right:-8px;bottom:9px;border-radius:100px;background:rgba(255,255,255,.2);filter:blur(.2px);}
+.j-stage-icon{position:relative;z-index:1;font-size:38px;filter:drop-shadow(0 10px 12px rgba(0,0,0,.25));}
+.j-stage-num{top:14px;left:14px;width:24px;height:24px;background:rgba(12,10,20,.72);border:1px solid rgba(255,255,255,.24);backdrop-filter:blur(6px);}
+.j-stage-label{font-size:13px;font-weight:800;color:var(--text);max-width:130px;margin-top:0;line-height:1.15;}
+.j-stage-micro{font-size:10px;line-height:1.25;color:var(--muted);font-weight:700;}
+.j-kpi-dots{max-width:150px;gap:4px;margin-top:7px;}
+.j-kpi-dot{font-size:10px;padding:3px 7px;background:rgba(255,255,255,.06);}
+.j-branch-vline{height:12px;}
+.j-branch-box{font-size:10px;max-width:92px;padding:6px 8px;background:rgba(255,255,255,.04);}
+.journey-detail-panel{max-width:960px;margin-top:10px;text-align:left;background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.035));border-color:rgba(255,255,255,.14);box-shadow:0 22px 70px rgba(0,0,0,.25);}
+.jdp-header{align-items:center;}
+.jdp-visual{width:88px;height:72px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 25% 20%,rgba(255,255,255,.32),transparent 30%),linear-gradient(135deg,var(--stage-a),var(--stage-b));font-size:36px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18);}
+.jdp-layout{display:grid;grid-template-columns:1fr 280px;gap:14px;align-items:stretch;}
+.jdp-failure{height:100%;display:flex;flex-direction:column;justify-content:center;}
+@media(max-width:760px){
+  .journey-graphic{height:86px;margin-top:10px;}
+  .journey-map{padding-top:14px;}
+  .journey-map::before{top:84px;}
+  .j-node-wrap{width:136px;}
+  .j-stage-node{width:136px;height:156px;}
+  .j-stage-art{height:68px;}
+  .jdp-layout{grid-template-columns:1fr;}
+  .jdp-visual{width:72px;height:62px;}
+}
+.search-wrap{width:100%;max-width:740px;margin-top:16px;}
+.search-bar-wrap{position:relative;margin-bottom:20px;}
+.search-icon-el{position:absolute;left:18px;top:50%;transform:translateY(-50%);font-size:18px;pointer-events:none;}
+.search-input{width:100%;background:var(--card);border:2px solid var(--border2);border-radius:18px;padding:17px 18px 17px 50px;color:var(--text);font-family:'Cabinet Grotesk',sans-serif;font-size:16px;outline:none;transition:border .2s;}
+.search-input:focus{border-color:var(--rose);}
+.search-input::placeholder{color:var(--muted);}
+.role-pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+.role-pill{padding:8px 14px;border-radius:12px;font-size:12px;font-weight:800;cursor:pointer;transition:all .2s;border:1px solid var(--border2);background:rgba(255,255,255,.04);color:var(--muted);font-family:'Cabinet Grotesk',sans-serif;}
+.role-pill.active{background:rgba(91,156,246,.14);border-color:rgba(91,156,246,.42);color:var(--sky);}
+.cat-pills{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px;}
+.cat-pill{padding:6px 13px;border-radius:100px;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;border:1px solid var(--border2);background:var(--card);color:var(--muted);}
+.cat-pill.active{background:rgba(240,64,106,.15);border-color:rgba(240,64,106,.4);color:var(--rose);}
+.search-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+.search-count{font-size:12px;color:var(--muted);}
+.lvl-filters{display:flex;gap:6px;flex-wrap:wrap;}
+.search-results{display:flex;flex-direction:column;gap:11px;}
+.search-empty{text-align:center;padding:50px 0;color:var(--muted);}
+.term-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:20px 22px;transition:all .2s;}
+.term-card:hover{border-color:var(--border2);transform:translateY(-1px);}
+.term-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:9px;}
+.term-abbr{font-family:'Clash Display',sans-serif;font-weight:700;font-size:21px;}
+.term-full{color:var(--muted);font-size:12px;margin-top:2px;}
+.term-badges{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;}
+.term-cat-badge{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 9px;border-radius:100px;white-space:nowrap;}
+.term-lvl{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:2px 8px;border-radius:100px;}
+.lvl-beginner{background:rgba(53,217,164,.12);color:var(--mint);}
+.lvl-intermediate{background:rgba(91,156,246,.12);color:var(--sky);}
+.lvl-advanced{background:rgba(167,139,250,.12);color:var(--lavender);}
+.term-def{font-size:14px;line-height:1.7;margin-bottom:12px;}
+.term-context-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0;}
+.term-context{background:rgba(255,255,255,.035);border:1px solid var(--border);border-radius:12px;padding:9px 10px;}
+.term-context-label{font-size:9px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.term-context-value{font-size:12px;line-height:1.35;color:var(--text);font-weight:700;}
+.term-chain{background:rgba(91,156,246,.06);border:1px solid rgba(91,156,246,.18);border-radius:12px;padding:10px 12px;margin:10px 0 12px;font-size:12px;line-height:1.45;color:var(--muted);}
+.term-chain strong{color:var(--sky);font-size:10px;letter-spacing:1.1px;text-transform:uppercase;margin-right:6px;}
+.term-example{background:rgba(255,255,255,.03);border-left:3px solid var(--rose);border-radius:0 10px 10px 0;padding:11px 14px;font-size:12.5px;color:var(--muted);line-height:1.65;font-style:italic;}
+.term-ex-label{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--rose);margin-bottom:5px;font-style:normal;}
+@media(max-width:820px){.term-context-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:620px){.term-context-grid{grid-template-columns:1fr;}}
+.wr-header{width:100%;max-width:740px;display:flex;align-items:center;gap:12px;margin-bottom:18px;margin-top:56px;}
+.wr-timer{font-family:'Clash Display',sans-serif;font-weight:700;font-size:22px;min-width:52px;text-align:center;background:var(--card2);border:2px solid var(--border2);border-radius:12px;padding:8px 14px;transition:all .3s;}
+.wr-timer.urgent{color:var(--rose);border-color:var(--rose);animation:timerpulse .5s ease infinite alternate;}
+@keyframes timerpulse{from{box-shadow:0 0 0 0 rgba(240,64,106,0);}to{box-shadow:0 0 0 6px rgba(240,64,106,.2);}}
+.pbar-wrap{flex:1;height:4px;background:var(--card2);border-radius:100px;overflow:hidden;}
+.pbar-fill{height:100%;border-radius:100px;background:var(--grad1);transition:width .4s ease;}
+.quiz-meta{font-family:'Clash Display',sans-serif;font-weight:700;font-size:13px;background:var(--card2);border:1px solid var(--border2);border-radius:100px;padding:7px 16px;white-space:nowrap;}
+.streak-badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:6px 12px;border-radius:100px;background:rgba(245,200,66,.1);color:var(--gold);border:1px solid rgba(245,200,66,.2);}
+.q-card{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:28px 26px;width:100%;max-width:740px;margin-bottom:14px;}
+.sc-tag{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--coral);margin-bottom:10px;}
+.situation-box{background:rgba(91,156,246,.08);border:1px solid rgba(91,156,246,.2);border-radius:12px;padding:14px 18px;font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:14px;}
+.slack-msg{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:14px 18px;font-size:13.5px;color:var(--muted);line-height:1.7;font-style:italic;margin-bottom:14px;}
+.slack-sender{color:var(--sky);font-weight:800;font-style:normal;margin-right:5px;}
+.q-stem{font-family:'Clash Display',sans-serif;font-weight:600;font-size:clamp(15px,2.8vw,21px);line-height:1.4;}
+.q-stem mark{background:rgba(245,200,66,.15);color:var(--gold);padding:2px 5px;border-radius:5px;font-style:normal;}
+.q-sub{color:var(--muted);font-size:12.5px;margin-top:8px;}
+.opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;width:100%;max-width:740px;}
+@media(max-width:480px){.opts-grid{grid-template-columns:1fr;}.wr-header{gap:7px}.quiz-meta,.streak-badge{padding:6px 9px}}
+.opt-btn{background:var(--card);border:2px solid var(--border);border-radius:15px;padding:15px 17px;cursor:pointer;color:var(--text);font-size:13.5px;font-weight:500;text-align:left;line-height:1.5;transition:all .2s;font-family:'Cabinet Grotesk',sans-serif;}
+.opt-btn:not(.locked):hover{border-color:rgba(255,255,255,.22);background:var(--card2);}
+.opt-btn.correct{border-color:var(--mint)!important;background:rgba(53,217,164,.1)!important;}
+.opt-btn.wrong{border-color:var(--rose)!important;background:rgba(240,64,106,.1)!important;}
+.opt-btn.locked{cursor:default;}
+.fb-box{width:100%;max-width:740px;background:var(--card2);border-radius:14px;padding:16px 20px;border-left:4px solid var(--mint);display:none;margin-top:10px;}
+.fb-box.show{display:block;}
+.fb-box.wrong-fb{border-color:var(--rose);}
+.fb-head{font-family:'Clash Display',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px;}
+.fb-body{color:var(--muted);font-size:13px;line-height:1.65;}
+.res-card{background:var(--card);border:1px solid var(--border);border-radius:26px;padding:44px 34px;text-align:center;max-width:480px;width:100%;}
+.res-em{font-size:60px;margin-bottom:16px;}
+.res-title{font-family:'Clash Display',sans-serif;font-weight:700;font-size:34px;margin-bottom:6px;}
+.res-score{font-family:'Clash Display',sans-serif;font-weight:700;font-size:72px;line-height:1;background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:10px 0;}
+.res-msg{color:var(--muted);font-size:14px;line-height:1.65;margin-bottom:24px;}
+.badges-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:22px;}
+.badge-chip{background:rgba(255,255,255,.06);border-radius:100px;padding:6px 14px;font-size:12px;display:flex;align-items:center;gap:5px;}
+.res-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.lb-wrap{width:100%;max-width:660px;}
+.lb-live-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(53,217,164,.12);border:1px solid rgba(53,217,164,.3);color:var(--mint);font-size:11px;font-weight:700;padding:4px 12px;border-radius:100px;margin-bottom:20px;}
+.lb-live-dot{width:7px;height:7px;border-radius:50%;background:var(--mint);animation:livepulse 1.5s ease infinite;}
+@keyframes livepulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.7);}}
+.lb-list{display:flex;flex-direction:column;gap:8px;}
+.lb-row{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:13px 17px;display:flex;align-items:center;gap:12px;transition:all .2s;}
+.lb-row.me{border-color:var(--rose);background:rgba(240,64,106,.06);}
+.lb-row.top1{border-color:var(--gold);background:rgba(245,200,66,.04);}
+.lb-rank{font-family:'Clash Display',sans-serif;font-weight:700;font-size:15px;color:var(--muted);width:28px;text-align:center;flex-shrink:0;}
+.lb-av{font-size:22px;flex-shrink:0;}
+.lb-info{flex:1;}
+.lb-name{font-weight:700;font-size:14px;}
+.lb-sub{color:var(--muted);font-size:11px;margin-top:2px;}
+.lb-pts{font-family:'Clash Display',sans-serif;font-weight:700;font-size:16px;color:var(--gold);}
+.lb-you{font-size:10px;font-weight:700;background:rgba(240,64,106,.2);color:var(--rose);padding:2px 8px;border-radius:100px;text-transform:uppercase;margin-left:6px;}
+.lb-empty{text-align:center;padding:40px;color:var(--muted);font-size:14px;}
+.screen-heading{font-family:'Clash Display',sans-serif;font-weight:700;font-size:28px;margin:52px 0 6px;text-align:center;}
+.screen-sub{color:var(--muted);font-size:13.5px;margin-bottom:28px;text-align:center;}
+.confetti-wrap{position:fixed;inset:0;pointer-events:none;z-index:9998;}
+.cp{position:absolute;border-radius:3px;animation:fall linear forwards;}
+@keyframes fall{0%{transform:translateY(-30px) rotate(0deg);opacity:1;}100%{transform:translateY(110vh) rotate(800deg);opacity:0;}}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--ink);}
+::-webkit-scrollbar-thumb{background:var(--card2);border-radius:100px;}
+</style>
+</head>
+<body>
+<div class="glow-orb orb1"></div>
+<div class="glow-orb orb2"></div>
+
+<div class="modal-overlay" id="loginModal">
+  <div class="modal-box">
+    <div style="font-size:44px;margin-bottom:10px;">🛍️</div>
+    <div class="modal-title">Welcome to<br>Meesho Lingo</div>
+    <div class="modal-sub">Enter your name to join the leaderboard</div>
+    <input class="name-input" id="nameInput" placeholder="Your name..." maxlength="24">
+    <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Pick your avatar</div>
+    <div class="avatar-grid" id="avatarGrid"></div>
+    <button class="btn-primary" id="startLoginBtn" style="width:100%;">Start Playing →</button>
+  </div>
+</div>
+
+<div class="screen active" id="homeScreen">
+  <div class="home-wrap">
+    <div class="eyebrow">🛍️ &nbsp;Meesho Lingo &nbsp;v5</div>
+    <h1 class="main-title"><span class="t1">Speak</span><span class="t2">Meesho</span></h1>
+    <p class="tagline">Master every metric, acronym, and KRA that powers India's fastest-growing e-commerce platform.</p>
+    <div class="journey-section">
+      <div class="journey-hero-copy">
+        <div class="journey-kicker">Interactive operations map</div>
+        <h2 class="journey-title">Follow an order from listing to settlement</h2>
+        <p class="journey-intro">Tap any checkpoint to reveal the KPIs that matter there. Use the little KPI chips as shortcuts into the glossary.</p>
+      </div>
+      <div class="journey-graphic" aria-hidden="true">
+        <svg viewBox="0 0 920 150" role="img">
+          <defs>
+            <linearGradient id="routeGrad" x1="0%" x2="100%" y1="0%" y2="0%">
+              <stop offset="0%" stop-color="#f0406a"/>
+              <stop offset="50%" stop-color="#5b9cf6"/>
+              <stop offset="100%" stop-color="#35d9a4"/>
+            </linearGradient>
+          </defs>
+          <path class="route-shadow" d="M74 89 C190 24 279 124 393 68 S604 14 720 83 848 108 884 56"/>
+          <path class="route-line" d="M74 89 C190 24 279 124 393 68 S604 14 720 83 848 108 884 56"/>
+          <g class="scene-pin" transform="translate(42 62)"><rect x="0" y="22" width="68" height="42" rx="12"/><path d="M12 25 24 8h26l9 17"/><text x="34" y="51">🛍️</text></g>
+          <g class="scene-pin" transform="translate(250 24)"><rect x="6" y="0" width="46" height="78" rx="12"/><circle cx="29" cy="64" r="4"/><text x="29" y="42">📱</text></g>
+          <g class="scene-pin" transform="translate(454 62)"><rect x="0" y="20" width="86" height="46" rx="10"/><path d="M8 22 43 4l35 18"/><rect x="16" y="42" width="18" height="24" rx="4"/><text x="60" y="54">📦</text></g>
+          <g class="scene-pin" transform="translate(648 60)"><rect x="0" y="26" width="78" height="34" rx="8"/><rect x="54" y="36" width="36" height="24" rx="6"/><circle cx="18" cy="66" r="8"/><circle cx="72" cy="66" r="8"/><text x="39" y="51">🚚</text></g>
+          <g class="scene-pin" transform="translate(820 28)"><path d="M7 42 42 12l35 30v43H7z"/><rect x="33" y="58" width="18" height="27" rx="4"/><text x="42" y="52">🏠</text></g>
+        </svg>
+      </div>
+      <div class="journey-map-wrap"><div class="journey-map" id="journeyMap"></div></div>
+      <div class="journey-detail-panel" id="journeyPanel"></div>
+    </div>
+    <div class="mode-grid">
+      <div class="mode-card" id="openGlossary" style="--card-grad:var(--grad2)">
+        <span class="mode-icon">🔍</span>
+        <div class="mode-name">Search & Glossary</div>
+        <div class="mode-desc">Instantly look up any term, definition, full form, and business-context example.</div>
+        <div class="mode-pill pill-chill">📚 Reference</div>
+      </div>
+      <div class="mode-card" id="startWarRoomCard" style="--card-grad:var(--grad1)">
+        <span class="mode-icon">⚡</span>
+        <div class="mode-name">The War Room</div>
+        <div class="mode-desc">Scenario-first questions inside real Meesho contexts. Timer on. Streak bonuses. Live leaderboard.</div>
+        <div class="mode-pill pill-hot">🔥 Play Mode</div>
+      </div>
+    </div>
+    <div class="stats-strip">
+      <div class="stat-chip"><span>📝</span><span id="statTerms">-</span> terms</div>
+      <div class="stat-chip"><span>🏆</span><span id="statHigh">0</span> personal best</div>
+      <div class="stat-chip"><span>👤</span><span id="statUser">Guest</span></div>
+      <div class="stat-chip" id="openLeaderboard" style="cursor:pointer;"><span>👥</span>Leaderboard</div>
+    </div>
+    <div class="data-status" id="dataStatus">⏳ Loading terms...</div>
+  </div>
+</div>
+
+<div class="screen" id="glossaryScreen">
+  <button class="back-btn" data-nav="homeScreen">← Back</button>
+  <div class="screen-heading">Search & Glossary</div>
+  <div class="screen-sub">Every Meesho term, with a real business context example</div>
+  <div class="search-wrap">
+    <div class="search-bar-wrap">
+      <span class="search-icon-el">🔍</span>
+      <input class="search-input" id="searchInput" placeholder="Search GMV, RTO, WBR, NDR...">
+    </div>
+    <div class="role-pills" id="rolePills"></div>
+    <div class="cat-pills" id="catPills"></div>
+    <div class="search-meta">
+      <span class="search-count" id="searchCount"></span>
+      <div class="lvl-filters">
+        <button class="btn-sm active" data-lvl="all" id="lvlAll">All</button>
+        <button class="btn-sm" data-lvl="beginner" id="lvlBeg">Beginner</button>
+        <button class="btn-sm" data-lvl="intermediate" id="lvlInt">Intermediate</button>
+        <button class="btn-sm" data-lvl="advanced" id="lvlAdv">Advanced</button>
+      </div>
+    </div>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<div class="screen" id="warRoomScreen">
+  <button class="back-btn" id="quitWarRoom">✕ Quit</button>
+  <div class="wr-header">
+    <div class="wr-timer" id="wrTimer">25</div>
+    <span style="color:var(--muted);font-size:12px;white-space:nowrap;" id="wrQNum">1/12</span>
+    <div class="pbar-wrap"><div class="pbar-fill" id="wrPbar" style="width:8%"></div></div>
+    <div class="quiz-meta">⭐ <span id="wrScore">0</span></div>
+    <div class="streak-badge" id="wrStreak">🔥 0</div>
+  </div>
+  <div class="q-card" id="wrCard">
+    <div class="sc-tag" id="wrTag"></div>
+    <div class="situation-box" id="wrSituation" style="display:none;"></div>
+    <div class="slack-msg" id="wrSlack" style="display:none;"></div>
+    <div class="q-stem" id="wrStem"></div>
+    <div class="q-sub" id="wrSub"></div>
+  </div>
+  <div class="opts-grid" id="wrOpts"></div>
+  <div class="fb-box" id="wrFb">
+    <div class="fb-head" id="wrFbHead"></div>
+    <div class="fb-body" id="wrFbBody"></div>
+  </div>
+  <div style="margin-top:14px;">
+    <button class="btn-primary" id="wrNext" style="display:none;">Next →</button>
+  </div>
+</div>
+
+<div class="screen" id="resultsScreen">
+  <div class="res-card">
+    <div class="res-em" id="resEm">🎉</div>
+    <div class="res-title" id="resTitle">War Room cleared!</div>
+    <div style="color:var(--muted);font-size:12px;">Your score</div>
+    <div class="res-score" id="resSc">0pts</div>
+    <div class="res-msg" id="resMsg"></div>
+    <div class="badges-row" id="resBadges"></div>
+    <div class="res-btns">
+      <button class="btn-primary" data-nav="homeScreen">🏠 Home</button>
+      <button class="btn-secondary" id="playAgain">🔄 Again</button>
+      <button class="btn-secondary" id="resultsBoard">🏆 Board</button>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="leaderboardScreen">
+  <button class="back-btn" data-nav="homeScreen">← Back</button>
+  <div class="screen-heading">🏆 Leaderboard</div>
+  <div class="screen-sub">Live rankings across all Meesho Lingo players</div>
+  <div class="lb-wrap">
+    <div style="text-align:center;">
+      <div class="lb-live-badge"><div class="lb-live-dot"></div><span id="lbLiveLabel">Connecting...</span></div>
+    </div>
+    <div class="lb-list" id="lbList"><div class="lb-empty">Loading...</div></div>
+    <div style="margin-top:20px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn-primary" id="leaderboardPlay">Play Now</button>
+      <button class="btn-secondary" id="leaderboardRefresh">🔄 Refresh</button>
+    </div>
+  </div>
+</div>
+
+<div class="confetti-wrap" id="confettiWrap"></div>
+
+<script>
+"use strict";
+
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAnAPEKPouIc7h0PHCcAGq0AUM26IF9Uk4",
+  authDomain: "meesho-lingo-app.firebaseapp.com",
+  projectId: "meesho-lingo-app",
+  storageBucket: "meesho-lingo-app.firebasestorage.app",
+  messagingSenderId: "251971219469",
+  appId: "1:251971219469:web:0001cc8e884aae06576544",
+  measurementId: "G-J570T8C908",
+  databaseURL: "https://meesho-lingo-app-default-rtdb.firebaseio.com"
+};
+
+const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/1iaKWoERCIFE6I1fyxEFYwAAhqIDYP6mkXVymSGZdves/export?format=csv&gid=1421478307";
+const WR_COUNT = 12;
+const WR_TIME = 25;
+const AVATARS = ["🦁","🐼","🦊","🐸","🦋","🌟","🔥","🚀","🎯","💎","🌈","🎸"];
+const CAT_COLORS = {
+  "📈 Growth Metrics":"#f0406a",
+  "🏭 Supply & Catalogue":"#ff6b45",
+  "🚚 Logistics & Ops":"#5b9cf6",
+  "💻 Product & Tech":"#a78bfa",
+  "⭐ Customer & Quality":"#f5c842",
+  "💰 Finance & Unit Economics":"#35d9a4",
+  "📋 Reviews & Meetings":"#a78bfa",
+  "🔒 Security & Infra":"#8a82a8",
+  "📦 Platform Concepts":"#5b9cf6"
+};
+const ROLE_FILTERS = [
+  {id:"all",label:"🌐 All"},
+  {id:"starter",label:"🧭 New Joiner"},
+  {id:"growth",label:"📈 Growth"},
+  {id:"ops",label:"🚚 Ops"},
+  {id:"catalog",label:"🏭 Catalog"},
+  {id:"product",label:"💻 Product"},
+  {id:"finance",label:"💰 Finance"},
+  {id:"quality",label:"⭐ CX & Quality"},
+  {id:"leadership",label:"📋 Reviews"}
+];
+
+let firebaseDB = null;
+let ALL_TERMS = [];
+let currentUser = null;
+let selectedAvatar = "🛍️";
+let glCat = "All";
+let glLvl = "all";
+let glRole = "all";
+let activeJourneyId = null;
+let wrQs = [];
+let wrIdx = 0;
+let wrScore = 0;
+let wrStreak = 0;
+let wrMaxStreak = 0;
+let wrAnswered = false;
+let wrTimer = null;
+let wrTimeLeft = WR_TIME;
+let lbListenerAttached = false;
+
+const FALLBACK_TERMS = [
+  {t:"GMV",full:"Gross Merchandise Value",def:"Total value of all orders placed before returns or cancellations.",cat:"📈 Growth Metrics",lvl:"beginner",ex:"In the WBR, GMV was up 12% WoW but NMV was flat because more orders were returning."},
+  {t:"NMV",full:"Net Merchandise Value",def:"GMV minus cancellations and returns. This is the actual delivered value.",cat:"📈 Growth Metrics",lvl:"beginner",ex:"NMV told a different story: the N/G ratio dropped from 82% to 76% in the West zone."},
+  {t:"MTU",full:"Monthly Transacting Users",def:"Users who complete at least one purchase in a month. Meesho's north-star metric.",cat:"📈 Growth Metrics",lvl:"beginner",ex:"The CEO asked whether MAU growth was translating into MTU growth."},
+  {t:"RTO",full:"Return to Origin",def:"A shipment that fails delivery and is sent back to the supplier.",cat:"🚚 Logistics & Ops",lvl:"intermediate",ex:"COD orders in Rajasthan had a 22% RTO, so prepaid nudges became an ops lever."},
+  {t:"NDR",full:"Non-Delivery Report",def:"Raised when a delivery attempt fails because the customer is unavailable, the address is wrong, or the order is refused.",cat:"🚚 Logistics & Ops",lvl:"intermediate",ex:"Lucknow had 18% NDR, mostly customer-unavailable attempts."},
+  {t:"WBR",full:"Weekly Business Review",def:"Meesho's weekly structured review of key metrics across functions.",cat:"📋 Reviews & Meetings",lvl:"beginner",ex:"The PM came to WBR with CTR up but GMV flat, so leadership asked for funnel details."},
+  {t:"OKR",full:"Objectives and Key Results",def:"Goal framework with an ambitious objective and measurable key results.",cat:"💻 Product & Tech",lvl:"beginner",ex:"The PM's OKRs were rejected because none of the key results were measurable."},
+  {t:"LDR",full:"Late Dispatch Rate",def:"Percentage of orders dispatched after the committed dispatch date.",cat:"🚚 Logistics & Ops",lvl:"intermediate",ex:"LDR hit 28% during bridal season, which pushed customer promise dates out."},
+  {t:"NPS",full:"Net Promoter Score",def:"Percentage of promoters minus percentage of detractors from recommendation surveys.",cat:"⭐ Customer & Quality",lvl:"beginner",ex:"NPS in Tier 2 towns was 42 versus 18 in metros."},
+  {t:"CAC",full:"Customer Acquisition Cost",def:"Total spend required to acquire one new customer.",cat:"📈 Growth Metrics",lvl:"intermediate",ex:"Instagram CAC was twice Google's, but those users had higher LTV."},
+  {t:"COD",full:"Cash on Delivery",def:"Payment collected at the doorstep. Important in India, but higher risk for RTO.",cat:"🚚 Logistics & Ops",lvl:"beginner",ex:"COD orders have materially higher RTO than prepaid orders."},
+  {t:"LTV",full:"Lifetime Value",def:"Predicted total revenue a customer generates over their relationship with Meesho.",cat:"📈 Growth Metrics",lvl:"intermediate",ex:"O5M4 users had much higher LTV, justifying deeper retention investments."},
+  {t:"OTIF",full:"On Time In Full",def:"Orders delivered on time and with all items correct.",cat:"🚚 Logistics & Ops",lvl:"intermediate",ex:"OTIF dropped during peak sale because both delay and correctness slipped."},
+  {t:"AOV",full:"Average Order Value",def:"Total GMV divided by total number of orders.",cat:"📈 Growth Metrics",lvl:"beginner",ex:"Ethnic wear AOV can be very different from essentials AOV."},
+  {t:"CSAT",full:"Customer Satisfaction Score",def:"Post-delivery rating that measures customer experience.",cat:"⭐ Customer & Quality",lvl:"beginner",ex:"CSAT fell after monsoon logistics delays."},
+  {t:"EDD",full:"Expected Dispatch Date",def:"The committed date by which a supplier must dispatch an order.",cat:"🚚 Logistics & Ops",lvl:"intermediate",ex:"EDD was T+1, but many orders dispatched on T+3."},
+  {t:"CPD",full:"Customer Promise Date",def:"The delivery date promised to the customer at checkout.",cat:"🚚 Logistics & Ops",lvl:"intermediate",ex:"Zone-based CPD improved promise adherence."},
+  {t:"LQS",full:"Listing Quality Score",def:"Composite score for listing completeness, images, title, and attributes.",cat:"🏭 Supply & Catalogue",lvl:"intermediate",ex:"Suppliers who improved LQS saw better conversion."},
+  {t:"M2S",full:"Manifest to Ship",def:"Time between supplier manifest creation and third-party logistics pickup.",cat:"🚚 Logistics & Ops",lvl:"intermediate",ex:"M2S was slow because the 3PL had only one pickup slot per day."},
+  {t:"O5M4",full:"5 Orders in 4 Months",def:"Meesho habit-formation benchmark. Users who hit it tend to have much higher LTV.",cat:"📈 Growth Metrics",lvl:"advanced",ex:"CRM journeys are designed to move buyers toward O5M4."},
+  {t:"ODNR",full:"Orders Delivered Not Returned",def:"Percentage of delivered orders kept by customers. It is a proxy for satisfaction.",cat:"⭐ Customer & Quality",lvl:"intermediate",ex:"Below-target ODNR triggers a quality review."},
+  {t:"NQD",full:"Net Quality Detractors",def:"Percentage of one- and two-star reviews out of total ratings.",cat:"⭐ Customer & Quality",lvl:"intermediate",ex:"A high NQD points to poor product quality."},
+  {t:"CM",full:"Contribution Margin",def:"Revenue minus direct variable costs.",cat:"💰 Finance & Unit Economics",lvl:"intermediate",ex:"Positive CM means the category is unit-economically viable."},
+  {t:"WFR",full:"Wrong Fulfillment Return",def:"Return caused because the wrong item was delivered.",cat:"⭐ Customer & Quality",lvl:"intermediate",ex:"Barcode scanning helped reduce WFR."},
+  {t:"WPR",full:"Wrong Product Return",def:"Return caused because the item does not match the listing description.",cat:"⭐ Customer & Quality",lvl:"intermediate",ex:"Old product photos caused a WPR spike."},
+  {t:"N/G",full:"NMV/GMV Ratio",def:"Proportion of GMV that becomes net delivered value.",cat:"💰 Finance & Unit Economics",lvl:"intermediate",ex:"N/G of 78% means 22% of gross value did not become real revenue."},
+  {t:"MDR",full:"Merchant Discount Rate",def:"Fee charged by payment gateways.",cat:"💰 Finance & Unit Economics",lvl:"intermediate",ex:"Moving card payments to UPI reduces MDR."},
+  {t:"RPC",full:"Return Processing Centre",def:"Warehouse where returned items are quality-checked and relisted or disposed.",cat:"🚚 Logistics & Ops",lvl:"intermediate",ex:"RPC processing can become the bottleneck after reverse pickup."},
+  {t:"VC",full:"View Contribution",def:"Percentage of total platform views driven by a category or product.",cat:"💻 Product & Tech",lvl:"intermediate",ex:"High VC but low order contribution signals conversion trouble."},
+  {t:"MX R%",full:"Month X Retention Percentage",def:"Percentage of users from a cohort still transacting in month X.",cat:"📈 Growth Metrics",lvl:"intermediate",ex:"M3 R% below target triggers winback campaigns."},
+  {t:"UPS",full:"Unified Pricing Score",def:"Percentage of matched products where Meesho is priced higher than competitors. Lower is better.",cat:"💰 Finance & Unit Economics",lvl:"advanced",ex:"Electronics targeted lower UPS through selective price drops."},
+  {t:"DRI",full:"Directly Responsible Individual",def:"The single person accountable for a decision or deliverable.",cat:"📋 Reviews & Meetings",lvl:"intermediate",ex:"The incident post-mortem found no clear DRI."},
+  {t:"CTR",full:"Click-Through Rate",def:"Percentage of users who click after seeing a listing, ad, or module.",cat:"💻 Product & Tech",lvl:"beginner",ex:"CTR improved after the listing image was changed."},
+  {t:"ATC",full:"Add to Cart",def:"A mid-funnel action showing stronger purchase intent than a click.",cat:"💻 Product & Tech",lvl:"beginner",ex:"High CTR but low ATC means the product page is losing users."},
+  {t:"NPR",full:"Non Picked-up Report",def:"Report raised when a logistics partner fails to collect a shipment from the supplier.",cat:"🚚 Logistics & Ops",lvl:"intermediate",ex:"NPR delayed dispatch even though the supplier had packed orders."},
+  {t:"ADD",full:"Actual Delivery Date",def:"The real date on which the order is delivered to the customer.",cat:"🚚 Logistics & Ops",lvl:"beginner",ex:"ADD is compared with CPD to measure promise adherence."},
+  {t:"OA",full:"Order Activation",def:"A customer's order milestone, such as first order or third order.",cat:"📈 Growth Metrics",lvl:"intermediate",ex:"3OA is a key habit-building milestone."}
+];
+
+const EXTRA_FALLBACK_TERMS = [
+  {t:"SKU",full:"Stock Keeping Unit",def:"Unique identifier for a product or product variant.",cat:"🏭 Supply & Catalogue",lvl:"beginner",ex:"A kurta in three sizes and two colours should have separate SKUs so inventory can be tracked cleanly."},
+  {t:"SSCAT",full:"Sub Sub Category",def:"Granular product category level used for catalogue classification and discovery.",cat:"🏭 Supply & Catalogue",lvl:"intermediate",ex:"Wrong SSCAT tagging can make a product appear in the wrong browse path or search cohort."},
+  {t:"C/S",full:"Catalogues per Supplier",def:"Catalogue depth indicator used to understand how much active selection each supplier contributes.",cat:"🏭 Supply & Catalogue",lvl:"intermediate",ex:"Low C/S can mean a supplier has limited selection depth even if quality is high."},
+  {t:"SoL",full:"Selection or Share of Listings",def:"Selection-coverage metric used to reason about catalogue breadth in a category.",cat:"🏭 Supply & Catalogue",lvl:"advanced",ex:"A category lead may track SoL to understand whether Meesho has enough comparable selection in a price band."},
+  {t:"PDP",full:"Product Detail Page",def:"The product page where users inspect images, price, delivery promise, details, reviews, and return policy.",cat:"💻 Product & Tech",lvl:"beginner",ex:"High PLP CTR but low ATC often points to a PDP trust or information problem."},
+  {t:"MOV",full:"Minimum Order Value",def:"Minimum basket value required for an order or offer to be valid.",cat:"💰 Finance & Unit Economics",lvl:"beginner",ex:"Raising MOV can improve contribution margin but may reduce conversion."},
+  {t:"NDD",full:"Next Day Dispatch",def:"Orders dispatched by the supplier by the next day.",cat:"🚚 Logistics & Ops",lvl:"intermediate",ex:"NDD adoption helps reduce O2S and protect CPD adherence."},
+  {t:"AWB",full:"Air Waybill",def:"Shipment tracking identifier generated for logistics movement.",cat:"🚚 Logistics & Ops",lvl:"beginner",ex:"Once AWB is generated, teams can trace pickup, transit, and delivery scans."},
+  {t:"TAT",full:"Turnaround Time",def:"Time taken to complete a process step end to end.",cat:"🚚 Logistics & Ops",lvl:"beginner",ex:"Pickup TAT and RPC TAT tell very different operational stories."},
+  {t:"3PL",full:"Third-Party Logistics",def:"External logistics partner that handles pickup, line-haul, or delivery.",cat:"🚚 Logistics & Ops",lvl:"beginner",ex:"3PL performance can vary sharply by lane, zone, and shipment type."},
+  {t:"O2S",full:"Order to Ship",def:"Time from order placement to shipment pickup or ship scan.",cat:"🚚 Logistics & Ops",lvl:"intermediate",ex:"High O2S usually means supplier dispatch or pickup is slowing the order."},
+  {t:"S2D",full:"Ship to Delivered",def:"Time from shipment scan to successful delivery.",cat:"🚚 Logistics & Ops",lvl:"intermediate",ex:"S2D is heavily influenced by zone, 3PL performance, and last-mile success."},
+  {t:"Zone",full:"Logistics Zone",def:"Distance or lane classification used to estimate delivery SLA and logistics cost.",cat:"🚚 Logistics & Ops",lvl:"beginner",ex:"Zone D and Zone E orders usually need different CPD expectations than local shipments."},
+  {t:"FTL",full:"Full Truck Load",def:"Line-haul movement where a truck is dedicated or substantially filled for a route.",cat:"🚚 Logistics & Ops",lvl:"advanced",ex:"FTL can improve cost efficiency at scale, but needs enough lane volume."},
+  {t:"OFD",full:"Out for Delivery",def:"Shipment status showing the package is with the last-mile agent for delivery attempt.",cat:"🚚 Logistics & Ops",lvl:"beginner",ex:"OFD-to-delivered conversion helps diagnose last-mile quality."},
+  {t:"FAD",full:"First Attempt Delivery",def:"Successful delivery on the first delivery attempt.",cat:"🚚 Logistics & Ops",lvl:"intermediate",ex:"High FAD lowers reattempt cost and reduces RTO risk."},
+  {t:"CPO",full:"Cost per Order",def:"Average direct cost incurred to process, fulfill, or serve one order.",cat:"💰 Finance & Unit Economics",lvl:"intermediate",ex:"CPO should be evaluated alongside AOV, CM, and RTO rather than alone."}
+];
+
+const CORE_TERMS = [...FALLBACK_TERMS, ...EXTRA_FALLBACK_TERMS];
+
+const CORE_TERM_ENRICHMENTS = {
+  GMV:{formula:"Sum of placed order value before returns and cancellations",owner:"Growth / Category",cadence:"Daily, WBR, MBR",target:"Grow with healthy N/G and CM",source:"Business review dashboards",related:["CTR","ATC","AOV","NMV","N/G"],roles:["starter","growth","finance","leadership"],pitfall:"GMV can look strong even when returns or cancellations are high."},
+  NMV:{formula:"GMV - cancellations - returns",owner:"Growth / Finance",cadence:"WBR, MBR",target:"Grow faster than low-quality GMV",source:"Finance and business dashboards",related:["GMV","N/G","ODNR","CM"],roles:["starter","growth","finance","leadership"],pitfall:"Use NMV to check whether demand became real delivered value."},
+  "N/G":{formula:"NMV / GMV",owner:"Finance / Business",cadence:"WBR, MBR",target:"Higher is better",source:"Finance dashboards",related:["GMV","NMV","RTO","ODNR"],roles:["finance","growth","leadership"],pitfall:"A falling N/G ratio means gross demand quality is weakening."},
+  MTU:{formula:"Users with at least one transaction in the month",owner:"Growth / Leadership",cadence:"Monthly, MBR",target:"North-star user growth",source:"Growth dashboards",related:["MAU","OA","O5M4","LTV"],roles:["starter","growth","leadership"],pitfall:"MAU without MTU may only indicate browsing, not buying."},
+  O5M4:{formula:"Users who complete 5 orders in 4 months",owner:"Growth / CRM",cadence:"Cohort reviews",target:"Increase share of users reaching habit threshold",source:"Retention dashboards",related:["OA","MTU","LTV","MX R%"],roles:["growth","leadership"],pitfall:"It is a habit signal, not just a vanity milestone."},
+  LTV:{formula:"Expected lifetime revenue or contribution per customer",owner:"Growth / Finance",cadence:"Cohort reviews, MBR",target:"Meaningfully above CAC",source:"Cohort and finance dashboards",related:["CAC","O5M4","MX R%"],roles:["growth","finance","leadership"],pitfall:"Compare LTV to CAC and retention quality."},
+  CAC:{formula:"Acquisition spend / new customers acquired",owner:"Growth / Marketing",cadence:"Campaign reviews",target:"Below payback threshold",source:"Marketing dashboards",related:["LTV","MTU","OA"],roles:["growth","finance"],pitfall:"Low CAC is not useful if acquired users do not repeat."},
+  CTR:{formula:"Clicks / impressions",owner:"Product / Growth",cadence:"Daily experiments, WBR",target:"Improve without hurting downstream conversion",source:"Discovery funnels",related:["PDP","ATC","GMV"],roles:["starter","growth","product"],pitfall:"CTR lift is weak if ATC or conversion drops."},
+  ATC:{formula:"Add-to-cart actions / PDP visits",owner:"Product / Growth",cadence:"Experiment reviews",target:"Improve purchase intent",source:"Funnel dashboards",related:["CTR","PDP","AOV","GMV"],roles:["growth","product"],pitfall:"Low ATC after high CTR means PDP trust may be weak."},
+  AOV:{formula:"GMV / orders",owner:"Growth / Category / Finance",cadence:"WBR, category reviews",target:"Increase with controlled returns",source:"Order dashboards",related:["GMV","MOV","CM"],roles:["growth","finance","catalog"],pitfall:"Higher AOV can still hurt if returns or discounts spike."},
+  RTO:{formula:"Shipments returned to origin / shipped orders",owner:"Ops / Logistics",cadence:"Daily ops, WBR",target:"Lower is better",source:"Logistics dashboards",related:["COD","NDR","FAD","N/G","CM"],roles:["starter","ops","finance","quality"],pitfall:"COD mix and NDR quality are major RTO drivers."},
+  NDR:{formula:"Failed delivery attempts / delivery attempts",owner:"Ops / 3PL",cadence:"Daily ops",target:"Lower is better",source:"Last-mile dashboards",related:["FAD","RTO","CPD","CSAT"],roles:["ops","quality"],pitfall:"NDR is a warning signal before RTO."},
+  FAD:{formula:"First-attempt delivered orders / delivery attempts",owner:"Ops / 3PL",cadence:"Daily ops",target:"Higher is better",source:"Last-mile dashboards",related:["OFD","NDR","RTO","CSAT"],roles:["ops","quality"],pitfall:"FAD protects both customer experience and logistics cost."},
+  LDR:{formula:"Late dispatch orders / dispatchable orders",owner:"Supplier Ops",cadence:"Daily ops, supplier reviews",target:"Lower is better",source:"Supplier performance dashboards",related:["EDD","M2S","CPD","CSAT"],roles:["ops","catalog","quality"],pitfall:"LDR is upstream of CPD misses."},
+  EDD:{formula:"Committed supplier dispatch date",owner:"Supplier Ops",cadence:"Daily ops",target:"High adherence",source:"Supplier dashboards",related:["LDR","M2S","CPD"],roles:["ops","catalog"],pitfall:"EDD is dispatch promise, not customer delivery promise."},
+  CPD:{formula:"Delivery date promised to customer",owner:"Ops / Product",cadence:"Daily ops, WBR",target:"High promise adherence",source:"Customer promise dashboards",related:["LDR","S2D","NDR","CSAT"],roles:["starter","ops","product","quality"],pitfall:"Overpromising CPD can raise conversion but damage trust."},
+  M2S:{formula:"Pickup scan time - manifest creation time",owner:"Ops / 3PL",cadence:"Daily ops",target:"Lower is better",source:"First-mile dashboards",related:["NPR","EDD","O2S"],roles:["ops"],pitfall:"M2S isolates the wait after supplier manifesting."},
+  NPR:{formula:"Missed pickups / scheduled pickups",owner:"Ops / 3PL",cadence:"Daily ops",target:"Lower is better",source:"Pickup dashboards",related:["M2S","O2S","LDR"],roles:["ops"],pitfall:"NPR is a pickup failure, not a customer delivery failure."},
+  O2S:{formula:"Ship scan time - order placement time",owner:"Ops",cadence:"Daily ops",target:"Lower is better",source:"Order movement dashboards",related:["EDD","LDR","M2S","CPD"],roles:["ops"],pitfall:"High O2S can hide supplier and pickup problems."},
+  S2D:{formula:"Delivery time - ship scan time",owner:"Ops / 3PL",cadence:"Daily ops",target:"Within zone SLA",source:"Transit dashboards",related:["Zone","CPD","OTIF"],roles:["ops"],pitfall:"Always interpret S2D by zone."},
+  OTIF:{formula:"Orders delivered on time and complete / delivered orders",owner:"Ops / CX",cadence:"WBR, ops reviews",target:"Higher is better",source:"Fulfillment dashboards",related:["CPD","FAD","CSAT"],roles:["ops","quality","leadership"],pitfall:"OTIF combines timeliness and completeness."},
+  LQS:{formula:"Weighted listing completeness and quality score",owner:"Catalog / Category",cadence:"Category reviews",target:"Higher is better",source:"Catalog quality dashboards",related:["SKU","SSCAT","CTR","PDP"],roles:["starter","catalog","product","quality"],pitfall:"Low LQS can hurt discovery before price even matters."},
+  SKU:{formula:"Unique product variant identifier",owner:"Catalog / Supplier Ops",cadence:"Catalogue reviews",target:"Accurate, non-duplicated IDs",source:"Catalog systems",related:["SSCAT","LQS","OOS"],roles:["starter","catalog"],pitfall:"Variant-level tracking prevents inventory confusion."},
+  SSCAT:{formula:"Granular product taxonomy level",owner:"Catalog / Product",cadence:"Catalogue reviews",target:"Correct category mapping",source:"Taxonomy systems",related:["SKU","LQS","CTR"],roles:["catalog","product"],pitfall:"Bad taxonomy breaks search and recommendation quality."},
+  PDP:{formula:"Product detail page view and content surface",owner:"Product / Catalog",cadence:"Experiment reviews",target:"Improve ATC and conversion",source:"Product analytics",related:["CTR","ATC","LQS","WPR"],roles:["starter","product","catalog"],pitfall:"PDP is where discovery becomes purchase intent."},
+  CSAT:{formula:"Average or distribution of customer satisfaction ratings",owner:"CX / Quality",cadence:"Daily, WBR",target:"Higher is better",source:"CX dashboards",related:["CPD","NDR","NQD","ODNR"],roles:["starter","quality","ops"],pitfall:"CSAT is often downstream of logistics and product quality."},
+  NPS:{formula:"Promoters % - detractors %",owner:"CX / Leadership",cadence:"Monthly, quarterly",target:"Higher is better",source:"Survey dashboards",related:["CSAT","NQD","ODNR"],roles:["quality","leadership"],pitfall:"NPS needs verbatim analysis to explain movement."},
+  ODNR:{formula:"Delivered orders not returned / delivered orders",owner:"Quality / Category",cadence:"WBR, supplier reviews",target:"Higher is better",source:"Returns dashboards",related:["NQD","WPR","WFR","N/G"],roles:["quality","catalog","finance"],pitfall:"ODNR is a strong proxy for delivered product satisfaction."},
+  NQD:{formula:"1-2 star quality reviews / total ratings",owner:"Quality / Category",cadence:"Supplier reviews",target:"Lower is better",source:"Quality dashboards",related:["CSAT","ODNR","WPR"],roles:["quality","catalog"],pitfall:"High NQD can signal listing or supplier quality issues."},
+  WFR:{formula:"Wrong-item returns / delivered orders",owner:"Supplier Ops / Quality",cadence:"Supplier reviews",target:"Lower is better",source:"Returns dashboards",related:["WPR","ODNR","NQD"],roles:["quality","catalog","ops"],pitfall:"WFR points to fulfillment accuracy."},
+  WPR:{formula:"Not-as-described returns / delivered orders",owner:"Catalog / Quality",cadence:"Supplier reviews",target:"Lower is better",source:"Returns dashboards",related:["LQS","PDP","NQD"],roles:["quality","catalog"],pitfall:"WPR usually points to listing accuracy."},
+  CM:{formula:"Revenue - direct variable costs",owner:"Finance / Category",cadence:"WBR, MBR",target:"Positive and improving",source:"Finance dashboards",related:["AOV","CPO","MDR","RTO"],roles:["finance","leadership","catalog"],pitfall:"GMV growth can still produce negative CM."},
+  CPO:{formula:"Direct operating cost / order count",owner:"Finance / Ops",cadence:"WBR, MBR",target:"Lower with stable experience",source:"Finance and ops dashboards",related:["CM","RTO","MDR"],roles:["finance","ops"],pitfall:"CPO reductions should not damage delivery quality."},
+  MDR:{formula:"Payment gateway fee / transaction value",owner:"Finance / Payments",cadence:"Finance reviews",target:"Lower through payment mix",source:"Payment dashboards",related:["COD","CM","CPO"],roles:["finance"],pitfall:"Payment mix can quietly move margin."},
+  RPC:{formula:"Return processing facility and TAT",owner:"Ops / Returns",cadence:"Daily ops",target:"Fast, accurate processing",source:"Returns ops dashboards",related:["RVP","ODNR","WFR","WPR"],roles:["ops","quality"],pitfall:"RPC bottlenecks delay refund and relisting."},
+  VC:{formula:"Category views / platform views",owner:"Product / Category",cadence:"WBR",target:"Interpret with order contribution",source:"Discovery dashboards",related:["CTR","ATC","PDP"],roles:["product","growth","catalog"],pitfall:"High VC with low orders means attention is not converting."},
+  "MX R%":{formula:"Users retained in month X / cohort users",owner:"Growth / CRM",cadence:"Cohort reviews",target:"Higher retention by month",source:"Retention dashboards",related:["MTU","O5M4","LTV"],roles:["growth"],pitfall:"Look for the month where retention drops sharply."},
+  UPS:{formula:"Matched products priced above competitor / matched products",owner:"Pricing / Category",cadence:"Pricing reviews",target:"Lower is better",source:"Pricing dashboards",related:["AOV","CM","GMV"],roles:["finance","catalog","growth"],pitfall:"Lower price can help conversion but must be checked against CM."},
+  DRI:{formula:"Single accountable owner",owner:"Leadership / Program",cadence:"Project reviews",target:"One clear owner per deliverable",source:"Operating rhythm",related:["OKR","KPI","WBR"],roles:["starter","leadership","product"],pitfall:"No DRI often means no decision velocity."}
+};
+
+const CATEGORY_DEFAULT_CONTEXT = {
+  "📈 Growth Metrics":{owner:"Growth / Business",cadence:"WBR, MBR",target:"Direction depends on funnel quality",source:"Growth dashboards",roles:["growth","leadership"]},
+  "🏭 Supply & Catalogue":{owner:"Category / Catalog",cadence:"Category reviews",target:"Improve selection and quality",source:"Catalog systems",roles:["catalog","product"]},
+  "🚚 Logistics & Ops":{owner:"Operations / 3PL",cadence:"Daily ops, WBR",target:"Improve SLA and reduce failures",source:"Ops dashboards",roles:["ops","quality"]},
+  "💻 Product & Tech":{owner:"Product / Tech",cadence:"Experiment and sprint reviews",target:"Improve user or system outcome",source:"Product analytics",roles:["product"]},
+  "⭐ Customer & Quality":{owner:"CX / Quality",cadence:"Daily, WBR",target:"Improve satisfaction and reduce defects",source:"CX dashboards",roles:["quality"]},
+  "💰 Finance & Unit Economics":{owner:"Finance / Business",cadence:"WBR, MBR",target:"Improve profitability and cost quality",source:"Finance dashboards",roles:["finance","leadership"]},
+  "📋 Reviews & Meetings":{owner:"Leadership / Program",cadence:"Operating rhythm",target:"Clear decisions and accountability",source:"Review forums",roles:["leadership","starter"]},
+  "🔒 Security & Infra":{owner:"Security / Infra",cadence:"Ops reviews",target:"Reliability and risk reduction",source:"Infra dashboards",roles:["product"]},
+  "📦 Platform Concepts":{owner:"Depends on function",cadence:"As used in reviews",target:"Interpret in business context",source:"Internal dashboards",roles:["starter"]}
+};
+
+const JOURNEY_STAGES = [
+  {id:"j1",icon:"🛍️",label:"Seller Lists\nCatalogue",kpis:["LQS","SKU","SSCAT","C/S","SoL"],kpiDetails:[
+    {name:"LQS",def:"Listing Quality Score: image quality, title accuracy, and attribute completeness.",good:"LQS above 75 usually means stronger conversion."},
+    {name:"SKU",def:"Stock Keeping Unit: each product variant gets a unique ID.",good:"More SKUs increase variety but require inventory control."},
+    {name:"SSCAT",def:"Sub Sub Category: the most granular catalogue classification.",good:"Correct tagging improves search and discovery."}
+  ],failure:"Poor LQS leads to low CTR on PLP, fewer orders, and supplier visibility risk."},
+  {id:"j2",icon:"📱",label:"User Views\n& Orders",kpis:["CTR","ATC","AOV","PDP","MOV"],kpiDetails:[
+    {name:"CTR",def:"Click-through rate: percentage of users who tap a listing after seeing it.",good:"Healthy PLP CTR varies by category."},
+    {name:"ATC",def:"Add to Cart: mid-funnel purchase intent signal.",good:"ATC to purchase conversion should stay strong."},
+    {name:"AOV",def:"Average Order Value: total GMV divided by orders.",good:"Higher AOV can improve margin when returns stay controlled."}
+  ],failure:"Low CTR causes the algorithm to deprioritize product visibility.",branch:{label:"Payment?",left:{label:"💳 Prepaid",type:"success",detail:"UPI or card. Lower RTO and faster payment confidence."},right:{label:"💵 COD",type:"fail",detail:"Cash at door. Higher RTO and more operational cost."}}},
+  {id:"j3",icon:"🧾",label:"Order ID\nCreated",kpis:["GMV","MTU","OA","NMV"],kpiDetails:[
+    {name:"GMV",def:"Every placed order adds to GMV, regardless of final delivery.",good:"GMV is a leading signal; NMV is the quality check."},
+    {name:"MTU",def:"This order may count toward Monthly Transacting Users.",good:"One new first-time buyer means MTU increases."},
+    {name:"OA",def:"Order Activation milestone for the customer.",good:"Repeat order milestones signal habit formation."}
+  ],failure:"Order creation failures or supplier cancellations reduce conversion from gross demand to delivered value.",branch:{label:"Supplier?",left:{label:"✅ Accepted",type:"success",detail:"Supplier confirms. The dispatch clock starts."},right:{label:"❌ SC",type:"fail",detail:"Out-of-stock or capacity issue. GMV does not convert to NMV."}}},
+  {id:"j4",icon:"📦",label:"Supplier\nDispatches",kpis:["EDD","LDR","NDD","M2S","AWB"],kpiDetails:[
+    {name:"EDD",def:"Expected Dispatch Date: committed date by which supplier must dispatch.",good:"EDD adherence should stay high for healthy suppliers."},
+    {name:"LDR",def:"Late Dispatch Rate: percentage of orders dispatched after EDD.",good:"Lower LDR protects customer promise dates."},
+    {name:"M2S",def:"Manifest to Ship: time from manifest creation to 3PL pickup.",good:"Short M2S keeps the logistics chain moving."}
+  ],failure:"High LDR causes CPD misses, lower CSAT, and buyer churn."},
+  {id:"j5",icon:"🚚",label:"3PL Picks\nUp",kpis:["NPR","TAT","3PL","AWB"],kpiDetails:[
+    {name:"NPR",def:"Non Picked-up Report: 3PL failed to collect from supplier on time.",good:"Low NPR means pickup partners are reliable."},
+    {name:"TAT",def:"Turnaround Time: end-to-end process time for a leg.",good:"Same-day pickup is ideal for many manifests."},
+    {name:"3PL",def:"Third-party logistics partner such as Delhivery or Ecom Express.",good:"Partner selection should be zone-aware."}
+  ],failure:"NPR pushes EDD, spikes LDR, and eventually hurts CSAT."},
+  {id:"j6",icon:"🏭",label:"In Transit\nLine-haul",kpis:["O2S","S2D","Zone","FTL"],kpiDetails:[
+    {name:"O2S",def:"Order to Ship: time from placement to pickup scan.",good:"Lower O2S means faster customer experience."},
+    {name:"S2D",def:"Ship to Delivered: logistics partner accountability window.",good:"Expected time depends on zone distance."},
+    {name:"Zone",def:"A-E distance classification for origin-to-destination movement.",good:"Zone affects SLA, CPD, and logistics cost."}
+  ],failure:"Transit delays cascade into CPD misses, especially in longer-distance zones."},
+  {id:"j7",icon:"🏠",label:"Last Mile\nDelivery",kpis:["OFD","FAD","NDR","CPD","OTIF"],kpiDetails:[
+    {name:"FAD",def:"First Attempt Delivery: delivered successfully on the first try.",good:"High FAD keeps costs low and customers happy."},
+    {name:"NDR",def:"Non-Delivery Report: failed delivery attempt.",good:"NDR above threshold flags customer or address issues."},
+    {name:"CPD",def:"Customer Promise Date: delivery date shown to buyer at checkout.",good:"CPD adherence protects trust."}
+  ],failure:"NDR loops create reattempt costs and then RTO.",branch:{label:"Delivered?",left:{label:"✅ Delivered",type:"success",detail:"Proof of delivery captured. ADD is recorded and OTIF is measured."},right:{label:"❌ NDR → RTO",type:"fail",detail:"Max reattempts exhausted, so the shipment returns to origin."}}},
+  {id:"j8",icon:"⭐",label:"Post-Delivery\n& Quality",kpis:["CSAT","NPS","NQD","ODNR","WFR"],kpiDetails:[
+    {name:"CSAT",def:"Customer Satisfaction Score: post-delivery rating.",good:"High CSAT signals a strong purchase experience."},
+    {name:"NPS",def:"Net Promoter Score: likelihood to recommend.",good:"Strong NPS shows trust beyond a single order."},
+    {name:"ODNR",def:"Orders Delivered Not Returned: proxy for product satisfaction.",good:"High ODNR means customers keep what they receive."}
+  ],failure:"Low CSAT and high NQD can demote product visibility.",branch:{label:"Happy?",left:{label:"✅ Kept",type:"success",detail:"Repeat purchase likelihood increases and positive reviews lift the listing."},right:{label:"↩️ Return",type:"fail",detail:"Reverse pickup starts and RPC processes the returned item."}}},
+  {id:"j9",icon:"💰",label:"Settlement\n& Unit Econ",kpis:["MDR","CM","N/G","NMV","CPO"],kpiDetails:[
+    {name:"N/G",def:"NMV divided by GMV: fraction of gross value that becomes delivered value.",good:"Higher N/G means cleaner demand quality."},
+    {name:"CM",def:"Contribution Margin: revenue minus direct variable costs.",good:"Positive CM means viable unit economics."},
+    {name:"MDR",def:"Merchant Discount Rate: payment gateway fee.",good:"UPI-heavy mix reduces payment cost."}
+  ],failure:"High RTO plus COD plus payment fees can make contribution margin negative.",branch:{label:"Payment flow",left:{label:"💳 PP → Direct",type:"success",detail:"Paid at checkout, then settled after delivery."},right:{label:"💵 COD → 3PL",type:"fail",detail:"3PL collects cash, remits later, and working capital gets stretched."}}}
+];
+
+const SCRIPTED_QUESTIONS = [
+  {tag:"💬 Slack · #ops-war-room",situation:"COD orders in UP are piling up undelivered. Customers are not home, addresses are wrong, and packages are heading back to suppliers.",question:"Which metric has spiked and is causing a cash-flow hit for suppliers?",answerKey:"RTO",explain:"RTO means Return to Origin. After failed delivery attempts, the shipment goes back to the supplier."},
+  {tag:"📊 WBR · Logistics slide",situation:"One in five delivery attempts in Rajasthan is failing. Drivers call customers, get no response, and close the attempt.",question:"Which report captures every failed delivery attempt before the package becomes RTO?",answerKey:"NDR",explain:"NDR is logged for failed delivery attempts, such as customer unavailable or wrong address."},
+  {tag:"🏭 Supplier Review",situation:"A saree supplier dispatched 800 orders. By day 10, only 580 were in buyers' hands. The rest came back for size, colour, and quality reasons.",question:"Which metric captures how much of their delivered order volume stayed with customers?",answerKey:"ODNR",explain:"ODNR is Orders Delivered Not Returned, a proxy for customer satisfaction and product quality."},
+  {tag:"📋 MBR · Growth chapter",situation:"MAU grew 18%, but revenue did not move proportionally. The CEO asks whether people are browsing or actually buying.",question:"Which metric tells you how many users actually transacted?",answerKey:"MTU",explain:"MTU counts Monthly Transacting Users, not just visitors."},
+  {tag:"💬 Slack · #finance-ops",situation:"Gross order value looks healthy, but after returns and cancellations the delivered value is only 74% of the top line.",question:"What ratio is degrading when gross demand is not becoming delivered value?",answerKey:"N/G",explain:"N/G is NMV divided by GMV. It shows the quality of GMV."},
+  {tag:"📦 Category deep-dive",situation:"Electronics listings have sharp images and detailed specs. Ethnic wear has blurry photos and missing attributes. Conversion differs sharply.",question:"Which score explains why ethnic wear underperforms?",answerKey:"LQS",explain:"LQS measures listing quality, including images, titles, and attributes."},
+  {tag:"💰 Finance weekly",situation:"A category celebrates GMV growth, but after logistics, support, returns, and fees, each order loses money.",question:"Which metric being negative is the finance red flag?",answerKey:"CM",explain:"Contribution Margin is revenue minus direct variable costs."},
+  {tag:"🚚 Ops review",situation:"Orders were manifested Sunday night, but pickup happened Tuesday. The delay pushed customer promise dates.",question:"Which metric captures how long the package sat after manifesting before pickup?",answerKey:"M2S",explain:"M2S is Manifest to Ship, the time between manifesting and 3PL pickup."},
+  {tag:"🧠 Terms Showdown",situation:"A delivery partner drops the order successfully and the customer signs.",question:"Which date field just got updated?",answerKey:"ADD",explain:"ADD is Actual Delivery Date, the real delivery date."},
+  {tag:"🧠 Terms Showdown",situation:"A WBR slide shows total value of all orders placed this week, including later returns and cancellations.",question:"Which number is shown before deductions?",answerKey:"GMV",explain:"GMV is the gross value before returns and cancellations."},
+  {tag:"🚨 Incident · Metric alert",situation:"CSAT drops from 4.1 to 3.2. Ticket analysis says the top complaint is late orders, not product quality.",question:"Which upstream metric likely broke first?",answerKey:"LDR",explain:"Late Dispatch Rate creates downstream CPD misses, and customers feel that as late delivery."},
+  {tag:"⛓️ Chain Reaction",situation:"A supplier's LDR spikes during Diwali. Orders dispatch two to three days after EDD.",question:"Which customer-facing promise is most directly broken?",answerKey:"CPD",explain:"CPD is the Customer Promise Date. Late dispatch makes it harder to meet."},
+  {tag:"🧭 North Star test",situation:"The CEO asks whether more real buyers transacted this month than last month.",question:"Which single metric answers that?",answerKey:"MTU",explain:"MTU is the north-star purchasing activity metric."},
+  {tag:"🧭 North Star test",situation:"A logistics VP asks what percentage of orders land on time and complete.",question:"Which metric answers this?",answerKey:"OTIF",explain:"OTIF means On Time In Full."},
+  {tag:"💬 Slack · #supplier-health",slack:[
+    {name:"Ananya",msg:"Supplier #4421 is flagging. 38% of their orders were dispatched after the committed date."},
+    {name:"Rahul",msg:"Performance has declined three weeks straight."},
+    {name:"Ananya",msg:"They may start affecting our promise dates."}
+  ],question:"Which supplier metric is Ananya referring to?",answerKey:"LDR",explain:"LDR is the percentage of orders dispatched after the expected dispatch date."},
+  {tag:"💬 Slack · #growth",slack:[
+    {name:"Priya",msg:"Users who do five orders in their first four months have much higher LTV."},
+    {name:"Rohit",msg:"Exactly. That is why we treat it as the activation threshold."}
+  ],question:"What Meesho habit milestone are they describing?",answerKey:"O5M4",explain:"O5M4 means five orders in four months."}
+];
+
+function byId(id){return document.getElementById(id);}
+function escapeHTML(value){
+  return String(value ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch]));
+}
+function shuffle(input){
+  const a = [...input];
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function findTerm(key){
+  if(!key) return null;
+  const needle = key.toUpperCase().trim();
+  return ALL_TERMS.find(t => t.t.toUpperCase() === needle) ||
+    ALL_TERMS.find(t => String(t.full || "").toUpperCase() === needle) ||
+    null;
+}
+function getDistractors(correctTerm, count = 3){
+  const sameCat = shuffle(ALL_TERMS.filter(t => t.t !== correctTerm.t && t.cat === correctTerm.cat));
+  const other = shuffle(ALL_TERMS.filter(t => t.t !== correctTerm.t && t.cat !== correctTerm.cat));
+  return [...sameCat, ...other].slice(0, count);
+}
+function catColor(cat){return CAT_COLORS[cat] || "#8a82a8";}
+
+function detectCategory(abbr, desc){
+  const s = `${abbr} ${desc}`.toLowerCase();
+  const groups = [
+    ["📈 Growth Metrics",["gmv","nmv","aov","mau","dau","wau","mtu","cac","ltv","retention","churn","repeat","o5m","growth","cohort","activation","oa"]],
+    ["🏭 Supply & Catalogue",["sku","catalog","catalogue","oos","stock","lqs","listing","supplier","sscat","variation","selection","seller"]],
+    ["🚚 Logistics & Ops",["ndr","rto","npr","cod","prepaid","tat","otif","3pl","add","delivery","edd","cpd","ofd","fad","ldr","m2s","rvp","rpc","awb","pod","shipment","courier","dispatch","pickup"]],
+    ["💻 Product & Tech",["okr","kra","kpi","prd","sprint","test","atc","pdp","plp","ctr","seo","search","backend","api","rps","cms","deeplink"]],
+    ["⭐ Customer & Quality",["nps","csat","fcr","aht","nqd","quality","odnr","return","wfr","wpr","detractor","complaint"]],
+    ["💰 Finance & Unit Economics",["cm","contribution margin","cpo","cpc","mdr","n/g","discount","margin","pricing","cost","fee","unit economics","ups"]],
+    ["📋 Reviews & Meetings",["wbr","mbr","bau","dri","review","meeting","business review","hrbp","chro"]],
+    ["🔒 Security & Infra",["aws","gcp","ec2","eks","mfa","vpn","siem","waf","dlp","pii","iam","iso","tls","security","infra"]]
+  ];
+  const match = groups.find(([, words]) => words.some(word => s.includes(word)));
+  return match ? match[0] : "📦 Platform Concepts";
+}
+function detectLevel(abbr, desc){
+  const s = `${abbr} ${desc}`.toLowerCase();
+  if(["ndcg","ocpd","cpso","qds","cm2","o5m4","ups","siem","vapt","cwpp","ciem","cnapp","cspm","mttd","mttr","rpo","sast","dast","xdr","edr"].some(w => s.includes(w))) return "advanced";
+  if(["cac","ltv","mtu","nqd","lqs","edd","cpd","add","m2s","ldr","npr","ndr","otif","fad","rpc","rvp","odnr","wfr","wpr","mdr","n/g","dri","sscat"].some(w => s.includes(w))) return "intermediate";
+  return "beginner";
+}
+function termKey(value){return String(value || "").toUpperCase().trim();}
+function unique(values){return [...new Set(values.filter(Boolean))];}
+function defaultContextFor(cat){return CATEGORY_DEFAULT_CONTEXT[cat] || CATEGORY_DEFAULT_CONTEXT["📦 Platform Concepts"];}
+function inferRoles(term, enrichment = {}){
+  const defaults = defaultContextFor(term.cat);
+  const roles = [...(defaults.roles || []), ...(enrichment.roles || [])];
+  if(term.lvl === "beginner") roles.push("starter");
+  if(/wbr|mbr|okr|kra|dri|north.star|gmv|nmv|mtu/i.test(`${term.t} ${term.full} ${term.def}`)) roles.push("leadership");
+  return unique(roles);
+}
+function enrichTerm(term){
+  const key = termKey(term.t);
+  const enrichment = CORE_TERM_ENRICHMENTS[key] || {};
+  const known = findKnownTerm(term.t);
+  const cat = term.cat || detectCategory(term.t, term.def);
+  const defaults = defaultContextFor(cat);
+  const full = enrichment.full || (term.full && term.full !== term.t ? term.full : "") || (known?.full && known.full !== known.t ? known.full : "") || term.full || term.t;
+  const related = enrichment.related || [];
+  return {
+    ...term,
+    full,
+    cat,
+    lvl: term.lvl || detectLevel(term.t, term.def),
+    formula: enrichment.formula || term.formula || "No fixed formula in this two-column glossary yet.",
+    owner: enrichment.owner || term.owner || defaults.owner,
+    cadence: enrichment.cadence || term.cadence || defaults.cadence,
+    target: enrichment.target || term.target || defaults.target,
+    source: enrichment.source || term.source || defaults.source,
+    related,
+    pitfall: enrichment.pitfall || term.pitfall || "Read this with its upstream and downstream metrics before making a call.",
+    roles: inferRoles({...term, cat}, enrichment)
+  };
+}
+function enrichTerms(terms){return terms.map(enrichTerm);}
+function optionText(term){
+  const full = term.full && term.full !== term.t ? ` — ${term.full}` : "";
+  return `${term.t}${full}: ${term.def}`;
+}
+function findKnownTerm(key){
+  const needle = termKey(key);
+  return CORE_TERMS.find(t => termKey(t.t) === needle) || null;
+}
+function parseCSV(text){
+  const rows = [];
+  let row = [];
+  let cell = "";
+  let inQuotes = false;
+  for(let i = 0; i < text.length; i++){
+    const ch = text[i];
+    const next = text[i + 1];
+    if(ch === '"'){
+      if(inQuotes && next === '"'){cell += '"'; i++;}
+      else inQuotes = !inQuotes;
+    }else if(ch === "," && !inQuotes){
+      row.push(cell); cell = "";
+    }else if((ch === "\n" || ch === "\r") && !inQuotes){
+      if(ch === "\r" && next === "\n") i++;
+      row.push(cell);
+      if(row.some(v => v.trim())) rows.push(row);
+      row = [];
+      cell = "";
+    }else{
+      cell += ch;
+    }
+  }
+  row.push(cell);
+  if(row.some(v => v.trim())) rows.push(row);
+  return rows;
+}
+
+async function loadTermsFromSheet(){
+  const statusEl = byId("dataStatus");
+  try{
+    const resp = await fetch(SHEET_CSV_URL);
+    if(!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const rows = parseCSV(await resp.text());
+    const terms = [];
+    const seen = new Set();
+    rows.slice(1).forEach(parts => {
+      const abbr = String(parts[0] || "").trim();
+      const desc = String(parts[1] || "").trim();
+      if(!abbr || !desc || abbr.length > 60) return;
+      const key = abbr.toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,20);
+      if(seen.has(key)) return;
+      seen.add(key);
+      terms.push({
+        t: abbr,
+        full: abbr,
+        def: desc,
+        cat: detectCategory(abbr, desc),
+        lvl: detectLevel(abbr, desc),
+        ex: `"${abbr}" is used in Meesho's internal reviews and operational dashboards.`
+      });
+    });
+    if(terms.length < 5) throw new Error("Too few terms parsed");
+    ALL_TERMS = enrichTerms(mergeCoreTerms(terms));
+    byId("statTerms").textContent = ALL_TERMS.length;
+    statusEl.textContent = `✓ ${ALL_TERMS.length} terms loaded live from Google Sheets`;
+    statusEl.className = "data-status ok";
+  }catch(e){
+    console.warn("Sheet load failed:", e.message);
+    ALL_TERMS = enrichTerms([...CORE_TERMS]);
+    byId("statTerms").textContent = `${ALL_TERMS.length} (offline)`;
+    statusEl.textContent = `⚠️ Using ${ALL_TERMS.length} built-in terms because the sheet was unavailable`;
+    statusEl.className = "data-status err";
+  }
+  initGlossary();
+  if(activeJourneyId){
+    const id = activeJourneyId;
+    activeJourneyId = null;
+    toggleJourneyStage(id, false);
+  }
+}
+function mergeCoreTerms(sheetTerms){
+  const byKey = new Map(sheetTerms.map(t => [t.t.toUpperCase(), t]));
+  CORE_TERMS.forEach(term => {
+    if(!byKey.has(term.t.toUpperCase())) byKey.set(term.t.toUpperCase(), term);
+  });
+  return Array.from(byKey.values());
+}
+
+function initGlossary(){
+  const roles = byId("rolePills");
+  roles.innerHTML = "";
+  ROLE_FILTERS.forEach(role => {
+    const pill = document.createElement("button");
+    pill.className = `role-pill${role.id === glRole ? " active" : ""}`;
+    pill.type = "button";
+    pill.dataset.role = role.id;
+    pill.textContent = role.label;
+    roles.appendChild(pill);
+  });
+  const cats = ["All", ...new Set(ALL_TERMS.map(t => t.cat))];
+  const pills = byId("catPills");
+  pills.innerHTML = "";
+  cats.forEach(cat => {
+    const pill = document.createElement("button");
+    pill.className = `cat-pill${cat === glCat ? " active" : ""}`;
+    pill.type = "button";
+    pill.dataset.cat = cat;
+    pill.textContent = cat === "All" ? "🌐 All" : cat;
+    pills.appendChild(pill);
+  });
+  renderSearch();
+}
+function setRole(role){glRole = role; initGlossary();}
+function setCat(cat){glCat = cat; initGlossary();}
+function setLvl(level){
+  glLvl = level;
+  const ids = {all:"lvlAll",beginner:"lvlBeg",intermediate:"lvlInt",advanced:"lvlAdv"};
+  Object.entries(ids).forEach(([key, id]) => byId(id)?.classList.toggle("active", key === level));
+  renderSearch();
+}
+function renderSearch(){
+  if(!ALL_TERMS.length) return;
+  const query = (byId("searchInput").value || "").toLowerCase();
+  let res = [...ALL_TERMS];
+  if(glRole !== "all") res = res.filter(t => (t.roles || []).includes(glRole));
+  if(glCat !== "All") res = res.filter(t => t.cat === glCat);
+  if(glLvl !== "all") res = res.filter(t => t.lvl === glLvl);
+  if(query) res = res.filter(t => `${t.t} ${t.full} ${t.def} ${t.cat}`.toLowerCase().includes(query));
+  byId("searchCount").textContent = `${res.length} term${res.length !== 1 ? "s" : ""} found`;
+  const el = byId("searchResults");
+  if(!res.length){
+    el.innerHTML = `<div class="search-empty">🔍 No terms match "${escapeHTML(query)}"</div>`;
+    return;
+  }
+  el.innerHTML = res.slice(0, 80).map(term => {
+    const c = catColor(term.cat);
+    const chain = term.related?.length ? `<div class="term-chain"><strong>Metric chain</strong>${escapeHTML(term.related.join(" → "))}</div>` : "";
+    return `<div class="term-card">
+      <div class="term-header">
+        <div><div class="term-abbr">${escapeHTML(term.t)}</div><div class="term-full">${term.full !== term.t ? escapeHTML(term.full) : ""}</div></div>
+        <div class="term-badges">
+          <div class="term-cat-badge" style="background:${c}20;color:${c};border:1px solid ${c}40;">${escapeHTML(term.cat)}</div>
+          <div class="term-lvl lvl-${escapeHTML(term.lvl)}">${escapeHTML(term.lvl)}</div>
+        </div>
+      </div>
+      <div class="term-def">${escapeHTML(term.def)}</div>
+      <div class="term-context-grid">
+        <div class="term-context"><div class="term-context-label">Formula / Signal</div><div class="term-context-value">${escapeHTML(term.formula)}</div></div>
+        <div class="term-context"><div class="term-context-label">Owner & Cadence</div><div class="term-context-value">${escapeHTML(term.owner)} · ${escapeHTML(term.cadence)}</div></div>
+        <div class="term-context"><div class="term-context-label">Interpretation</div><div class="term-context-value">${escapeHTML(term.target)}</div></div>
+        <div class="term-context"><div class="term-context-label">Source</div><div class="term-context-value">${escapeHTML(term.source)}</div></div>
+      </div>
+      ${chain}
+      <div class="term-example"><div class="term-ex-label">📌 In context</div>${escapeHTML(term.ex || "Used in Meesho's internal metrics and business reviews.")}</div>
+      <div class="term-chain"><strong>Watch out</strong>${escapeHTML(term.pitfall)}</div>
+    </div>`;
+  }).join("");
+}
+
+function journeyKpiContext(kpi){
+  const known = findTerm(kpi.name) || findKnownTerm(kpi.name) || {
+    t:kpi.name,
+    full:kpi.name,
+    def:kpi.def,
+    cat:"📦 Platform Concepts",
+    lvl:"beginner",
+    ex:kpi.good
+  };
+  return {...enrichTerm(known), stageDef:kpi.def, stageGood:kpi.good};
+}
+
+function buildJourneyMap(){
+  const map = byId("journeyMap");
+  map.innerHTML = "";
+  const stageTones = [
+    ["#f0406a","#ff8a45"],
+    ["#5b9cf6","#a78bfa"],
+    ["#f5c842","#ff6b45"],
+    ["#35d9a4","#5b9cf6"],
+    ["#ff6b45","#f0406a"],
+    ["#7c3aed","#5b9cf6"],
+    ["#35d9a4","#f5c842"],
+    ["#a78bfa","#f0406a"],
+    ["#f5c842","#35d9a4"]
+  ];
+  const stageCaptions = ["Catalogue goes live","Buyer intent forms","Demand is recorded","Supplier promise starts","Pickup clock runs","Network moves it","Promise is tested","Quality verdict lands","Economics settle"];
+  JOURNEY_STAGES.forEach((stage, idx) => {
+    const wrap = document.createElement("div");
+    wrap.className = "j-node-wrap";
+    const node = document.createElement("button");
+    node.className = "j-stage-node";
+    node.id = stage.id;
+    node.type = "button";
+    node.dataset.stageId = stage.id;
+    node.style.setProperty("--stage-a", stageTones[idx][0]);
+    node.style.setProperty("--stage-b", stageTones[idx][1]);
+    node.innerHTML = `
+      <div class="j-stage-num">${idx + 1}</div>
+      <div class="j-stage-art"><span class="j-stage-icon">${stage.icon}</span></div>
+      <div class="j-stage-label">${escapeHTML(stage.label).replace(/\n/g,"<br>")}</div>
+      <div class="j-stage-micro">${escapeHTML(stageCaptions[idx])}</div>`;
+    const dots = document.createElement("div");
+    dots.className = "j-kpi-dots";
+    stage.kpis.forEach(kpi => {
+      const dot = document.createElement("button");
+      dot.type = "button";
+      dot.className = "j-kpi-dot";
+      dot.dataset.lookup = kpi;
+      dot.textContent = kpi;
+      dots.appendChild(dot);
+    });
+    wrap.append(node, dots);
+    if(stage.branch) wrap.appendChild(createBranch(stage));
+    map.appendChild(wrap);
+    if(idx < JOURNEY_STAGES.length - 1){
+      const conn = document.createElement("div");
+      conn.className = "j-connector-h";
+      conn.style.marginTop = stage.branch ? "4px" : "28px";
+      map.appendChild(conn);
+    }
+  });
+  toggleJourneyStage(JOURNEY_STAGES[0].id, false);
+}
+function createBranch(stage){
+  const bw = document.createElement("div");
+  bw.style.cssText = "display:flex;flex-direction:column;align-items:center;margin-top:4px;";
+  bw.innerHTML = `
+    <div style="width:2px;height:14px;background:var(--border2);"></div>
+    <div style="font-size:10px;color:var(--muted);font-weight:700;margin:3px 0;">${escapeHTML(stage.branch.label)}</div>
+    <div style="display:flex;gap:6px;align-items:flex-start;">
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <div class="j-branch-vline success"></div>
+        <button type="button" class="j-branch-box success" data-branch-stage="${escapeHTML(stage.id)}" data-side="left">${escapeHTML(stage.branch.left.label)}</button>
+      </div>
+      <div class="j-branch-spacer"></div>
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <div class="j-branch-vline fail"></div>
+        <button type="button" class="j-branch-box fail" data-branch-stage="${escapeHTML(stage.id)}" data-side="right">${escapeHTML(stage.branch.right.label)}</button>
+      </div>
+    </div>`;
+  return bw;
+}
+function toggleJourneyStage(id, shouldScroll = true){
+  const panel = byId("journeyPanel");
+  const node = byId(id);
+  const stage = JOURNEY_STAGES.find(s => s.id === id);
+  const stageIndex = JOURNEY_STAGES.findIndex(s => s.id === id);
+  const tones = [
+    ["#f0406a","#ff8a45"],
+    ["#5b9cf6","#a78bfa"],
+    ["#f5c842","#ff6b45"],
+    ["#35d9a4","#5b9cf6"],
+    ["#ff6b45","#f0406a"],
+    ["#7c3aed","#5b9cf6"],
+    ["#35d9a4","#f5c842"],
+    ["#a78bfa","#f0406a"],
+    ["#f5c842","#35d9a4"]
+  ];
+  if(!stage) return;
+  if(activeJourneyId === id){
+    panel.classList.remove("open");
+    node?.classList.remove("active");
+    activeJourneyId = null;
+    return;
+  }
+  activeJourneyId = id;
+  document.querySelectorAll(".j-stage-node").forEach(n => n.classList.remove("active"));
+  node?.classList.add("active");
+  panel.style.setProperty("--stage-a", tones[stageIndex][0]);
+  panel.style.setProperty("--stage-b", tones[stageIndex][1]);
+  panel.innerHTML = `
+    <div class="jdp-header">
+      <div class="jdp-visual">${stage.icon}</div>
+      <div><div class="jdp-title">${escapeHTML(stage.label).replace(/\n/g," ")}</div><div class="jdp-sublabel">KPIs that matter at this stage</div></div>
+      <button class="jdp-close" type="button" id="journeyClose">✕</button>
+    </div>
+    <div class="jdp-layout">
+      <div class="jdp-kpi-row">${stage.kpiDetails.map(k => {
+        const ctx = journeyKpiContext(k);
+        return `
+        <div class="jdp-kpi-card">
+          <div class="jdp-kpi-name">${escapeHTML(k.name)}</div>
+          <div class="jdp-kpi-def">${escapeHTML(k.def)}</div>
+          <div class="jdp-kpi-good">✓ ${escapeHTML(k.good)}</div>
+          <div class="jdp-kpi-meta">${escapeHTML(ctx.owner)} · ${escapeHTML(ctx.target)}</div>
+        </div>`;
+      }).join("")}</div>
+      <div class="jdp-failure"><div class="jdp-failure-label">⚠️ When this stage fails</div><div class="jdp-failure-text">${escapeHTML(stage.failure)}</div></div>
+    </div>`;
+  panel.classList.add("open");
+  byId("journeyClose").addEventListener("click", () => toggleJourneyStage(id));
+  if(shouldScroll) setTimeout(() => panel.scrollIntoView({behavior:"smooth", block:"nearest"}), 100);
+}
+function showBranchDetail(stageId, side){
+  const stage = JOURNEY_STAGES.find(s => s.id === stageId);
+  if(!stage || !stage.branch) return;
+  const branch = side === "left" ? stage.branch.left : stage.branch.right;
+  const panel = byId("journeyPanel");
+  const color = branch.type === "success" ? "var(--mint)" : "var(--rose)";
+  panel.innerHTML = `
+    <div class="jdp-header">
+      <div class="jdp-icon">${branch.type === "success" ? "✅" : "⚠️"}</div>
+      <div><div class="jdp-title">${escapeHTML(branch.label)}</div><div class="jdp-sublabel">${escapeHTML(stage.branch.label)} - ${side === "left" ? "success path" : "failure branch"}</div></div>
+      <button class="jdp-close" type="button" id="branchClose">✕</button>
+    </div>
+    <div style="background:${branch.type === "success" ? "rgba(53,217,164,.06)" : "rgba(240,64,106,.06)"};border:1px solid ${color}33;border-radius:14px;padding:18px 20px;">
+      <div style="font-size:14px;line-height:1.7;">${escapeHTML(branch.detail)}</div>
+    </div>`;
+  panel.classList.add("open");
+  byId("branchClose").addEventListener("click", closePanel);
+  setTimeout(() => panel.scrollIntoView({behavior:"smooth", block:"nearest"}), 100);
+}
+function closePanel(){
+  byId("journeyPanel").classList.remove("open");
+  document.querySelectorAll(".j-stage-node").forEach(n => n.classList.remove("active"));
+  activeJourneyId = null;
+}
+function quickLookup(term){
+  glCat = "All";
+  glLvl = "all";
+  glRole = "all";
+  byId("searchInput").value = term;
+  goTo("glossaryScreen");
+}
+
+function buildAllQuestions(){
+  const questions = [];
+  SCRIPTED_QUESTIONS.forEach(q => {
+    const correct = findTerm(q.answerKey);
+    if(!correct) return;
+    const distractors = getDistractors(correct, 3);
+    if(distractors.length < 3) return;
+    const opts = shuffle([
+      {text: optionText(correct), correct: true},
+      ...distractors.map(d => ({text: optionText(d), correct: false}))
+    ]);
+    const slackHTML = q.slack ? q.slack.map(m => `<div style="margin-bottom:6px;"><span class="slack-sender">${escapeHTML(m.name)}:</span> ${escapeHTML(m.msg)}</div>`).join("") : null;
+    questions.push({
+      tag: q.tag,
+      situation: q.situation || null,
+      slack: slackHTML,
+      stem: q.question,
+      sub: "💡 Pick the metric that fits this scenario",
+      opts,
+      correctTerm: correct,
+      explain: q.explain || correct.def
+    });
+  });
+  return questions;
+}
+function startWarRoom(){
+  if(ALL_TERMS.length < 4){
+    alert("Terms are still loading. Try again in a moment.");
+    return;
+  }
+  if(wrTimer) clearInterval(wrTimer);
+  wrQs = shuffle(buildAllQuestions()).slice(0, WR_COUNT);
+  if(wrQs.length < WR_COUNT){
+    const used = new Set(wrQs.map(q => q.correctTerm?.t));
+    const pool = shuffle(ALL_TERMS.filter(t => !used.has(t.t)));
+    for(const term of pool){
+      if(wrQs.length >= WR_COUNT) break;
+      const distractors = getDistractors(term, 3);
+      if(distractors.length < 3) continue;
+      wrQs.push({
+        tag:"📚 Quick Recall",
+        situation:null,
+        slack:null,
+        stem:`What does <mark>${escapeHTML(term.t)}</mark> mean in a Meesho context?`,
+        sub:`💡 Category: ${term.cat}`,
+        opts: shuffle([{text:optionText(term),correct:true}, ...distractors.map(d => ({text:optionText(d),correct:false}))]),
+        correctTerm:term,
+        explain:term.ex || term.def
+      });
+    }
+  }
+  wrIdx = 0;
+  wrScore = 0;
+  wrStreak = 0;
+  wrMaxStreak = 0;
+  wrAnswered = false;
+  goTo("warRoomScreen");
+  loadQ();
+}
+function loadQ(){
+  if(wrIdx >= wrQs.length){endWR(); return;}
+  wrAnswered = false;
+  const q = wrQs[wrIdx];
+  byId("wrQNum").textContent = `${wrIdx + 1}/${wrQs.length}`;
+  byId("wrPbar").style.width = `${((wrIdx + 1) / wrQs.length) * 100}%`;
+  byId("wrScore").textContent = wrScore;
+  byId("wrStreak").textContent = `🔥 ${wrStreak}`;
+  byId("wrTag").textContent = q.tag;
+  const sitEl = byId("wrSituation");
+  if(q.situation){sitEl.style.display = "block"; sitEl.textContent = q.situation;}
+  else sitEl.style.display = "none";
+  const slEl = byId("wrSlack");
+  if(q.slack){slEl.style.display = "block"; slEl.innerHTML = q.slack;}
+  else slEl.style.display = "none";
+  byId("wrStem").innerHTML = q.stem;
+  byId("wrSub").textContent = q.sub;
+  byId("wrNext").style.display = "none";
+  const fb = byId("wrFb");
+  fb.className = "fb-box";
+  fb.style.display = "none";
+  const opts = byId("wrOpts");
+  opts.innerHTML = "";
+  q.opts.forEach((opt, idx) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "opt-btn";
+    btn.dataset.optIndex = String(idx);
+    btn.textContent = opt.text;
+    opts.appendChild(btn);
+  });
+  wrTimeLeft = WR_TIME;
+  tickTimer();
+  if(wrTimer) clearInterval(wrTimer);
+  wrTimer = setInterval(() => {
+    wrTimeLeft--;
+    tickTimer();
+    if(wrTimeLeft <= 0){
+      clearInterval(wrTimer);
+      if(!wrAnswered) timeUp();
+    }
+  }, 1000);
+}
+function tickTimer(){
+  const el = byId("wrTimer");
+  el.textContent = wrTimeLeft;
+  el.className = `wr-timer${wrTimeLeft <= 8 ? " urgent" : ""}`;
+}
+function timeUp(){
+  wrAnswered = true;
+  wrStreak = 0;
+  const q = wrQs[wrIdx];
+  document.querySelectorAll(".opt-btn").forEach((b, i) => {
+    b.classList.add("locked");
+    if(q.opts[i].correct) b.classList.add("correct");
+  });
+  showFB(false, "Time's up! ⏰", q.explain || "");
+  byId("wrNext").style.display = "block";
+}
+function pickOpt(i){
+  if(wrAnswered) return;
+  wrAnswered = true;
+  clearInterval(wrTimer);
+  const q = wrQs[wrIdx];
+  const correct = q.opts[i].correct;
+  document.querySelectorAll(".opt-btn").forEach((b, bi) => {
+    b.classList.add("locked");
+    if(q.opts[bi].correct) b.classList.add("correct");
+  });
+  if(!correct) document.querySelectorAll(".opt-btn")[i].classList.add("wrong");
+  if(correct){
+    wrStreak++;
+    wrMaxStreak = Math.max(wrMaxStreak, wrStreak);
+    const bonus = wrStreak >= 3 ? Math.min(wrStreak * 5, 25) : 0;
+    const timeBonus = Math.floor((wrTimeLeft / WR_TIME) * 10);
+    const pts = 10 + bonus + timeBonus;
+    wrScore += pts;
+    byId("wrScore").textContent = wrScore;
+    byId("wrStreak").textContent = `🔥 ${wrStreak}`;
+    showFB(true, `+${pts}pts${bonus ? ` · ${wrStreak}🔥 streak bonus!` : ""}`, q.explain || "");
+    if(wrScore >= 100) confetti();
+  }else{
+    wrStreak = 0;
+    byId("wrStreak").textContent = "🔥 0";
+    showFB(false, `❌ The answer was ${q.correctTerm?.t || "not this one"}`, q.explain || "");
+  }
+  byId("wrNext").style.display = "block";
+}
+function showFB(ok, head, body){
+  const fb = byId("wrFb");
+  fb.style.display = "block";
+  fb.className = `fb-box show${ok ? "" : " wrong-fb"}`;
+  byId("wrFbHead").textContent = `${ok ? "✅ " : ""}${head}`;
+  byId("wrFbBody").textContent = body;
+}
+function nextQ(){
+  wrIdx++;
+  wrIdx >= wrQs.length ? endWR() : loadQ();
+}
+function exitWR(){
+  clearInterval(wrTimer);
+  goTo("homeScreen");
+}
+function endWR(){
+  clearInterval(wrTimer);
+  submitScore(wrScore);
+  const pct = wrScore / (WR_COUNT * 20);
+  let em, title, msg;
+  if(pct >= .9){em = "🏆"; title = "War Room cleared!"; msg = "You're fluent in Meesho. The WBR fears you.";}
+  else if(pct >= .7){em = "🎉"; title = "Strong showing!"; msg = "Solid Meesho vocab. A few more rounds and you'll be dangerous.";}
+  else if(pct >= .5){em = "📚"; title = "Getting there!"; msg = "Check the Glossary for the terms that tripped you up.";}
+  else{em = "💪"; title = "Keep grinding!"; msg = "Start with the Glossary, then come back for round two.";}
+  byId("resEm").textContent = em;
+  byId("resTitle").textContent = title;
+  byId("resSc").textContent = `${wrScore}pts`;
+  byId("resMsg").textContent = msg;
+  const badges = [];
+  if(wrMaxStreak >= 5) badges.push("🔥 5x Streak");
+  if(wrScore >= 100) badges.push("💯 Century Club");
+  if(wrMaxStreak >= 3 && wrMaxStreak < 5) badges.push("⚡ On Fire");
+  if(wrScore >= 150) badges.push("🧠 Galaxy Brain");
+  byId("resBadges").innerHTML = badges.map(b => `<div class="badge-chip">${escapeHTML(b)}</div>`).join("");
+  goTo("resultsScreen");
+}
+
+function getLocalLB(){try{return JSON.parse(localStorage.getItem("meeshoLBv5") || "[]");}catch(e){return [];}}
+function saveLocalLB(lb){localStorage.setItem("meeshoLBv5", JSON.stringify(lb));}
+function saveToLocal(entry){
+  const lb = getLocalLB();
+  lb.push(entry);
+  lb.sort((a,b) => b.pts - a.pts);
+  saveLocalLB(lb.slice(0,100));
+}
+function getPersonalBest(){return parseInt(localStorage.getItem("meeshoPB") || "0", 10);}
+function submitScore(pts){
+  const entry = {user:currentUser || "Guest", avatar:selectedAvatar, pts, ts:Date.now()};
+  if(firebaseDB){
+    firebaseDB.ref("leaderboard").push(entry).catch(e => {
+      console.warn("Firebase write failed:", e);
+      saveToLocal(entry);
+    });
+  }else saveToLocal(entry);
+  const pb = getPersonalBest();
+  if(pts > pb){
+    localStorage.setItem("meeshoPB", String(pts));
+    byId("statHigh").textContent = pts;
+  }
+}
+function loadLB(){
+  const listEl = byId("lbList");
+  if(firebaseDB){
+    if(!lbListenerAttached){
+      listEl.innerHTML = '<div class="lb-empty">Loading...</div>';
+      firebaseDB.ref("leaderboard").orderByChild("pts").limitToLast(50).on("value", snap => {
+        const entries = [];
+        snap.forEach(child => entries.push(child.val()));
+        entries.sort((a,b) => b.pts - a.pts);
+        renderLBRows(entries.slice(0,20));
+        byId("lbLiveLabel").textContent = `Live · ${entries.length} player${entries.length !== 1 ? "s" : ""} on the board`;
+      }, () => {
+        const lb = getLocalLB().sort((a,b) => b.pts - a.pts);
+        renderLBRows(lb.slice(0,20));
+        byId("lbLiveLabel").textContent = "Local mode - Firebase unreachable";
+      });
+      lbListenerAttached = true;
+    }
+  }else{
+    listEl.innerHTML = '<div class="lb-empty">Loading...</div>';
+    const lb = getLocalLB().sort((a,b) => b.pts - a.pts);
+    renderLBRows(lb.slice(0,20));
+    byId("lbLiveLabel").textContent = "Local only · Firebase not connected";
+  }
+}
+function renderLBRows(entries){
+  const listEl = byId("lbList");
+  if(!entries.length){
+    listEl.innerHTML = '<div class="lb-empty">🎮 No scores yet. Play first!</div>';
+    return;
+  }
+  listEl.innerHTML = entries.map((e, i) => {
+    const isMe = e.user === currentUser;
+    const rank = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`;
+    const date = e.ts ? new Date(e.ts).toLocaleDateString("en-IN",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}) : "";
+    return `<div class="lb-row${isMe ? " me" : ""}${i === 0 ? " top1" : ""}">
+      <div class="lb-rank">${rank}</div>
+      <div class="lb-av">${escapeHTML(e.avatar || "🛍️")}</div>
+      <div class="lb-info">
+        <div class="lb-name">${escapeHTML(e.user || "Guest")}${isMe ? '<span class="lb-you">You</span>' : ""}</div>
+        <div class="lb-sub">${escapeHTML(date)}</div>
+      </div>
+      <div class="lb-pts">${Number(e.pts || 0)}pts</div>
+    </div>`;
+  }).join("");
+}
+
+function startLogin(){
+  const n = byId("nameInput").value.trim();
+  if(!n){byId("nameInput").focus(); return;}
+  currentUser = n;
+  localStorage.setItem("meeshoUser", n);
+  localStorage.setItem("meeshoAvatar", selectedAvatar);
+  byId("loginModal").classList.add("hidden");
+  updateUserUI();
+}
+function updateUserUI(){
+  byId("statUser").textContent = `${selectedAvatar} ${currentUser || "Guest"}`;
+  byId("statHigh").textContent = getPersonalBest();
+}
+function goTo(id){
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  byId(id).classList.add("active");
+  window.scrollTo(0, 0);
+  if(id === "glossaryScreen") renderSearch();
+  if(id === "leaderboardScreen") loadLB();
+}
+function confetti(){
+  const wrap = byId("confettiWrap");
+  wrap.innerHTML = "";
+  const colors = ["#f0406a","#ff6b45","#f5c842","#35d9a4","#5b9cf6","#a78bfa"];
+  for(let i = 0; i < 70; i++){
+    const p = document.createElement("div");
+    p.className = "cp";
+    const s = Math.random() * 10 + 5;
+    p.style.cssText = `width:${s}px;height:${s}px;left:${Math.random()*100}%;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2.5}s;animation-delay:${Math.random()*.6}s;`;
+    wrap.appendChild(p);
+  }
+  setTimeout(() => {wrap.innerHTML = "";}, 5000);
+}
+function initFirebase(){
+  try{
+    if(window.firebase){
+      firebase.initializeApp(FIREBASE_CONFIG);
+      firebaseDB = firebase.database();
+      byId("lbLiveLabel").textContent = "Live · Updates in real time";
+    }else throw new Error("Firebase SDK not loaded");
+  }catch(e){
+    console.warn("Firebase init failed:", e.message);
+    byId("lbLiveLabel").textContent = "Local mode";
+  }
+}
+function bindEvents(){
+  byId("nameInput").addEventListener("keydown", e => {if(e.key === "Enter") startLogin();});
+  byId("startLoginBtn").addEventListener("click", startLogin);
+  byId("openGlossary").addEventListener("click", () => goTo("glossaryScreen"));
+  byId("startWarRoomCard").addEventListener("click", startWarRoom);
+  byId("openLeaderboard").addEventListener("click", () => goTo("leaderboardScreen"));
+  byId("quitWarRoom").addEventListener("click", exitWR);
+  byId("wrNext").addEventListener("click", nextQ);
+  byId("playAgain").addEventListener("click", startWarRoom);
+  byId("resultsBoard").addEventListener("click", () => goTo("leaderboardScreen"));
+  byId("leaderboardPlay").addEventListener("click", startWarRoom);
+  byId("leaderboardRefresh").addEventListener("click", loadLB);
+  byId("searchInput").addEventListener("input", renderSearch);
+  document.querySelectorAll("[data-nav]").forEach(btn => btn.addEventListener("click", () => goTo(btn.dataset.nav)));
+  byId("catPills").addEventListener("click", e => {
+    const btn = e.target.closest("[data-cat]");
+    if(btn) setCat(btn.dataset.cat);
+  });
+  byId("rolePills").addEventListener("click", e => {
+    const btn = e.target.closest("[data-role]");
+    if(btn) setRole(btn.dataset.role);
+  });
+  document.querySelector(".lvl-filters").addEventListener("click", e => {
+    const btn = e.target.closest("[data-lvl]");
+    if(btn) setLvl(btn.dataset.lvl);
+  });
+  byId("journeyMap").addEventListener("click", e => {
+    const lookup = e.target.closest("[data-lookup]");
+    if(lookup){quickLookup(lookup.dataset.lookup); return;}
+    const branch = e.target.closest("[data-branch-stage]");
+    if(branch){showBranchDetail(branch.dataset.branchStage, branch.dataset.side); return;}
+    const node = e.target.closest("[data-stage-id]");
+    if(node) toggleJourneyStage(node.dataset.stageId);
+  });
+  byId("wrOpts").addEventListener("click", e => {
+    const btn = e.target.closest("[data-opt-index]");
+    if(btn) pickOpt(Number(btn.dataset.optIndex));
+  });
+}
+function buildAvatarGrid(){
+  const grid = byId("avatarGrid");
+  grid.innerHTML = "";
+  AVATARS.forEach(av => {
+    const btn = document.createElement("button");
+    btn.className = `avatar-btn${av === selectedAvatar ? " sel" : ""}`;
+    btn.type = "button";
+    btn.textContent = av;
+    btn.addEventListener("click", () => {
+      selectedAvatar = av;
+      document.querySelectorAll(".avatar-btn").forEach(x => x.classList.remove("sel"));
+      btn.classList.add("sel");
+    });
+    grid.appendChild(btn);
+  });
+}
+function restoreUser(){
+  const savedUser = localStorage.getItem("meeshoUser");
+  if(savedUser){
+    currentUser = savedUser;
+    selectedAvatar = localStorage.getItem("meeshoAvatar") || "🛍️";
+    byId("loginModal").classList.add("hidden");
+  }
+  updateUserUI();
+}
+function boot(){
+  initFirebase();
+  restoreUser();
+  buildAvatarGrid();
+  bindEvents();
+  buildJourneyMap();
+  loadTermsFromSheet();
+}
+boot();
+</script>
+</body>
+</html>
