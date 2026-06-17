@@ -1559,6 +1559,25 @@ function renderLBRows(entries){
   }).join("");
 }
 
+function recordSession(type){
+  if(!firebaseDB) return;
+  const playerId = getPlayerId();
+  const ts = Date.now();
+  const entry = {playerId, user: currentUser || "Guest", avatar: selectedAvatar, ts, type};
+  // Per-session log (one entry per visit)
+  firebaseDB.ref("userSessions").push(entry).catch(() => {});
+  // Per-user profile (upsert — tracks first seen, last seen, visit count)
+  firebaseDB.ref("userProfiles").child(safeFirebaseKey(playerId)).transaction(cur => {
+    return {
+      playerId,
+      user: currentUser || "Guest",
+      avatar: selectedAvatar,
+      firstSeen: cur?.firstSeen || ts,
+      lastSeen: ts,
+      visits: (cur?.visits || 0) + 1
+    };
+  }).catch(() => {});
+}
 function startLogin(){
   const n = byId("nameInput").value.trim();
   if(!n){byId("nameInput").focus(); return;}
@@ -1567,6 +1586,7 @@ function startLogin(){
   localStorage.setItem("meeshoAvatar", selectedAvatar);
   byId("loginModal").classList.add("hidden");
   updateUserUI();
+  recordSession("new");
 }
 function updateUserUI(){
   byId("statUser").textContent = `${selectedAvatar} ${currentUser || "Guest"}`;
@@ -1678,6 +1698,8 @@ function restoreUser(){
     currentUser = savedUser;
     selectedAvatar = localStorage.getItem("meeshoAvatar") || "🛍️";
     byId("loginModal").classList.add("hidden");
+    // Record returning session after Firebase is ready
+    setTimeout(() => recordSession("returning"), 3000);
   }
   updateUserUI();
 }
