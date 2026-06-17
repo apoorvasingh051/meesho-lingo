@@ -273,7 +273,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 
 <div class="screen active" id="homeScreen">
   <div class="home-wrap">
-    <div class="eyebrow">🛍️ &nbsp;Meesho Lingo &nbsp;v5</div>
+
     <h1 class="main-title"><span class="t1">Speak</span><span class="t2">Meesho</span></h1>
     <p class="tagline">Master every metric, acronym, and KRA that powers India's fastest-growing e-commerce platform.</p>
     <div class="journey-section">
@@ -990,7 +990,7 @@ function renderSearch(){
     el.innerHTML = `<div class="search-empty">🔍 No terms match "${escapeHTML(query)}"</div>`;
     return;
   }
-  el.innerHTML = res.slice(0, 80).map(term => {
+  el.innerHTML = res.map(term => {
     const c = catColor(term.cat);
     const chain = term.related?.length ? `<div class="term-chain"><strong>Metric chain</strong>${escapeHTML(term.related.join(" → "))}</div>` : "";
     return `<div class="term-card">
