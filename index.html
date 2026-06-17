@@ -5,8 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Meesho Lingo</title>
 <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet">
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 <style>
 :root{--ink:#0c0a14;--surface:#13111f;--card:#1c1930;--card2:#241f3a;--border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.14);--text:#ede8f5;--muted:#8a82a8;--rose:#f0406a;--coral:#ff6b45;--gold:#f5c842;--mint:#35d9a4;--sky:#5b9cf6;--lavender:#a78bfa;--grad1:linear-gradient(135deg,#f0406a,#ff6b45);--grad2:linear-gradient(135deg,#5b9cf6,#a78bfa);--grad3:linear-gradient(135deg,#35d9a4,#5b9cf6);--grad4:linear-gradient(135deg,#f5c842,#ff6b45);}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -519,7 +517,7 @@ const EXTRA_FALLBACK_TERMS = [
   {t:"C/S",full:"Catalogues per Supplier",def:"Catalogue depth indicator used to understand how much active selection each supplier contributes.",cat:"🏭 Supply & Catalogue",lvl:"intermediate",ex:"Low C/S can mean a supplier has limited selection depth even if quality is high."},
   {t:"SoL",full:"Selection or Share of Listings",def:"Selection-coverage metric used to reason about catalogue breadth in a category.",cat:"🏭 Supply & Catalogue",lvl:"advanced",ex:"A category lead may track SoL to understand whether Meesho has enough comparable selection in a price band."},
   {t:"PDP",full:"Product Detail Page",def:"The product page where users inspect images, price, delivery promise, details, reviews, and return policy.",cat:"💻 Product & Tech",lvl:"beginner",ex:"High PLP CTR but low ATC often points to a PDP trust or information problem."},
-  {t:"MOV",full:"Minimum Order Value",def:"Minimum basket value required for an order or offer to be valid.",cat:"💰 Finance & Unit Economics",lvl:"beginner",ex:"Raising MOV can improve contribution margin but may reduce conversion."},
+
   {t:"NDD",full:"Next Day Dispatch",def:"Orders dispatched by the supplier by the next day.",cat:"🚚 Logistics & Ops",lvl:"intermediate",ex:"NDD adoption helps reduce O2S and protect CPD adherence."},
   {t:"AWB",full:"Air Waybill",def:"Shipment tracking identifier generated for logistics movement.",cat:"🚚 Logistics & Ops",lvl:"beginner",ex:"Once AWB is generated, teams can trace pickup, transit, and delivery scans."},
   {t:"TAT",full:"Turnaround Time",def:"Time taken to complete a process step end to end.",cat:"🚚 Logistics & Ops",lvl:"beginner",ex:"Pickup TAT and RPC TAT tell very different operational stories."},
@@ -533,7 +531,122 @@ const EXTRA_FALLBACK_TERMS = [
   {t:"CPO",full:"Cost per Order",def:"Average direct cost incurred to process, fulfill, or serve one order.",cat:"💰 Finance & Unit Economics",lvl:"intermediate",ex:"CPO should be evaluated alongside AOV, CM, and RTO rather than alone."}
 ];
 
-const CORE_TERMS = [...FALLBACK_TERMS, ...EXTRA_FALLBACK_TERMS];
+const EXTENDED_TERMS = [
+  // Growth & Metrics
+  {t:"MAU",full:"Monthly Active Users",def:"Users who open the app or website at least once in a calendar month.",cat:"📈 Growth Metrics",lvl:"beginner",ex:"MAU crossed 100M but MTU growth did not keep pace, flagging a browsing-without-buying problem."},
+  {t:"DAU",full:"Daily Active Users",def:"Unique users who interact with the platform on a given day.",cat:"📈 Growth Metrics",lvl:"beginner",ex:"DAU/MAU ratio tells you how sticky the product is day-to-day."},
+  {t:"WAU",full:"Weekly Active Users",def:"Unique users active in a rolling 7-day window.",cat:"📈 Growth Metrics",lvl:"beginner",ex:"WAU smooths out weekend spikes better than DAU for trend analysis."},
+  {t:"CVR",full:"Conversion Rate",def:"Percentage of users who complete a target action, typically placing an order after landing.",cat:"📈 Growth Metrics",lvl:"beginner",ex:"Homepage CVR improved after the above-the-fold banner was personalised."},
+  {t:"ROAS",full:"Return on Ad Spend",def:"Revenue generated for every rupee spent on advertising.",cat:"📈 Growth Metrics",lvl:"intermediate",ex:"Instagram ROAS of 4x means ₹4 GMV for every ₹1 spent on ads."},
+  {t:"CPC",full:"Cost per Click",def:"Amount spent divided by number of ad clicks.",cat:"📈 Growth Metrics",lvl:"beginner",ex:"CPC on branded search was ₹3 versus ₹18 on competitor keywords."},
+  {t:"CPM",full:"Cost per Mille",def:"Ad cost per 1,000 impressions.",cat:"📈 Growth Metrics",lvl:"beginner",ex:"Video CPM was 40% lower than static banners at similar CTR."},
+  {t:"CPI",full:"Cost per Install",def:"Total ad spend divided by number of app installs.",cat:"📈 Growth Metrics",lvl:"intermediate",ex:"CPI varied widely by channel; influencer-driven installs had lower CAC but higher CPI."},
+  {t:"ARPU",full:"Average Revenue per User",def:"Total revenue divided by number of active users over a period.",cat:"📈 Growth Metrics",lvl:"intermediate",ex:"ARPU growth in Tier 2 outpaced Tier 1 after category expansion."},
+  {t:"WoW",full:"Week over Week",def:"Percentage change in a metric compared to the previous week.",cat:"📈 Growth Metrics",lvl:"beginner",ex:"GMV was up 8% WoW but the CEO asked whether it was organic or promo-driven."},
+  {t:"MoM",full:"Month over Month",def:"Percentage change in a metric compared to the previous month.",cat:"📈 Growth Metrics",lvl:"beginner",ex:"MoM MTU growth of 3% was below the 5% target set for Q3."},
+  {t:"YoY",full:"Year over Year",def:"Percentage change compared to the same period in the previous year.",cat:"📈 Growth Metrics",lvl:"beginner",ex:"YoY GMV growth of 60% was shared at the MBR."},
+  {t:"D7",full:"Day 7 Retention",def:"Percentage of new users who return to the platform 7 days after their first session.",cat:"📈 Growth Metrics",lvl:"intermediate",ex:"D7 retention was 22%; onboarding improvements aimed to push it above 30%."},
+  {t:"D30",full:"Day 30 Retention",def:"Percentage of new users still active 30 days after acquisition.",cat:"📈 Growth Metrics",lvl:"intermediate",ex:"D30 retention is the key predictor of whether a cohort will hit O5M4."},
+  {t:"Churn",full:"User Churn Rate",def:"Percentage of users who stop transacting over a given period.",cat:"📈 Growth Metrics",lvl:"beginner",ex:"High churn in M3 led to a winback CRM campaign targeting lapsed buyers."},
+  {t:"Winback",full:"Winback Campaign",def:"CRM campaign targeting users who have not transacted for a defined period to re-engage them.",cat:"📈 Growth Metrics",lvl:"intermediate",ex:"Winback SMS with a 10% coupon recovered 14% of lapsed M3 users."},
+  {t:"Funnel",full:"Conversion Funnel",def:"Sequential steps a user takes from discovery to purchase: Impression → PLP → PDP → Cart → Checkout → Order.",cat:"📈 Growth Metrics",lvl:"beginner",ex:"The funnel audit showed a 40% drop between PDP and cart add."},
+  {t:"MBR",full:"Monthly Business Review",def:"Meesho's monthly structured cross-functional review of business performance against targets.",cat:"📋 Reviews & Meetings",lvl:"beginner",ex:"The category team presented MBR with NMV up but ODNR declining."},
+  {t:"QBR",full:"Quarterly Business Review",def:"End-of-quarter deep-dive into OKR progress, learnings, and planning for the next quarter.",cat:"📋 Reviews & Meetings",lvl:"beginner",ex:"QBR revealed logistics cost per order had crept up 12% despite volume growth."},
+  {t:"RCA",full:"Root Cause Analysis",def:"Structured process to identify the underlying cause of a problem rather than its symptoms.",cat:"📋 Reviews & Meetings",lvl:"intermediate",ex:"The RCA for the CSAT dip traced back to a single 3PL partner failing FAD in three states."},
+  {t:"PIR",full:"Post-Incident Review",def:"Review conducted after a service outage or operational failure to prevent recurrence.",cat:"📋 Reviews & Meetings",lvl:"intermediate",ex:"PIR found that the payment gateway timeout was not caught by existing alerting."},
+  {t:"MOV",full:"Minutes of Meeting",def:"Written record of decisions, action items, and DRIs from a meeting.",cat:"📋 Reviews & Meetings",lvl:"beginner",ex:"The MOV from the ops sync was shared on Slack before EOD."},
+  {t:"BAU",full:"Business as Usual",def:"Normal day-to-day operations as opposed to a special project or incident response.",cat:"📋 Reviews & Meetings",lvl:"beginner",ex:"The team switched back to BAU operations after the peak sale ended."},
+  // Supply & Catalogue
+  {t:"OOS",full:"Out of Stock",def:"A product that has no available inventory and cannot be fulfilled.",cat:"🏭 Supply & Catalogue",lvl:"beginner",ex:"OOS rate spiked in women's ethnic wear during the festive season."},
+  {t:"Fill Rate",full:"Order Fill Rate",def:"Percentage of ordered items that can be fulfilled from available inventory.",cat:"🏭 Supply & Catalogue",lvl:"intermediate",ex:"Fill rate below 90% suggests supplier catalogue management needs improvement."},
+  {t:"PIM",full:"Product Information Management",def:"System that centralises product data including images, descriptions, and attributes.",cat:"🏭 Supply & Catalogue",lvl:"advanced",ex:"Migrating to a PIM reduced duplicate SKUs by 18%."},
+  {t:"Catalogue Ops",full:"Catalogue Operations",def:"Team responsible for the accuracy, completeness, and quality of product listings on the platform.",cat:"🏭 Supply & Catalogue",lvl:"beginner",ex:"Catalogue Ops flagged 2,000 listings with missing size charts."},
+  {t:"GRN",full:"Goods Receipt Note",def:"Document confirming that goods have been received from a supplier at a warehouse.",cat:"🏭 Supply & Catalogue",lvl:"intermediate",ex:"GRN discrepancies between manifest and received count caused settlement delays."},
+  {t:"Price Band",full:"Price Band",def:"A defined range of prices used to segment products for analysis or promotion.",cat:"🏭 Supply & Catalogue",lvl:"intermediate",ex:"The ₹200-₹500 price band drove the highest order volume in kurtas."},
+  {t:"Repricing",full:"Dynamic Repricing",def:"Automated or manual adjustment of product prices in response to competition, demand, or margin targets.",cat:"🏭 Supply & Catalogue",lvl:"advanced",ex:"Repricing in electronics improved UPS from 34% to 21% within two weeks."},
+  {t:"PLP",full:"Product Listing Page",def:"The page displaying a grid of product results from a search or category browse.",cat:"💻 Product & Tech",lvl:"beginner",ex:"PLP CTR improved after replacing text labels with image-only cards."},
+  {t:"SRP",full:"Search Results Page",def:"Page showing products in response to a user's search query.",cat:"💻 Product & Tech",lvl:"beginner",ex:"SRP relevance scores were recalibrated after the ranking model update."},
+  {t:"Deeplink",full:"Deep Link",def:"URL that navigates a user directly to a specific page or product inside the app rather than the home screen.",cat:"💻 Product & Tech",lvl:"intermediate",ex:"Push notification deep links increased conversion 2x versus home screen links."},
+  // Logistics & Ops
+  {t:"RVP",full:"Reverse Pickup",def:"Logistics leg where a courier collects a return from the customer's address.",cat:"🚚 Logistics & Ops",lvl:"intermediate",ex:"RVP SLA of 3 days was breached in monsoon because of courier delays."},
+  {t:"FM",full:"First Mile",def:"Logistics leg from the supplier's location to the first sorting hub or fulfilment centre.",cat:"🚚 Logistics & Ops",lvl:"beginner",ex:"FM delays at a Surat cluster caused a 2-day slip in EDD for 5,000 orders."},
+  {t:"MM",full:"Middle Mile",def:"Logistics movement between sorting hubs, typically the line-haul between origin and destination city.",cat:"🚚 Logistics & Ops",lvl:"beginner",ex:"MM transit SLA for Zone C is 2 days."},
+  {t:"LM",full:"Last Mile",def:"The final delivery leg from a local hub to the customer's doorstep.",cat:"🚚 Logistics & Ops",lvl:"beginner",ex:"LM is where most NDRs and RTO events occur."},
+  {t:"OTD",full:"On Time Delivery",def:"Whether an order was delivered by or before the Customer Promise Date.",cat:"🚚 Logistics & Ops",lvl:"beginner",ex:"OTD was 88% in Q2, against a 92% target."},
+  {t:"POD",full:"Proof of Delivery",def:"Confirmation—digital signature, OTP, or photo—that the shipment was handed to the customer.",cat:"🚚 Logistics & Ops",lvl:"beginner",ex:"OTP-based POD reduced fake delivery claims by 30%."},
+  {t:"SLA",full:"Service Level Agreement",def:"Committed time or quality standard for a process step, such as dispatch within 24 hours.",cat:"🚚 Logistics & Ops",lvl:"beginner",ex:"The 3PL SLA for Zone A delivery is 2 business days."},
+  {t:"Hub",full:"Logistics Hub",def:"A sorting or distribution facility where shipments are consolidated, sorted, and routed.",cat:"🚚 Logistics & Ops",lvl:"beginner",ex:"The Bhiwandi hub processes over 150,000 shipments per day."},
+  {t:"FC",full:"Fulfilment Centre",def:"Meesho-operated warehouse where inventory is stored and orders are packed for dispatch.",cat:"🚚 Logistics & Ops",lvl:"intermediate",ex:"FC-fulfilled orders have lower LDR because dispatch is controlled in-house."},
+  {t:"SC",full:"Seller Cancellation",def:"An order cancelled by the seller, typically due to out-of-stock or pricing error.",cat:"🚚 Logistics & Ops",lvl:"intermediate",ex:"High SC rate from a supplier triggered automatic listing suppression."},
+  {t:"CC",full:"Customer Cancellation",def:"An order cancelled by the buyer before dispatch.",cat:"🚚 Logistics & Ops",lvl:"intermediate",ex:"CC spiked after a pricing error made the same product appear twice on PLP."},
+  {t:"Reattempt",full:"Delivery Reattempt",def:"A second or third delivery attempt after an initial NDR.",cat:"🚚 Logistics & Ops",lvl:"intermediate",ex:"Most 3PLs allow up to 3 reattempts before the order becomes RTO."},
+  {t:"Pincode",full:"Postal Index Number Code",def:"A 6-digit code identifying a specific delivery area in India, used to determine logistics routes and SLAs.",cat:"🚚 Logistics & Ops",lvl:"beginner",ex:"Not all pincodes are serviceable by all 3PLs."},
+  {t:"4PL",full:"Fourth-Party Logistics",def:"An integrator that manages multiple 3PLs on behalf of the company, offering a single control layer.",cat:"🚚 Logistics & Ops",lvl:"advanced",ex:"The 4PL model was piloted to improve lane allocation across 3PL partners."},
+  {t:"RTD",full:"Ready to Dispatch",def:"Status indicating that an order has been packed and is waiting for 3PL pickup.",cat:"🚚 Logistics & Ops",lvl:"intermediate",ex:"High RTD dwell time means pickup is the bottleneck, not supplier packing."},
+  {t:"DD",full:"Direct Dispatch",def:"Supplier dispatches directly to the customer without routing through a Meesho hub.",cat:"🚚 Logistics & Ops",lvl:"intermediate",ex:"DD reduces handling but needs strict quality controls at the supplier end."},
+  // Product & Tech
+  {t:"PRD",full:"Product Requirements Document",def:"Document specifying the problem, goals, user stories, and success metrics for a product feature.",cat:"💻 Product & Tech",lvl:"beginner",ex:"The PM shared the PRD for cart redesign two weeks before the sprint started."},
+  {t:"KPI",full:"Key Performance Indicator",def:"A measurable metric used to track progress toward a business or product goal.",cat:"💻 Product & Tech",lvl:"beginner",ex:"The squad's KPIs for the quarter were ATC rate and checkout CVR."},
+  {t:"KRA",full:"Key Result Area",def:"The primary responsibility domain of a role, from which KPIs are derived.",cat:"💻 Product & Tech",lvl:"beginner",ex:"The supply team's KRA was catalogue quality; LQS was the KPI."},
+  {t:"A/B Test",full:"A/B Test",def:"Experiment where two variants of a product change are shown to different user segments to compare outcomes.",cat:"💻 Product & Tech",lvl:"beginner",ex:"The A/B test on the add-to-cart button increased ATC by 6%."},
+  {t:"MVP",full:"Minimum Viable Product",def:"The smallest version of a product that delivers enough value to test a hypothesis with real users.",cat:"💻 Product & Tech",lvl:"beginner",ex:"The squad shipped an MVP of the wishlist feature to measure save-to-purchase rate."},
+  {t:"Sprint",full:"Sprint",def:"A fixed time-box (usually 2 weeks) in which a team commits to completing a set of product tasks.",cat:"💻 Product & Tech",lvl:"beginner",ex:"The cart fix was included in the next sprint after a high-severity bug report."},
+  {t:"API",full:"Application Programming Interface",def:"A defined interface that allows software systems to communicate and exchange data.",cat:"💻 Product & Tech",lvl:"beginner",ex:"The logistics API returns real-time shipment status from 3PL partners."},
+  {t:"SDK",full:"Software Development Kit",def:"A packaged set of tools, libraries, and APIs used to build applications.",cat:"💻 Product & Tech",lvl:"intermediate",ex:"The analytics SDK was updated to capture new funnel events."},
+  {t:"SEM",full:"Search Engine Marketing",def:"Paid advertising on search engines to drive traffic for relevant queries.",cat:"💻 Product & Tech",lvl:"intermediate",ex:"SEM spend on branded keywords was paused after organic rank improved."},
+  {t:"SEO",full:"Search Engine Optimisation",def:"Improving platform pages and content to rank higher in search engine results organically.",cat:"💻 Product & Tech",lvl:"intermediate",ex:"SEO work on category pages drove a 20% increase in non-paid organic sessions."},
+  {t:"CMS",full:"Content Management System",def:"Tool that allows non-technical teams to create, edit, and publish content like banners and landing pages.",cat:"💻 Product & Tech",lvl:"beginner",ex:"The growth team used the CMS to deploy a Diwali landing page without engineering support."},
+  {t:"Feature Flag",full:"Feature Flag",def:"A configuration switch that enables or disables a feature for specific users or environments without code changes.",cat:"💻 Product & Tech",lvl:"intermediate",ex:"The checkout redesign was gated behind a feature flag for 5% of users during rollout."},
+  {t:"RPS",full:"Revenue per Session",def:"Total revenue divided by number of user sessions in a period.",cat:"💻 Product & Tech",lvl:"intermediate",ex:"RPS increased after personalised recommendations replaced static banners on homepage."},
+  {t:"Push",full:"Push Notification",def:"App or browser alert sent to a user to drive re-engagement or inform about order status.",cat:"💻 Product & Tech",lvl:"beginner",ex:"Order shipped push notifications had 60% open rate, far above promo pushes."},
+  {t:"CRM",full:"Customer Relationship Management",def:"Systems and strategies to manage communication with customers across their lifecycle.",cat:"💻 Product & Tech",lvl:"beginner",ex:"The CRM team ran cohort-based push and SMS campaigns to move users toward O5M4."},
+  {t:"Nudge",full:"Nudge",def:"A subtle in-app prompt or message designed to encourage a specific user action.",cat:"💻 Product & Tech",lvl:"beginner",ex:"Prepaid nudge at checkout reduced COD share by 8 percentage points."},
+  {t:"Segmentation",full:"User Segmentation",def:"Dividing users into groups based on behaviour, demographics, or lifecycle stage to personalise communication.",cat:"💻 Product & Tech",lvl:"intermediate",ex:"CRM segmentation split users into new, active, at-risk, and lapsed buckets."},
+  {t:"Onboarding",full:"User Onboarding",def:"The process of guiding new users through the platform to drive their first purchase.",cat:"💻 Product & Tech",lvl:"beginner",ex:"Onboarding flow improvements increased first-order rate by 11%."},
+  {t:"Personalisation",full:"Personalisation",def:"Showing different content, products, or prices to different users based on their behaviour and preferences.",cat:"💻 Product & Tech",lvl:"intermediate",ex:"Personalised homepage feeds improved CTR by 15% for repeat buyers."},
+  // Finance & Unit Economics
+  {t:"P&L",full:"Profit and Loss",def:"Financial statement showing revenues, costs, and net profit or loss over a period.",cat:"💰 Finance & Unit Economics",lvl:"beginner",ex:"Category P&L showed ethnic wear turning contribution-positive after RTO controls."},
+  {t:"COGS",full:"Cost of Goods Sold",def:"Direct costs attributable to producing or acquiring the products sold.",cat:"💰 Finance & Unit Economics",lvl:"intermediate",ex:"COGS includes logistics, packaging, and returns processing but not overhead."},
+  {t:"OPEX",full:"Operational Expenditure",def:"Ongoing costs for running the business such as salaries, marketing, and infrastructure.",cat:"💰 Finance & Unit Economics",lvl:"intermediate",ex:"OPEX reduction was targeted by consolidating warehouse operations."},
+  {t:"Working Capital",full:"Working Capital",def:"Short-term liquid assets available to fund day-to-day operations.",cat:"💰 Finance & Unit Economics",lvl:"intermediate",ex:"COD collections stretched working capital because cash took days to remit."},
+  {t:"Reconciliation",full:"Financial Reconciliation",def:"Matching transactional records between internal systems and external statements to ensure accuracy.",cat:"💰 Finance & Unit Economics",lvl:"intermediate",ex:"Reconciliation flagged ₹2 Cr in unmatched 3PL invoices from the previous month."},
+  {t:"UPI",full:"Unified Payments Interface",def:"India's real-time payment system enabling instant bank-to-bank transfers via mobile.",cat:"💰 Finance & Unit Economics",lvl:"beginner",ex:"UPI adoption as the default payment mode reduced MDR costs significantly."},
+  {t:"EMI",full:"Equated Monthly Instalment",def:"Fixed monthly payment option for high-value orders, offered via BNPL or card partners.",cat:"💰 Finance & Unit Economics",lvl:"intermediate",ex:"EMI option on items above ₹3,000 increased AOV by 18% in electronics."},
+  {t:"Settlement",full:"Seller Settlement",def:"Transfer of earned GMV (minus fees and returns) from Meesho to the seller after delivery confirmation.",cat:"💰 Finance & Unit Economics",lvl:"intermediate",ex:"Settlement cycle was T+7 for prepaid orders and T+10 for COD."},
+  {t:"TDS",full:"Tax Deducted at Source",def:"Tax withheld at the point of payment to a seller, as per Indian Income Tax regulations.",cat:"💰 Finance & Unit Economics",lvl:"intermediate",ex:"TDS on seller payouts required updated PAN records in the seller dashboard."},
+  {t:"GST",full:"Goods and Services Tax",def:"India's unified indirect tax levied on the supply of goods and services.",cat:"💰 Finance & Unit Economics",lvl:"beginner",ex:"GST applicability varies by product category and needs correct HSN codes."},
+  {t:"TCS",full:"Tax Collected at Source",def:"Tax collected by the e-commerce platform on behalf of the government from sellers at the point of sale.",cat:"💰 Finance & Unit Economics",lvl:"intermediate",ex:"TCS compliance is mandatory for all marketplace transactions above a threshold."},
+  {t:"Commission",full:"Platform Commission",def:"Percentage fee Meesho charges sellers on each completed sale.",cat:"💰 Finance & Unit Economics",lvl:"beginner",ex:"Meesho's zero-commission model was a key seller acquisition lever."},
+  {t:"Burn Rate",full:"Burn Rate",def:"The rate at which a company spends its cash reserves to fund operations.",cat:"💰 Finance & Unit Economics",lvl:"advanced",ex:"Investors scrutinised burn rate alongside GMV to assess the path to profitability."},
+  {t:"Payback Period",full:"CAC Payback Period",def:"Time taken to recover the cost of acquiring a customer through that customer's contribution margin.",cat:"💰 Finance & Unit Economics",lvl:"advanced",ex:"A 12-month payback period on CAC was considered healthy given LTV projections."},
+  // CX & Quality
+  {t:"FCR",full:"First Contact Resolution",def:"Percentage of customer issues resolved in a single interaction without requiring follow-up.",cat:"⭐ Customer & Quality",lvl:"intermediate",ex:"FCR for order status queries was 92% after the self-serve tracking page launched."},
+  {t:"AHT",full:"Average Handling Time",def:"Average time a customer support agent spends resolving a single ticket.",cat:"⭐ Customer & Quality",lvl:"intermediate",ex:"AHT for returns queries dropped from 8 to 5 minutes after the updated CRM macro."},
+  {t:"Escalation",full:"Customer Escalation",def:"Transfer of an unresolved customer issue to a higher-priority team or senior agent.",cat:"⭐ Customer & Quality",lvl:"intermediate",ex:"Escalations above 5% for a supplier trigger a quality review."},
+  {t:"DSAT",full:"Customer Dissatisfaction Score",def:"Percentage of customers who rate their service experience as negative.",cat:"⭐ Customer & Quality",lvl:"intermediate",ex:"DSAT for late deliveries was 3x higher than the platform average."},
+  {t:"VOC",full:"Voice of Customer",def:"Structured programme to capture and analyse customer feedback, complaints, and suggestions.",cat:"⭐ Customer & Quality",lvl:"intermediate",ex:"VOC findings from Q3 surfaced sizing inconsistency as a top return reason."},
+  {t:"SOP",full:"Standard Operating Procedure",def:"Documented step-by-step process for handling a repeatable operation or scenario.",cat:"⭐ Customer & Quality",lvl:"beginner",ex:"The SOP for fake delivery claims was updated after the fraud pattern changed."},
+  {t:"QC",full:"Quality Check",def:"Inspection step to verify that a product or process meets defined quality standards.",cat:"⭐ Customer & Quality",lvl:"beginner",ex:"FC QC caught a wrong-item error before dispatch, preventing a WFR."},
+  {t:"Return Window",full:"Return Window",def:"The number of days after delivery during which a customer can initiate a return.",cat:"⭐ Customer & Quality",lvl:"beginner",ex:"A 7-day return window was standard; electronics had a different policy."},
+  {t:"Refund",full:"Refund",def:"Money returned to the customer after a return, cancellation, or failed delivery is confirmed.",cat:"⭐ Customer & Quality",lvl:"beginner",ex:"Refund TAT improved after automated triggering replaced manual approval."},
+  {t:"CX",full:"Customer Experience",def:"The overall quality of interactions a customer has with the platform across touchpoints.",cat:"⭐ Customer & Quality",lvl:"beginner",ex:"CX scores fell when NDR reattempt delays coincided with festive sale rush."},
+  // Security & Infra
+  {t:"SRE",full:"Site Reliability Engineering",def:"Practice of applying software engineering principles to infrastructure and operations to ensure reliability.",cat:"🔒 Security & Infra",lvl:"advanced",ex:"The SRE team set an SLO of 99.95% availability for the checkout service."},
+  {t:"SLO",full:"Service Level Objective",def:"Internal target for a reliability metric such as uptime or latency.",cat:"🔒 Security & Infra",lvl:"advanced",ex:"Missing the SLO for three consecutive days triggered an architecture review."},
+  {t:"MTTD",full:"Mean Time to Detect",def:"Average time from when a problem starts to when the monitoring system raises an alert.",cat:"🔒 Security & Infra",lvl:"advanced",ex:"MTTD was 12 minutes for the payment outage because metrics were not properly instrumented."},
+  {t:"MTTR",full:"Mean Time to Restore",def:"Average time to restore service after a detected incident.",cat:"🔒 Security & Infra",lvl:"advanced",ex:"MTTR target of under 30 minutes was met 90% of the time after the runbook was updated."},
+  {t:"PII",full:"Personally Identifiable Information",def:"Data that can identify an individual, such as name, phone number, address, or payment details.",cat:"🔒 Security & Infra",lvl:"intermediate",ex:"PII masking was added to logs after a data access audit."},
+  {t:"MFA",full:"Multi-Factor Authentication",def:"Security method requiring two or more verification steps before granting access.",cat:"🔒 Security & Infra",lvl:"beginner",ex:"MFA was made mandatory for all admin dashboards after the phishing incident."},
+  // HR & Org
+  {t:"HRBP",full:"HR Business Partner",def:"An HR professional embedded with a business unit to support talent, performance, and culture.",cat:"📋 Reviews & Meetings",lvl:"beginner",ex:"The HRBP flagged attrition risk in the ops team ahead of the annual cycle."},
+  {t:"PIP",full:"Performance Improvement Plan",def:"Structured plan with specific goals and timelines for an employee whose performance needs improvement.",cat:"📋 Reviews & Meetings",lvl:"intermediate",ex:"A PIP is the formal process before any involuntary exit."},
+  {t:"IC",full:"Individual Contributor",def:"An employee who contributes through their own work rather than managing a team.",cat:"📋 Reviews & Meetings",lvl:"beginner",ex:"IC track and management track are separate career paths at Meesho."},
+  {t:"L&D",full:"Learning and Development",def:"Function responsible for employee training, skill-building, and growth programmes.",cat:"📋 Reviews & Meetings",lvl:"beginner",ex:"L&D rolled out a data literacy programme for non-technical managers."},
+  {t:"TPM",full:"Technical Programme Manager",def:"Role responsible for coordinating cross-team technical projects, tracking milestones, and unblocking dependencies.",cat:"💻 Product & Tech",lvl:"intermediate",ex:"The TPM ran the weekly sync to track dependencies across five squads."},
+  {t:"EM",full:"Engineering Manager",def:"Manager responsible for a team of engineers, balancing technical delivery and people development.",cat:"💻 Product & Tech",lvl:"intermediate",ex:"The EM escalated the infra capacity request before the sale week."},
+];
+
+const CORE_TERMS = [...FALLBACK_TERMS, ...EXTRA_FALLBACK_TERMS, ...EXTENDED_TERMS];
 
 const CORE_TERM_ENRICHMENTS = {
   GMV:{formula:"Sum of placed order value before returns and cancellations",owner:"Growth / Category",cadence:"Daily, WBR, MBR",target:"Grow with healthy N/G and CM",source:"Business review dashboards",related:["CTR","ATC","AOV","NMV","N/G"],roles:["starter","growth","finance","leadership"],pitfall:"GMV can look strong even when returns or cancellations are high."},
@@ -813,7 +926,7 @@ async function loadTermsFromSheet(){
     console.warn("Sheet load failed:", e.message);
     ALL_TERMS = enrichTerms([...CORE_TERMS]);
     byId("statTerms").textContent = `${ALL_TERMS.length} (offline)`;
-    statusEl.textContent = `⚠️ Using ${ALL_TERMS.length} built-in terms because the sheet was unavailable`;
+    statusEl.textContent = `⚠️ ${ALL_TERMS.length} built-in terms loaded. To load live terms, publish the Google Sheet: File → Share → Publish to web → CSV`;
     statusEl.className = "data-status err";
   }
   initGlossary();
@@ -1477,13 +1590,22 @@ function confetti(){
   }
   setTimeout(() => {wrap.innerHTML = "";}, 5000);
 }
-function initFirebase(){
+function loadScript(src){
+  return new Promise((resolve,reject)=>{
+    const s=document.createElement("script");
+    s.src=src;
+    s.onload=resolve;
+    s.onerror=()=>reject(new Error("Failed to load "+src));
+    document.head.appendChild(s);
+  });
+}
+async function initFirebase(){
   try{
-    if(window.firebase){
-      firebase.initializeApp(FIREBASE_CONFIG);
-      firebaseDB = firebase.database();
-      byId("lbLiveLabel").textContent = "Live · Updates in real time";
-    }else throw new Error("Firebase SDK not loaded");
+    await loadScript("https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js");
+    await loadScript("https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js");
+    firebase.initializeApp(FIREBASE_CONFIG);
+    firebaseDB = firebase.database();
+    byId("lbLiveLabel").textContent = "Live · Updates in real time";
   }catch(e){
     console.warn("Firebase init failed:", e.message);
     byId("lbLiveLabel").textContent = "Local mode";
@@ -1554,7 +1676,7 @@ function restoreUser(){
   updateUserUI();
 }
 function boot(){
-  initFirebase();
+  initFirebase(); // async — runs in background, does not block UI
   restoreUser();
   buildAvatarGrid();
   bindEvents();
