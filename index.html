@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Meesho Lingo</title>
 <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 <style>
 :root{--ink:#0c0a14;--surface:#13111f;--card:#1c1930;--card2:#241f3a;--border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.14);--text:#ede8f5;--muted:#8a82a8;--rose:#f0406a;--coral:#ff6b45;--gold:#f5c842;--mint:#35d9a4;--sky:#5b9cf6;--lavender:#a78bfa;--grad1:linear-gradient(135deg,#f0406a,#ff6b45);--grad2:linear-gradient(135deg,#5b9cf6,#a78bfa);--grad3:linear-gradient(135deg,#35d9a4,#5b9cf6);--grad4:linear-gradient(135deg,#f5c842,#ff6b45);}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -1601,8 +1603,12 @@ function loadScript(src){
 }
 async function initFirebase(){
   try{
-    await loadScript("https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js");
-    await loadScript("https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js");
+    // Static <script> tags in <head> load Firebase synchronously before boot().
+    // Dynamic loading is a fallback for environments where static tags fail.
+    if(!window.firebase){
+      await loadScript("https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js");
+      await loadScript("https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js");
+    }
     firebase.initializeApp(FIREBASE_CONFIG);
     firebaseDB = firebase.database();
     byId("lbLiveLabel").textContent = "Live · Updates in real time";
