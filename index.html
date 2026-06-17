@@ -1629,11 +1629,13 @@ async function initFirebase(){
       await loadScript("https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js");
       await loadScript("https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js");
     }
-    firebase.initializeApp(FIREBASE_CONFIG);
-    firebaseDB = firebase.database();
+    // Reuse existing app if already initialised (prevents "app already exists" error on re-runs)
+    const app = firebase.apps.length ? firebase.apps[0] : firebase.initializeApp(FIREBASE_CONFIG);
+    firebaseDB = firebase.database(app);
     byId("lbLiveLabel").textContent = "Live · Updates in real time";
+    console.log("Firebase ready");
   }catch(e){
-    console.warn("Firebase init failed:", e.message);
+    console.error("Firebase init failed:", e.message);
     byId("lbLiveLabel").textContent = "Local mode";
   }
 }
