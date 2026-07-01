@@ -247,6 +247,19 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .lb-pts{font-family:'Clash Display',sans-serif;font-weight:700;font-size:16px;color:var(--gold);}
 .lb-you{font-size:10px;font-weight:700;background:rgba(240,64,106,.2);color:var(--rose);padding:2px 8px;border-radius:100px;text-transform:uppercase;margin-left:6px;}
 .lb-empty{text-align:center;padding:40px;color:var(--muted);font-size:14px;}
+.admin-link{font-size:11px;color:var(--muted);cursor:pointer;text-decoration:underline;opacity:.55;transition:opacity .2s;}
+.admin-link:hover{opacity:1;}
+.dash-wrap{width:100%;max-width:900px;}
+.dash-stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+@media(max-width:620px){.dash-stats-row{grid-template-columns:1fr;}}
+.dash-stat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px 18px;text-align:center;}
+.dash-stat-label{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;display:flex;align-items:center;justify-content:center;gap:6px;}
+.dash-stat-value{font-family:'Clash Display',sans-serif;font-weight:700;font-size:30px;color:var(--mint);}
+.dash-table-wrap{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow-x:auto;}
+.dash-table{width:100%;border-collapse:collapse;font-size:13px;}
+.dash-table th{text-align:left;padding:12px 16px;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--border2);white-space:nowrap;}
+.dash-table td{padding:10px 16px;border-bottom:1px solid var(--border);white-space:nowrap;}
+.dash-table tr:last-child td{border-bottom:none;}
 .screen-heading{font-family:'Clash Display',sans-serif;font-weight:700;font-size:28px;margin:52px 0 6px;text-align:center;}
 .screen-sub{color:var(--muted);font-size:13.5px;margin-bottom:28px;text-align:center;}
 .confetti-wrap{position:fixed;inset:0;pointer-events:none;z-index:9998;}
@@ -270,6 +283,20 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
     <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Pick your avatar</div>
     <div class="avatar-grid" id="avatarGrid"></div>
     <button class="btn-primary" id="startLoginBtn" style="width:100%;">Start Playing →</button>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="adminPasscodeModal">
+  <div class="modal-box">
+    <div style="font-size:36px;margin-bottom:6px;">🔐</div>
+    <div class="modal-title" style="font-size:22px;">Admin Access</div>
+    <div class="modal-sub">Enter the admin passcode to view the dashboard</div>
+    <input class="name-input" id="adminPasscodeInput" type="password" placeholder="Passcode...">
+    <div style="color:var(--rose);font-size:12px;margin:-4px 0 14px;display:none;" id="adminPasscodeError">Incorrect passcode</div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn-secondary" id="adminPasscodeCancel" style="flex:1;">Cancel</button>
+      <button class="btn-primary" id="adminPasscodeSubmit" style="flex:1;">Unlock</button>
+    </div>
   </div>
 </div>
 
@@ -326,6 +353,9 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
       <div class="stat-chip" id="openLeaderboard" style="cursor:pointer;"><span>👥</span>Leaderboard</div>
     </div>
     <div class="data-status" id="dataStatus">⏳ Loading terms...</div>
+    <div style="text-align:center;margin-top:10px;">
+      <span id="openAdminDash" class="admin-link">Admin dashboard</span>
+    </div>
   </div>
 </div>
 
@@ -411,6 +441,34 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
   </div>
 </div>
 
+<div class="screen" id="dashboardScreen">
+  <button class="back-btn" data-nav="homeScreen">← Back</button>
+  <div class="screen-heading">📊 Admin Dashboard</div>
+  <div class="screen-sub">Live usage and every War Room attempt, streamed straight from Firebase</div>
+  <div class="dash-wrap">
+    <div class="dash-stats-row">
+      <div class="dash-stat-card">
+        <div class="dash-stat-label"><span class="lb-live-dot" style="display:inline-block;"></span> Online now</div>
+        <div class="dash-stat-value" id="dashOnlineCount">-</div>
+      </div>
+      <div class="dash-stat-card">
+        <div class="dash-stat-label">Total attempts</div>
+        <div class="dash-stat-value" id="dashAttemptCount">-</div>
+      </div>
+      <div class="dash-stat-card">
+        <div class="dash-stat-label">Unique players</div>
+        <div class="dash-stat-value" id="dashPlayerCount">-</div>
+      </div>
+    </div>
+    <div class="dash-table-wrap">
+      <table class="dash-table">
+        <thead><tr><th>When</th><th>Player</th><th>Score</th><th>Streak</th></tr></thead>
+        <tbody id="dashLogBody"><tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px;">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 <div class="confetti-wrap" id="confettiWrap"></div>
 
 <script>
@@ -472,6 +530,10 @@ let wrTimer = null;
 let wrTimeLeft = WR_TIME;
 let lbListenerAttached = false;
 let lbDataCache = {attempts:null, legacy:null};
+let presenceCountAttached = false;
+// Client-side friction gate only — not real security, the passcode ships in this file.
+// Just keeps casual players from stumbling into the admin dashboard.
+const ADMIN_PASSCODE = "meesholingo2024";
 
 const FALLBACK_TERMS = [
   {t:"GMV",full:"Gross Merchandise Value",def:"Total value of all orders placed before returns or cancellations.",cat:"📈 Growth Metrics",lvl:"beginner",ex:"In the WBR, GMV was up 12% WoW but NMV was flat because more orders were returning."},
@@ -1454,18 +1516,26 @@ function entriesFromSnap(snap){
   });
   return entries;
 }
-function renderLeaderboardFromAttempts(attempts, sourceLabel = "Local"){
-  const uniqueAttempts = [];
+function dedupeAttempts(attempts){
+  const unique = [];
   const seen = new Set();
   attempts.forEach(entry => {
     const key = entry.attemptId || `${entry.playerId || entry.user}_${entry.pts}_${entry.ts}`;
     if(seen.has(key)) return;
     seen.add(key);
-    uniqueAttempts.push(entry);
+    unique.push(entry);
   });
+  return unique;
+}
+function renderLeaderboardFromAttempts(attempts, sourceLabel = "Local"){
+  const uniqueAttempts = dedupeAttempts(attempts);
   const winners = rankWinners(uniqueAttempts);
   renderLBRows(winners.slice(0,20));
   byId("lbLiveLabel").textContent = `${sourceLabel} · ${uniqueAttempts.length} attempt${uniqueAttempts.length !== 1 ? "s" : ""} · ${winners.length} player${winners.length !== 1 ? "s" : ""}`;
+}
+function refreshScoreViews(attempts, sourceLabel){
+  renderLeaderboardFromAttempts(attempts, sourceLabel);
+  if(byId("dashboardScreen").classList.contains("active")) renderDashboard();
 }
 function updateRemoteWinner(entry){
   const key = safeFirebaseKey(entry.playerId || playerGroupKey(entry));
@@ -1506,35 +1576,83 @@ function submitScore(pts){
     byId("statHigh").textContent = pts;
   }
 }
+function ensureScoreListenersAttached(){
+  if(lbListenerAttached || !firebaseDB) return;
+  byId("lbList").innerHTML = '<div class="lb-empty">Loading...</div>';
+  // orderByChild("ts") is required: scoreAttempts keys are attempt_<uuid>_<ts>_<rand>,
+  // so a bare limitToLast(500) sorts by key (i.e. by uuid) and can permanently drop a
+  // brand-new attempt from the query window if its uuid sorts low, no matter how recent it is.
+  firebaseDB.ref("scoreAttempts").orderByChild("ts").limitToLast(500).on("value", snap => {
+    lbDataCache.attempts = entriesFromSnap(snap);
+    refreshScoreViews([...(lbDataCache.attempts || []), ...(lbDataCache.legacy || [])], "Live");
+  }, () => {
+    lbDataCache.attempts = [];
+    renderLeaderboardFromAttempts(getLocalAttempts(), "Local mode");
+  });
+  firebaseDB.ref("leaderboard").limitToLast(500).on("value", snap => {
+    lbDataCache.legacy = entriesFromSnap(snap);
+    refreshScoreViews([...(lbDataCache.attempts || []), ...(lbDataCache.legacy || [])], "Live");
+  }, () => {
+    lbDataCache.legacy = [];
+    if(!lbDataCache.attempts?.length) renderLeaderboardFromAttempts(getLocalAttempts(), "Local mode");
+  });
+  lbListenerAttached = true;
+}
 function loadLB(){
-  const listEl = byId("lbList");
   if(firebaseDB){
-    if(!lbListenerAttached){
-      listEl.innerHTML = '<div class="lb-empty">Loading...</div>';
-      // orderByChild("ts") is required: scoreAttempts keys are attempt_<uuid>_<ts>_<rand>,
-      // so a bare limitToLast(500) sorts by key (i.e. by uuid) and can permanently drop a
-      // brand-new attempt from the query window if its uuid sorts low, no matter how recent it is.
-      firebaseDB.ref("scoreAttempts").orderByChild("ts").limitToLast(500).on("value", snap => {
-        lbDataCache.attempts = entriesFromSnap(snap);
-        renderLeaderboardFromAttempts([...(lbDataCache.attempts || []), ...(lbDataCache.legacy || [])], "Live");
-      }, () => {
-        lbDataCache.attempts = [];
-        renderLeaderboardFromAttempts(getLocalAttempts(), "Local mode");
-      });
-      firebaseDB.ref("leaderboard").limitToLast(500).on("value", snap => {
-        lbDataCache.legacy = entriesFromSnap(snap);
-        renderLeaderboardFromAttempts([...(lbDataCache.attempts || []), ...(lbDataCache.legacy || [])], "Live");
-      }, () => {
-        lbDataCache.legacy = [];
-        if(!lbDataCache.attempts?.length) renderLeaderboardFromAttempts(getLocalAttempts(), "Local mode");
-      });
-      lbListenerAttached = true;
-    }else{
+    const alreadyAttached = lbListenerAttached;
+    ensureScoreListenersAttached();
+    if(alreadyAttached){
       renderLeaderboardFromAttempts([...(lbDataCache.attempts || []), ...(lbDataCache.legacy || []), ...getLocalAttempts()], "Live");
     }
   }else{
-    listEl.innerHTML = '<div class="lb-empty">Loading...</div>';
+    byId("lbList").innerHTML = '<div class="lb-empty">Loading...</div>';
     renderLeaderboardFromAttempts(getLocalAttempts(), "Local only");
+  }
+}
+function renderDashboard(){
+  const attempts = dedupeAttempts([...(lbDataCache.attempts || []), ...(lbDataCache.legacy || [])])
+    .sort((a,b) => (b.ts || 0) - (a.ts || 0));
+  byId("dashAttemptCount").textContent = attempts.length;
+  byId("dashPlayerCount").textContent = new Set(attempts.map(a => a.playerId || a.user || "Guest")).size;
+  byId("dashLogBody").innerHTML = attempts.length ? attempts.map(a => `
+    <tr>
+      <td>${escapeHTML(a.ts ? new Date(a.ts).toLocaleString("en-IN",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}) : "-")}</td>
+      <td>${escapeHTML(a.avatar || "🛍️")} ${escapeHTML(a.user || "Guest")}</td>
+      <td>${Number(a.pts || 0)}</td>
+      <td>${Number(a.maxStreak || 0)}</td>
+    </tr>`).join("") : '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px;">No attempts yet</td></tr>';
+}
+function setupPresence(){
+  if(!firebaseDB) return;
+  firebaseDB.ref(".info/connected").on("value", snap => {
+    if(snap.val() !== true) return;
+    const myPresenceRef = firebaseDB.ref("presence").push();
+    myPresenceRef.set({playerId:getPlayerId(), user:currentUser || "Guest", avatar:selectedAvatar, connectedAt:Date.now()});
+    // onDisconnect fires when this tab's socket drops (close, refresh, network loss),
+    // so the online count only ever reflects sockets that are actually still open.
+    myPresenceRef.onDisconnect().remove();
+  });
+}
+function attachPresenceCountListener(){
+  if(presenceCountAttached || !firebaseDB) return;
+  firebaseDB.ref("presence").on("value", snap => {
+    byId("dashOnlineCount").textContent = snap.numChildren();
+  }, () => {
+    byId("dashOnlineCount").textContent = "-";
+  });
+  presenceCountAttached = true;
+}
+function loadDashboard(){
+  if(firebaseDB){
+    ensureScoreListenersAttached();
+    renderDashboard();
+    attachPresenceCountListener();
+  }else{
+    byId("dashLogBody").innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px;">Firebase offline — dashboard needs a live connection</td></tr>';
+    byId("dashOnlineCount").textContent = "-";
+    byId("dashAttemptCount").textContent = getLocalAttempts().length;
+    byId("dashPlayerCount").textContent = "-";
   }
 }
 function renderLBRows(entries){
@@ -1601,6 +1719,21 @@ function goTo(id){
   window.scrollTo(0, 0);
   if(id === "glossaryScreen") renderSearch();
   if(id === "leaderboardScreen") loadLB();
+  if(id === "dashboardScreen") loadDashboard();
+}
+function openAdminGate(){
+  byId("adminPasscodeInput").value = "";
+  byId("adminPasscodeError").style.display = "none";
+  byId("adminPasscodeModal").classList.remove("hidden");
+  byId("adminPasscodeInput").focus();
+}
+function submitAdminPasscode(){
+  if(byId("adminPasscodeInput").value.trim() === ADMIN_PASSCODE){
+    byId("adminPasscodeModal").classList.add("hidden");
+    goTo("dashboardScreen");
+  }else{
+    byId("adminPasscodeError").style.display = "block";
+  }
 }
 function confetti(){
   const wrap = byId("confettiWrap");
@@ -1636,6 +1769,7 @@ async function initFirebase(){
     const app = firebase.apps.length ? firebase.apps[0] : firebase.initializeApp(FIREBASE_CONFIG);
     firebaseDB = firebase.database(app);
     byId("lbLiveLabel").textContent = "Live · Updates in real time";
+    setupPresence();
     console.log("Firebase ready");
   }catch(e){
     console.error("Firebase init failed:", e.message);
@@ -1648,6 +1782,10 @@ function bindEvents(){
   byId("openGlossary").addEventListener("click", () => goTo("glossaryScreen"));
   byId("startWarRoomCard").addEventListener("click", startWarRoom);
   byId("openLeaderboard").addEventListener("click", () => goTo("leaderboardScreen"));
+  byId("openAdminDash").addEventListener("click", openAdminGate);
+  byId("adminPasscodeSubmit").addEventListener("click", submitAdminPasscode);
+  byId("adminPasscodeCancel").addEventListener("click", () => byId("adminPasscodeModal").classList.add("hidden"));
+  byId("adminPasscodeInput").addEventListener("keydown", e => {if(e.key === "Enter") submitAdminPasscode();});
   byId("quitWarRoom").addEventListener("click", exitWR);
   byId("wrNext").addEventListener("click", nextQ);
   byId("playAgain").addEventListener("click", startWarRoom);
