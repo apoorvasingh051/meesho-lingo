@@ -1511,7 +1511,10 @@ function loadLB(){
   if(firebaseDB){
     if(!lbListenerAttached){
       listEl.innerHTML = '<div class="lb-empty">Loading...</div>';
-      firebaseDB.ref("scoreAttempts").limitToLast(500).on("value", snap => {
+      // orderByChild("ts") is required: scoreAttempts keys are attempt_<uuid>_<ts>_<rand>,
+      // so a bare limitToLast(500) sorts by key (i.e. by uuid) and can permanently drop a
+      // brand-new attempt from the query window if its uuid sorts low, no matter how recent it is.
+      firebaseDB.ref("scoreAttempts").orderByChild("ts").limitToLast(500).on("value", snap => {
         lbDataCache.attempts = entriesFromSnap(snap);
         renderLeaderboardFromAttempts([...(lbDataCache.attempts || []), ...(lbDataCache.legacy || [])], "Live");
       }, () => {
